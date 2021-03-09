@@ -46,7 +46,7 @@ func newServer(c *cli.Context, path string) (*server, error) {
 		closeChan:  make(chan int, 1),
 		errChan:    make(chan error, 1),
 		watchers:   make(map[string]string, 0),
-		ticker:     time.NewTicker(time.Second),
+		ticker:     time.NewTicker(time.Millisecond * 500),
 		startFlag:  getStartFlag(c),
 	}, nil
 }
