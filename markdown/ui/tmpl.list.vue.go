@@ -32,8 +32,8 @@ const TmplList = `
 				</el-form-item>
 				{{- else if $c.Con|CB }}
 				<el-form-item label="{{$c.Desc|shortName}}:">
-          <el-checkbox-group size="medium" v-model="queryData.{{$c.Name}}">
-          	<el-checkbox v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-checkbox>
+          <el-checkbox-group size="medium" v-model="{{$c.Name|lowerName}}Array">
+						<el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
 				{{- else}}
@@ -164,8 +164,11 @@ export default {
 			addData:{},                 //添加数据对象 
       queryData:{},               //查询数据对象 
 			{{- range $i,$c:=$rows|query -}}
-			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) }}
+			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
 			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tb) $c.Name)|lower}}"){{end}},
+			{{- else if $c.Con|CB }}
+			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tb) $c.Name)|lower}}"){{end}},
+			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
 			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			{{$c.Name|lowerName}}: this.$utility.dateFormat(new Date(),"{{dateFormatDef $c.Con ($c.Con|qfCon)}}"),{{end}}
@@ -215,6 +218,8 @@ export default {
 			{{- range $i,$c:=$rows|query -}}
 			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			this.queryData.{{$c.Name}} = this.$utility.dateFormat(this.{{$c.Name|lowerName}},"{{dateFormat $c.Con ($c.Con|qfCon)}}")
+			{{- else if ($c.Con|CB) }}
+			this.queryData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
 			{{- end -}}
       {{- end}}
       let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.queryData))

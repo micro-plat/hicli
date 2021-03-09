@@ -38,8 +38,8 @@ const TmplEditVue = `
 			</el-form-item>
 			{{- else if $c.Con|CB }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}"> 
-				<el-checkbox-group size="medium" v-model="editData.{{$c.Name}}">
-					<el-checkbox v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-checkbox>
+				<el-checkbox-group size="medium" v-model="{{$c.Name|lowerName}}Array">
+					<el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
 				</el-checkbox-group>
 			</el-form-item>
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) }}
@@ -74,6 +74,9 @@ export default {
       {{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}} this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}"){{end}},
 			{{- else if $c.Con|SLM }}
 			{{$c.Name|lowerName}}: this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}"),
+			{{$c.Name|lowerName}}Array: [],
+			{{- else if $c.Con|CB }}
+			{{$c.Name|lowerName}}:{{if (cDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|ceCon) $tb) $c.Name)|lower}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
       {{- end}}
@@ -128,7 +131,7 @@ export default {
 			{{- range $i,$c:=$rows|update -}}
 			{{- if or ($c.Con|DTIME) ($c.Con|DATE) }}
 			this.editData.{{$c.Name}} = this.$utility.dateFormat(this.editData.{{$c.Name}},"{{dateFormat $c.Con ($c.Con|ueCon)}}")
-			{{- else if $c.Con|SLM }}
+			{{- else if or ($c.Con|SLM) ($c.Con|CB) }}
 			this.editData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
 			{{- end -}}
 			{{- end}}

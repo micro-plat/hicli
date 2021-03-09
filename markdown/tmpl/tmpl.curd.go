@@ -82,6 +82,9 @@ where
 {{- if eq ($queryrows|len) 0}}
 1=1
 {{- else -}}
+{{- range $i,$c:=$deleterows}}
+	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+{{- end}}
 {{- range $i,$c:=$queryrows -}}
 {{if $c.Type|codeType|isTime }}
 	and t.{{$c.Name}} >= @{{$c.Name}} 
@@ -103,6 +106,9 @@ where
 {{- if eq ($queryrows|len) 0}}
 1=1
 {{- else -}}
+{{- range $i,$c:=$deleterows}}
+	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+{{- end}}
 {{- range $i,$c:=$queryrows -}}
 {{if $c.Type|codeType|isTime }}
 	and t.{{$c.Name}} >= @{{$c.Name}} 
