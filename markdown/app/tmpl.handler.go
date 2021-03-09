@@ -168,7 +168,7 @@ func (u *{{.Name|rmhd|varName}}Handler) DeleteHandle(ctx hydra.IContext) (r inte
 
 {{if gt (.Rows|create|len) 0 -}}
 var post{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=.Rows|create}}field.Field{{$c.Name|varName}}:"required",
+	{{range $i,$c:=.Rows|create}}{{if ne ($c|isNull) $empty}}field.Field{{$c.Name|varName}}:"required",{{end}}
 	{{end -}}
 }
 {{- end}}
@@ -188,7 +188,7 @@ var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 
 {{if gt (.Rows|update|len) 0 -}}
 var update{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=.Rows|update}}field.Field{{$c.Name|varName}}:"required",
+	{{range $i,$c:=.Rows|update}}{{if ne ($c|isNull) $empty}}field.Field{{$c.Name|varName}}:"required",{{end}}
 	{{end -}}
 }
 {{- end}}
