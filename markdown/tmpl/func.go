@@ -300,7 +300,7 @@ func getSEQValue(tp string) func(r *Table) string {
 					if v := types.GetInt(r.Def, 0); v != 0 {
 						return fmt.Sprintf("auto_increment = %d", v)
 					}
-
+					return "auto_increment"
 				}
 			}
 			return ""
