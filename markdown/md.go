@@ -122,7 +122,7 @@ func init() {
 			Usage: "数据库结构文件",
 			Subcommands: cli.Commands{
 				{
-					Name:   "entify",
+					Name:   "entity",
 					Usage:  "创建实体类",
 					Action: showEnitfy(),
 					Flags: []cli.Flag{
