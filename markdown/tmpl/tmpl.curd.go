@@ -113,7 +113,7 @@ where
 	&t.{{$c.Name}}{{end}}
 {{- end}} 
 {{- if gt ($order|len) 0}}
-order by {{range $i,$c:=$order}}t.{{$c.Name}}{{if $c.comma}},{{else}} desc{{end}}{{end}}
+order by {{range $i,$c:=$order}}t.{{$c.name}}{{if $c.comma}},{{else}} desc{{end}}{{end}}
 {{- else}}
 order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 {{- end}}
