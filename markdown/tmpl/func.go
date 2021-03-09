@@ -626,7 +626,7 @@ func getDicChildrenName(tp string, keys ...string) func(name string, t *Table) s
 				return v.Name
 			}
 			if subCon != "" { //字段标识配置配置了对应枚举,不再处理组件标识的级联枚举
-				return ""
+				continue
 			}
 			con := getBracketContent(keys...)(v.Con)
 			if strings.Contains(con, kw) {
