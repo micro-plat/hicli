@@ -73,7 +73,7 @@ const TmplList = `
 							<div slot="content" style="width: 110px">{{"{{scope.row."}}{{$c.Name}}}}</div>
 							<span>{{"{{scope.row."}}{{$c.Name}} | fltrSubstr({{or ($c.Con|lfCon) "20"}}) }}</span>
 						</el-tooltip>
-						<span v-else>{{"{{scope.row."}}{{$c.Name}}}}</span>
+						<span v-else>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
 					</template>
 				{{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($pks|firstStr))}}
 				<template slot-scope="scope">
@@ -89,7 +89,7 @@ const TmplList = `
 				</template>
 				{{- else}}
 				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}}}}</span>
+					<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
 				</template>
 				{{end}}
 				</el-table-column>
