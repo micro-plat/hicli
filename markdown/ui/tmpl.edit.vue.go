@@ -70,7 +70,7 @@ export default {
 			dialogFormVisible: false,    //编辑表单显示隐藏
 			editData: {},                //编辑数据对象
       {{- range $i,$c:=$rows|update -}}
-      {{if or ($c.Con|SL) ($c.Con|CB) ($c.Con|RD) }}
+      {{if or ($c.Con|SL) ($c.Con|RD) }}
       {{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}} this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}"){{end}},
 			{{- else if $c.Con|SLM }}
 			{{$c.Name|lowerName}}: this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}"),
