@@ -8,6 +8,7 @@ import (
 	"strings"
 	"text/template"
 
+	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/lib4go/types"
 )
 
@@ -15,6 +16,7 @@ import (
 type Table struct {
 	Name         string //表名
 	Desc         string //表描述
+	ExtInfo      string //扩展信息
 	PKG          string //包名称
 	Drop         bool   //创建表前是否先删除
 	DBType       string //数据库类型
@@ -26,6 +28,7 @@ type Table struct {
 	AllTables    []*Table //所有表
 	Exclude      bool     //排除生成sql
 	ELTableIndex int
+	TabTables    []*Table //详情切换的tab页对应表
 }
 
 //Row 行信息
@@ -93,13 +96,14 @@ func (t fields) Swap(i, j int) {
 }
 
 //NewTable 创建表
-func NewTable(name, desc string) *Table {
+func NewTable(name, desc, extinfo string) *Table {
 	return &Table{
 		Name:    strings.TrimLeft(name, "^"),
 		Desc:    desc,
 		Rows:    make([]*Row, 0, 1),
 		RawRows: make([]*Row, 0, 1),
 		Exclude: strings.Contains(name, "^"),
+		ExtInfo: extinfo,
 	}
 }
 
@@ -129,6 +133,39 @@ func (t *Table) GetPKS() []string {
 		}
 	}
 	return nil
+}
+
+//SetAllTables 添加行信息
+func (t *Table) SetAllTables(tbs []*Table) {
+	t.AllTables = tbs
+}
+
+//SetAllTables 添加行信息
+func (t *Table) DisposeTabTables() {
+	c := getBracketContent("tab")(t.ExtInfo)
+	tabs := strings.Split(c, "|")
+	if len(tabs) == 0 {
+		return
+	}
+	for _, v := range tabs {
+		tab := strings.Split(v, ",")
+		if len(tab) != 1 {
+			logs.Log.Warn("tab格式不正确：", v)
+			continue
+		}
+		tabName := tab[0]
+		exist := false
+		for _, tb := range t.AllTables {
+			if tb.Name == tabName {
+				t.TabTables = append(t.TabTables, tb)
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			logs.Log.Warn("tab表名不正确：", tabName)
+		}
+	}
 }
 
 //FilterRowByKW	过滤行信息

@@ -93,7 +93,8 @@ func create(tp string) func(c *cli.Context) (err error) {
 				logs.Log.Error(err)
 			}
 
-			tb.AllTables = allTables
+			tb.SetAllTables(allTables)
+			tb.DisposeTabTables()
 			//根据关键字过滤
 			tb.FilterRowByKW(c.String("kw"))
 
