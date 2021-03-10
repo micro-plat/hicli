@@ -60,7 +60,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"defValue":  defValue(tp),            //返回SQL中的默认值
 		"seqTag":    getSEQTag(tp),           //获取SEQ的变量值
 		"seqValue":  getSEQValue(tp),         //获取SEQ起始值
-		"seq":      getSEQ,                  //获取SEQ
+		"seq":       getSEQ(tp),              //获取SEQ
 		"pks":       getPKS,                  //获取主键列表
 		"indexs":    getDBIndex(tp),          //获取表的索引串
 		"maxIndex":  getMaxIndex,             //最大索引值

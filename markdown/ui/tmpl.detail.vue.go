@@ -61,7 +61,7 @@ const TmplDetail = `
             </tbody>
           </table>
         </div>
-	  </el-tab-pane>
+	    </el-tab-pane>
 	  </el-tabs>
 	</div>
 </template>
