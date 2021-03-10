@@ -67,7 +67,7 @@ const TmplList = `
 					<template slot-scope="scope">
 						<span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{(or (dicName $c.Con ($c.Con|leCon) $tb) $c.Name)|lower}}")}}</span>
 					</template>
-				{{- else if and ($c.Type|isString) (gt $c.Len $len )}}
+				{{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
 					<template slot-scope="scope">
 						<el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > 20" effect="dark" placement="top">
 							<div slot="content" style="width: 110px">{{"{{scope.row."}}{{$c.Name}}}}</div>

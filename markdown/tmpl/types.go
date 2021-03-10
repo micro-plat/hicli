@@ -51,6 +51,7 @@ var any2code = map[string]string{
 	"^string$":                    "string",
 	"^text$":                      "string",
 	"^longtext$":                  "string",
+	"^clob$":                      "string",
 }
 
 const idx = "[^idx\\((\\w+)[,]?[\\d]?\\)"

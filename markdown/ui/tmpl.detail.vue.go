@@ -24,7 +24,7 @@ const TmplDetail = `
                   <el-col :span="6">
                     <div {{if ($c.Con|CC)}}:class="info.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{ info."}}{{$c.Name}} | fltrEnum("{{(or (dicName $c.Con ($c.Con|reCon) $tb) $c.Name)|lower}}") }}</div>
                   </el-col>
-            {{- else if and ($c.Type|isString) (gt $c.Len $len )}}
+            {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
                   <el-col :span="6">
                     <el-tooltip class="item" v-if="info.{{$c.Name}} && info.{{$c.Name}}.length > {{or ($c.Con|rfCon) "50"}}" effect="dark" placement="top">
                       <div slot="content" style="width: 110px">{{"{{info."}}{{$c.Name}}}}</div>
