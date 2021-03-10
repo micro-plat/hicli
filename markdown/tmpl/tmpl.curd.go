@@ -20,14 +20,14 @@ package {{.PKG}}
 const Insert{{.Name|rmhd|upperName}} = {###}
 insert into {{.Name}}{{.DBLink}}
 (
-	{{if ne (.|seqValue) $empty}}{{range $i,$c:=$pks}}{{$c}},{{end}}{{end}}
+	{{if (.|seq) }}{{range $i,$c:=$pks}}{{$c}},{{end}}{{end}}
 	{{- range $i,$c:=$createrows}}
 	{{$c.Name}}{{if lt $i ($createrows|maxIndex)}},{{end}}
 	{{- end}}
 )
 values
 (
-	{{if ne (.|seqValue) $empty}}{{range $i,$c:=$pks}}@{{$c}},{{end}}{{end}}
+	{{if (.|seq)}}{{range $i,$c:=$pks}}@{{$c}},{{end}}{{end}}
 	{{- range $i,$c:=$createrows}}
 	{{if or ($c.Type|codeType|isInt) ($c.Type|codeType|isInt64) ($c.Type|codeType|isDecimal) }}if(isnull(@{{$c.Name}})||@{{$c.Name}}='',0,@{{$c.Name}}){{if lt $i ($createrows|maxIndex)}},{{end}}{{else -}}
 	@{{$c.Name}}{{if lt $i ($createrows|maxIndex)}},{{end}}{{end}}
@@ -177,7 +177,7 @@ from (select L.*
 			{{- end}} 
 			from {{.Name}}{{.DBLink}} t
 			where
-			{{- if eq ($listrows|len) 0}}
+			{{- if eq ($queryrows|len) 0}}
 				1=1
 			{{- else -}}
 			{{- range $i,$c:=$queryrows -}} 

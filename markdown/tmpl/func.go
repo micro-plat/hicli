@@ -60,6 +60,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"defValue":  defValue(tp),            //返回SQL中的默认值
 		"seqTag":    getSEQTag(tp),           //获取SEQ的变量值
 		"seqValue":  getSEQValue(tp),         //获取SEQ起始值
+		"seq":      getSEQ,                  //获取SEQ
 		"pks":       getPKS,                  //获取主键列表
 		"indexs":    getDBIndex(tp),          //获取表的索引串
 		"maxIndex":  getMaxIndex,             //最大索引值
@@ -300,13 +301,28 @@ func getSEQValue(tp string) func(r *Table) string {
 					if v := types.GetInt(r.Def, 0); v != 0 {
 						return fmt.Sprintf("auto_increment = %d", v)
 					}
-					return "auto_increment"
+					return ""
 				}
 			}
 			return ""
 		}
 	}
 	return func(r *Table) string { return "" }
+}
+
+func getSEQ(tp string) func(r *Table) bool {
+	switch tp {
+	case MYSQL:
+		return func(r *Table) bool {
+			for _, r := range r.RawRows {
+				if isCons(r.Con, "seq") {
+					return true
+				}
+			}
+			return false
+		}
+	}
+	return func(r *Table) bool { return false }
 }
 
 func getMaxIndex(r interface{}) int {
@@ -327,16 +343,17 @@ func getOrderBy(tb *Table) []map[string]interface{} {
 	ob := map[string]string{}
 
 	for _, v := range tb.Rows {
-		if strings.Contains(v.Con, "OB") {
-			if !strings.Contains(v.Con, "OB(") {
+		con := strings.ToLower(v.Con)
+		if strings.Contains(con, "ob") {
+			if !strings.Contains(con, "ob(") {
 				fileds = append(fileds, v.Name)
 				continue
 			}
-			for _, v1 := range strings.Split(v.Con, ",") {
-				if !strings.Contains(v1, "OB(") {
+			for _, v1 := range strings.Split(con, ",") {
+				if !strings.Contains(v1, "ob(") {
 					continue
 				}
-				s := strings.Index(v1, "OB(")
+				s := strings.Index(v1, "ob(")
 				e := strings.Index(v1, ")")
 				orders = append(orders, v1[s+1:e])
 				ob[v1[s+1:e]] = v.Name
@@ -371,8 +388,9 @@ func getSeqs() func(tb *Table) []map[string]interface{} {
 		columns := make([]map[string]interface{}, 0, len(tb.Rows))
 
 		for _, v := range tb.Rows {
-			if strings.Contains(v.Con, "SEQ") {
-				descsimple := getBracketContent("SEQ")(v.Desc)
+			con := strings.ToLower(v.Con)
+			if strings.Contains(con, "seq") {
+				descsimple := getBracketContent("seq")(v.Desc)
 				row := map[string]interface{}{
 					"name":       v.Name,
 					"descsimple": descsimple,
