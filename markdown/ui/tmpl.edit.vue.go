@@ -113,7 +113,7 @@ export default {
 			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
 			{{range $i,$c:=$pks}}this.editData.{{$c}} = {{$c}}{{end}}
 			{{- range $i,$c:=$rows|update -}}
-			{{- if $c.Con|SLM }}
+			{{- if or ($c.Con|SLM) ($c.Con|CB) }}
 			this.{{$c.Name|lowerName}}Array = this.editData.{{$c.Name}}.split(",")
 			{{- end -}}
       {{- end }}
