@@ -39,7 +39,7 @@ const TmplCreateVue = `
 			{{- else if $c.Con|CB }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}"> 
 				<el-checkbox-group size="medium" v-model="{{$c.Name|lowerName}}Array">
-					<el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
+					<el-checkbox v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
 				</el-checkbox-group>
 			</el-form-item>
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) }}
