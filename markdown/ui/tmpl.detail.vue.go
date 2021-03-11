@@ -121,48 +121,7 @@ const TmplDetail = `
             </table>
           </div>
         {{- else }}
-          <div class="panel-body" id="panel-body">
-            <el-form ref="form" :inline="true" class="form-inline pull-left">
-            {{- range $i,$c:=$tab.Rows|query}}
-              {{- if $c.Con|TA}}
-              <el-form-item>
-                <el-input size="medium" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="query{{$tab.Name|rmhd|varName}}Params.{{$c.Name}}">
-                </el-input>
-              </el-form-item>
-              {{- else if or ($c.Con|SL) ($c.Con|SLM) }}
-              <el-form-item>
-                <el-select size="medium" v-model="query{{$tab.Name|rmhd|varName}}Params.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
-                {{- if (qDicPName $c.Con $tab) }} @change="handleChooseTool()"{{$choose = true}}{{end}} 
-                {{- if (qDicCName $c.Name $tab) }} @change="set{{(qDicCName $c.Name $tab)|upperName}}(query{{$tab.Name|rmhd|varName}}Params.{{$c.Name}})" {{- end}}>
-                  <el-option value="" label="全部"></el-option>
-                  <el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
-                </el-select>
-              </el-form-item>
-              {{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
-              <el-form-item label="{{$c.Desc|shortName}}:">
-                  <el-date-picker size="medium" class="input-cos" v-model="{{$c.Name|lowerName}}" type="{{dateType $c.Con ($c.Con|qfCon)}}" value-format="{{dateFormat $c.Con ($c.Con|qfCon)}}"  placeholder="选择日期"></el-date-picker>
-              </el-form-item>
-              {{- else if $c.Con|CB }}
-              <el-form-item label="{{$c.Desc|shortName}}:">
-                <el-checkbox-group size="medium" v-model="{{$c.Name|lowerName}}Array">
-                  <el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
-                </el-checkbox-group>
-              </el-form-item>
-              {{- else}}
-              <el-form-item>
-                <el-input clearable size="medium" v-model="query{{$tab.Name|rmhd|varName}}Params.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
-                </el-input>
-              </el-form-item>
-              {{- end}}
-            {{end}}
-              {{- if gt ($tab.Rows|query|len) 0}}
-              <el-form-item>
-                <el-button  type="primary" @click="query{{$tab.Name|rmhd|varName}}Datas" size="medium">查询</el-button>
-              </el-form-item>
-              {{end}}
-            </el-form>
-          </div>
-          <el-scrollbar style="height:100%">
+          <el-scrollbar style="height:100%" id="panel-body">
             <el-table :data="{{$tab.Name|rmhd|varName}}List.items" stripe style="width: 100%" :height="maxHeight">
               {{if gt $tab.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod"></el-table-column>{{end}}
               {{- range $i,$c:=$tab.Rows|list}}
@@ -236,16 +195,6 @@ export default {
       paging{{$tab.Name|rmhd|varName}}: {ps: 10, pi: 1,total:0,sizes:[5, 10, 20, 50]},
       {{$tab.Name|rmhd|varName}}List: {count: 0,items: []}, //表单数据对象,
       query{{$tab.Name|rmhd|varName}}Params:{},  //查询数据对象
-      {{- range $i,$c:=$tab.Rows|query -}}
-			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tab) }}[]{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tab) $c.Name)|lower}}"){{end}},
-			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tab) }}[]{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tab) $c.Name)|lower}}"){{end}},
-			{{$c.Name|lowerName}}Array: [],
-			{{- end}}
-			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
-			{{$c.Name|lowerName}}: this.$utility.dateFormat(new Date(),"{{dateFormatDef $c.Con ($c.Con|qfCon)}}"),{{end}}
-      {{- end}}
       {{- end}}
       {{- end}}
 			maxHeight: 0
@@ -273,17 +222,9 @@ export default {
     {{- range $index,$tab:=$tabs }}
     {{- if not $tab.TabList}}
     query{{$tab.Name|rmhd|varName}}Data() {
-      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}",{ {{or ($tab.TabField) ($tab|pks|firstStr)}}: this.info.{{or ($tab.TabField) ($tab|pks|firstStr)}} })
+      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}",{ {{or ($tab.TabField) ($pks|firstStr)}}: this.info.{{or ($tab.TabField) ($pks|firstStr)}} })
     },
     {{- else}}
-    {{- range $i,$c:=$tab.Rows|query -}}
-		{{if (qDicPName $c.Con $tab)  }}
-		set{{$c.Name|upperName}}(pid){
-			this.query{{$tab.Name|rmhd|varName}}Params.{{$c.Name}} = ""
-			this.{{$c.Name|lowerName}}=this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tab) $c.Name)|lower}}",pid)
-		},
-		{{- end}}
-		{{- end }}
     /**查询数据并赋值*/
 		query{{$tab.Name|rmhd|varName}}Datas() {
       this.paging{{$tab.Name|rmhd|varName}}.pi = 1
@@ -292,14 +233,7 @@ export default {
     query{{$tab.Name|rmhd|varName}}Data(){
       this.query{{$tab.Name|rmhd|varName}}Params.pi = this.paging{{$tab.Name|rmhd|varName}}.pi
 			this.query{{$tab.Name|rmhd|varName}}Params.ps = this.paging{{$tab.Name|rmhd|varName}}.ps
-      this.query{{$tab.Name|rmhd|varName}}Params.{{or ($tab.TabField) ($tab|pks|firstStr)}}=this.info.{{or ($tab.TabField) ($tab|pks|firstStr)}} 
-			{{- range $i,$c:=$tab.Rows|query -}}
-			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
-			this.query{{$tab.Name|rmhd|varName}}Params.{{$c.Name}} = this.$utility.dateFormat(this.{{$c.Name|lowerName}},"{{dateFormat $c.Con ($c.Con|qfCon)}}")
-			{{- else if ($c.Con|CB) }}
-			this.query{{$tab.Name|rmhd|varName}}Params.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
-			{{- end -}}
-      {{- end}}
+      this.query{{$tab.Name|rmhd|varName}}Params.{{or ($tab.TabField) ($pks|firstStr)}}=this.info.{{or ($tab.TabField) ($pks|firstStr)}} 
       let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.query{{$tab.Name|rmhd|varName}}Params))
 			this.{{$tab.Name|rmhd|varName}}List.items = res.items || []
 			this.{{$tab.Name|rmhd|varName}}List.count = res.count
