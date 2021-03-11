@@ -8,7 +8,7 @@ const TmplServiceHandler = `
 package {{.PKG}}
 
 import (
-	{{- if or (gt ($rows|list|len) 0) (gt ($rows|create|len) 0) (gt ($rows|detail|len) 0) (gt ($rows|update|len) 0) (gt ($rows|delete|len) 0)}}
+	{{- if or (gt ($rows|query|len) 0) (gt ($rows|create|len) 0) (gt ($rows|detail|len) 0) (gt ($rows|update|len) 0) (gt ($rows|delete|len) 0)}}
 	"net/http"
 	"github.com/micro-plat/hydra"
 	"github.com/micro-plat/lib4go/errs"
@@ -179,7 +179,7 @@ var get{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 }
 {{- end}}
 
-{{if gt (.Rows|list|len) 0 -}}
+{{if gt (.Rows|query|len) 0 -}}
 var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=.Rows|query}}field.Field{{$c.Name|varName}}:"required",
 	{{end -}}
