@@ -273,7 +273,7 @@ export default {
     {{- range $index,$tab:=$tabs }}
     {{- if not $tab.TabList}}
     query{{$tab.Name|rmhd|varName}}Data() {
-      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}",{ {{$tab|pks|firstStr}}: this.info.{{$tab|pks|firstStr}} })
+      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}",{ {{or ($tab.TabField) ($tab|pks|firstStr)}}: this.info.{{or ($tab.TabField) ($tab|pks|firstStr)}} })
     },
     {{- else}}
     {{- range $i,$c:=$tab.Rows|query -}}
