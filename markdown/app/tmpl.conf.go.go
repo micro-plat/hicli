@@ -106,7 +106,7 @@ import (
 func init() {
 	hydra.OnReady(func() {
 	{{- range $i,$v:=.Confs }}
-		hydra.S.Web("/{{$v.Name|rmhd|rpath}}", {{$v.Name|rmhd|parentPath|names|lastStr}}.New{{$v.Name|rmhd|varName}}Handler())
+		hydra.S.Web("/{{$v.Name|rmhd|rpath}}", {{$v.Name|rmhd|parentPath|snames|lastStr}}.New{{$v.Name|rmhd|varName}}Handler())
 	{{- end}}
 	})
 }

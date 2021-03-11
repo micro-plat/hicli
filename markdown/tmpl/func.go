@@ -29,7 +29,7 @@ func getfuncs(tp string) map[string]interface{} {
 
 		//字符串处理函数
 		"varName":   getVarName,            //获取pascal变量名称
-		"names":     getNames,              //去掉首位下划线，并根据下划线分隔字符串
+		"snames":    getNames("/"),         //去掉首位斜线，并根据斜线分隔字符串
 		"rmhd":      rmhd,                  //去除首段名称
 		"isNull":    isNull(tp),            //返回空语句
 		"firstStr":  getStringByIndex(0),   //第一个字符
@@ -168,9 +168,11 @@ func getVarName(input string) string {
 	return strings.Join(nitems, "")
 }
 
-func getNames(input string) []string {
-	items := strings.Split(strings.Trim(input, "_"), "_")
-	return items
+func getNames(kw string) func(input string) []string {
+	return func(input string) []string {
+		items := strings.Split(strings.Trim(input, kw), kw)
+		return items
+	}
 }
 
 func fGetLowerCase(n string) string {
