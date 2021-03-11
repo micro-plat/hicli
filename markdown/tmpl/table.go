@@ -29,6 +29,8 @@ type Table struct {
 	Exclude      bool     //排除生成sql
 	ELTableIndex int
 	TabTables    []*Table //详情切换的tab页对应表
+	TabList      bool     //详情是否生成list
+	TabField     string   //详情tab关联字段
 }
 
 //Row 行信息
@@ -142,6 +144,10 @@ func (t *Table) SetAllTables(tbs []*Table) {
 
 //SetAllTables 添加行信息
 func (t *Table) DisposeTabTables() {
+	if t.ExtInfo == "" {
+		return
+	}
+
 	c := getBracketContent("tab")(t.ExtInfo)
 	tabs := strings.Split(c, "|")
 	if len(tabs) == 0 {
@@ -149,14 +155,28 @@ func (t *Table) DisposeTabTables() {
 	}
 	for _, v := range tabs {
 		tab := strings.Split(v, ",")
-		if len(tab) != 1 {
+		if len(tab) < 1 || len(tab) > 3 {
 			logs.Log.Warn("tab格式不正确：", v)
 			continue
 		}
 		tabName := tab[0]
+		tabList := ""
+		tabField := ""
+
+		if len(tab) > 1 {
+			tabField = tab[1]
+		}
+		if len(tab) > 2 {
+			tabList = tab[2]
+		}
+
 		exist := false
 		for _, tb := range t.AllTables {
 			if tb.Name == tabName {
+				if tabList == "list" {
+					tb.TabList = true
+				}
+				tb.TabField = tabField
 				t.TabTables = append(t.TabTables, tb)
 				exist = true
 				break
