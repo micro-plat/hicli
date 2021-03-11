@@ -138,6 +138,16 @@ func (t *Table) GetPKS() []string {
 }
 
 //SetAllTables 添加行信息
+func (t *Table) SetELTableIndex() {
+	if t.ExtInfo == "" {
+		return
+	}
+	c := getBracketContent("el_index")(t.ExtInfo)
+	t.ELTableIndex = types.GetInt(c)
+
+}
+
+//SetAllTables 添加行信息
 func (t *Table) SetAllTables(tbs []*Table) {
 	t.AllTables = tbs
 }
@@ -148,7 +158,7 @@ func (t *Table) DisposeTabTables() {
 		return
 	}
 
-	c := getBracketContent("tab")(t.ExtInfo)
+	c := getBracketContent("el_tab")(t.ExtInfo)
 	tabs := strings.Split(c, "|")
 	if len(tabs) == 0 {
 		return

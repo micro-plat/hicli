@@ -95,6 +95,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 
 			tb.SetAllTables(allTables)
 			tb.DisposeTabTables()
+			tb.SetELTableIndex()
 			//根据关键字过滤
 			tb.FilterRowByKW(c.String("kw"))
 

@@ -172,10 +172,6 @@ func tableLine2Table(lines TableLine) (tables *Tables, err error) {
 			if err != nil {
 				return nil, err
 			}
-			if c.Name == "_el_table_index" {
-				tb.ELTableIndex = types.GetInt(c.Con)
-				continue
-			}
 
 			if err := tb.AddRow(c); err != nil {
 				return nil, err
