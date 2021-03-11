@@ -173,7 +173,7 @@ const TmplDetail = `
                 </template>
               {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
                 <template slot-scope="scope">
-                  <el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > 20" effect="dark" placement="top">
+                  <el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > {{or ($c.Con|lfCon) "20"}}" effect="dark" placement="top">
                     <div slot="content" style="width: 110px">{{"{{scope.row."}}{{$c.Name}}}}</div>
                     <span>{{"{{scope.row."}}{{$c.Name}} | fltrSubstr({{or ($c.Con|lfCon) "20"}}) }}</span>
                   </el-tooltip>
