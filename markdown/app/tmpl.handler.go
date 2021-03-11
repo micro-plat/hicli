@@ -179,7 +179,7 @@ var get{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 }
 {{- end}}
 
-{{if gt (.Rows|query|len) 0 -}}
+{{if gt (.Rows|list|len) 0 -}}
 var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=.Rows|query}}field.Field{{$c.Name|varName}}:"required",
 	{{end -}}
