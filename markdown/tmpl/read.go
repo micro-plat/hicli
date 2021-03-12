@@ -221,7 +221,7 @@ func getTableDesc(line *Line) string {
 }
 
 func getTableExtInfo(line *Line) string {
-	reg := regexp.MustCompile(`[^{\[\d\s^\.][\w(|,)]+[)]`)
+	reg := regexp.MustCompile(`[^{\[\d\s^\.][/\w(|,)]+[)]`)
 	names := reg.FindAllString(line.Text, -1)
 	if len(names) == 0 {
 		return ""

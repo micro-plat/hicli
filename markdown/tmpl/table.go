@@ -173,10 +173,19 @@ func (t *Table) DisposeTabTables() {
 		}
 		tabName := tab[0]
 		tabList := ""
-		tabField := []string{}
+		tabField := make([]string, 2)
 
 		if len(tab) > 1 {
-			tabField = strings.Split(tab[1], "/")
+			t := strings.Split(tab[1], "/")
+			if len(t) == 0 {
+				tabField = []string{"", ""}
+			}
+			if len(t) == 1 {
+				tabField = []string{t[0], ""}
+			}
+			if len(t) == 2 {
+				tabField = []string{t[0], t[1]}
+			}
 		}
 		if len(tab) > 2 {
 			tabList = tab[2]
@@ -188,6 +197,7 @@ func (t *Table) DisposeTabTables() {
 				if tabList == "list" {
 					tb.TabList = true
 				}
+				fmt.Println(t.Name, tb.Name)
 				tb.Tab = true
 				tb.TabPreField = tabField[0]
 				tb.TabProField = tabField[1]
