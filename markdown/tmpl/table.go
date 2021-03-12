@@ -29,8 +29,9 @@ type Table struct {
 	Exclude      bool     //排除生成sql
 	ELTableIndex int
 	TabTables    []*Table //详情切换的tab页对应表
-	TabList      bool     //详情是否生成list
-	TabField     string   //详情tab关联字段
+	Tab          bool
+	TabList      bool   //详情是否生成list
+	TabField     string //详情tab关联字段
 }
 
 //Row 行信息
@@ -186,6 +187,7 @@ func (t *Table) DisposeTabTables() {
 				if tabList == "list" {
 					tb.TabList = true
 				}
+				tb.Tab = true
 				tb.TabField = tabField
 				t.TabTables = append(t.TabTables, tb)
 				exist = true

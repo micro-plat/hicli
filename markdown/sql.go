@@ -64,6 +64,13 @@ func showSQL(sqlType string) func(c *cli.Context) (err error) {
 		if err != nil {
 			return err
 		}
+
+		allTables := tb.Tbs
+		for _, tb := range tb.Tbs {
+			tb.SetAllTables(allTables)
+			tb.DisposeTabTables()
+		}
+
 		//过滤数据表
 		tb.FilterByKW(c.String("table"))
 

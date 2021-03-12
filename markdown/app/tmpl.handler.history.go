@@ -1,11 +1,10 @@
 package app
 
 //TmplServiceHandler 服务处理函数
-const TmplServiceHandler = `
+const TmplServiceHandlerHistory = `
 {{- $empty := "" -}}
 {{- $rows := .Rows -}}
 {{- $pks := .|pks -}}
-{{- $tabs := .TabTables -}}
 package {{.PKG}}
 
 import (
@@ -85,30 +84,6 @@ func (u *{{.Name|rmhd|varName}}Handler) GetHandle(ctx hydra.IContext) (r interfa
 	ctx.Log().Info("3.返回结果")
 	return items.Get(0)
 }
-{{if and .Tab (not .TabList)}}
-//DetailHandle 获取{{.Desc}}详情单条数据
-func (u *{{.Name|rmhd|varName}}Handler) DetailHandle(ctx hydra.IContext) (r interface{}) {
-
-	ctx.Log().Info("--------获取{{.Desc}}详情单条数据--------")
-
-	ctx.Log().Info("1.参数校验")
-	if err := ctx.Request().CheckMap(get{{.Name|rmhd|varName}}DetailCheckFields); err != nil {
-		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
-	}
-
-	ctx.Log().Info("2.执行操作")
-	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabField) ($pks|firstStr))|upperName}},ctx.Request().GetMap())
-	if err != nil {
-		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
-	}
-	if items.Len() == 0 {
-		return errs.NewError(http.StatusNoContent, "未查询到数据")
-	}
-
-	ctx.Log().Info("3.返回结果")
-	return items.Get(0)
-}
-{{- end}}
 {{- end}}
 
 {{if gt ($rows|list|len) 0 -}}
@@ -145,41 +120,6 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 		"count": types.GetInt(count),
 	}
 }
-{{if and .Tab .TabList}}
-//QueryDetailHandle  获取{{.Desc}}数据列表
-func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r interface{}) {
-
-	ctx.Log().Info("--------获取{{.Desc}}数据列表--------")
-
-	ctx.Log().Info("1.参数校验")
-	if err := ctx.Request().CheckMap(query{{.Name|rmhd|varName}}DetailCheckFields); err != nil {
-		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
-	}
-
-	ctx.Log().Info("2.执行操作")
-	m := ctx.Request().GetMap()
-	m["offset"] = (ctx.Request().GetInt("pi") - 1) * ctx.Request().GetInt("ps")
-
-	count, err := hydra.C.DB().GetRegularDB().Scalar(sql.Get{{.Name|rmhd|upperName}}DetailListCount, m)
-	if err != nil {
-		return errs.NewErrorf(http.StatusNotExtended, "查询数据数量出错:%+v", err)
-	}
-	
-	var items types.XMaps
-	if types.GetInt(count) > 0 {
-		items, err = hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}DetailList, m)
-		if err != nil {
-			return errs.NewErrorf(http.StatusNotExtended, "查询数据出错:%+v", err)
-		}
-	}
-
-	ctx.Log().Info("3.返回结果")
-	return map[string]interface{}{
-		"items": items,
-		"count": types.GetInt(count),
-	}
-}
-{{- end}}
 {{- end}}
 
 {{- if gt ($rows|update|len) 0}}
@@ -237,11 +177,6 @@ var post{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 var get{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
 }
-{{if and .Tab (not .TabList)}}
-var get{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	field.Field{{(or ($.TabField) ($pks|firstStr))|varName}}:"required",
-}
-{{- end}}
 {{- end}}
 
 {{if gt (.Rows|list|len) 0 -}}
@@ -249,11 +184,6 @@ var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=.Rows|query}}field.Field{{$c.Name|varName}}:"required",
 	{{end -}}
 }
-{{if and .Tab .TabList}}
-var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	field.Field{{(or ($.TabField) ($pks|firstStr))|varName}}:"required",
-}
-{{- end}}
 {{- end}}
 
 {{if gt (.Rows|update|len) 0 -}}

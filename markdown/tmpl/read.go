@@ -212,7 +212,7 @@ func line2TableRow(line *Line) (*Row, error) {
 }
 
 func getTableDesc(line *Line) string {
-	reg := regexp.MustCompile(`[^\d^\.|\s]+[^\x00-\xff]+[^\[]+`)
+	reg := regexp.MustCompile(`[^\d\.|\s]?[^\x00-\xff]+[^\[]+`)
 	names := reg.FindAllString(line.Text, -1)
 	if len(names) == 0 {
 		return ""

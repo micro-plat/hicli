@@ -222,7 +222,7 @@ export default {
     {{- range $index,$tab:=$tabs }}
     {{- if not $tab.TabList}}
     query{{$tab.Name|rmhd|varName}}Data() {
-      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}",{ {{or ($tab.TabField) ($pks|firstStr)}}: this.info.{{or ($tab.TabField) ($pks|firstStr)}} })
+      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}/detail",{ {{or ($tab.TabField) ($pks|firstStr)}}: this.info.{{or ($tab.TabField) ($pks|firstStr)}} })
     },
     {{- else}}
     /**查询数据并赋值*/
@@ -234,7 +234,7 @@ export default {
       this.query{{$tab.Name|rmhd|varName}}Params.pi = this.paging{{$tab.Name|rmhd|varName}}.pi
 			this.query{{$tab.Name|rmhd|varName}}Params.ps = this.paging{{$tab.Name|rmhd|varName}}.ps
       this.query{{$tab.Name|rmhd|varName}}Params.{{or ($tab.TabField) ($pks|firstStr)}}=this.info.{{or ($tab.TabField) ($pks|firstStr)}} 
-      let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.query{{$tab.Name|rmhd|varName}}Params))
+      let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/querydetail",this.$utility.delEmptyProperty(this.query{{$tab.Name|rmhd|varName}}Params))
 			this.{{$tab.Name|rmhd|varName}}List.items = res.items || []
 			this.{{$tab.Name|rmhd|varName}}List.count = res.count
     },

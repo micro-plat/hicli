@@ -58,7 +58,7 @@ values(
 
 {{- if $ismysql}}
 {{if gt ($detailrows|len) 0 -}}
-//Get{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 查询单条数据{{.Desc}}
+//Get{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 查询{{.Desc}}单条数据
 const Get{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} = {###}
 select 
 {{- range $i,$c:=$detailrows}}
@@ -72,6 +72,19 @@ where
 {{- range $i,$c:=$pks}}
 	&{{$c}} 
 {{- end}}{{end}}{###}
+
+{{- if and .Tab (not .TabList)}}
+//Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabField) ($pks|firstStr))|upperName}} 查询{{.Desc}}单条详情数据
+const Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabField) ($pks|firstStr))|upperName}}= {###}
+select 
+{{- range $i,$c:=$detailrows}}
+	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
+{{- end}}
+from {{.Name}} t
+where
+	&{{(or ($.TabField) ($pks|firstStr))}}
+{###}
+{{- end}}
 {{- end}}
 
 //Get{{.Name|rmhd|upperName}}ListCount 获取{{.Desc}}列表条数
@@ -124,7 +137,34 @@ order by {{range $i,$c:=$order}}t.{{$c.name}}{{if $c.comma}},{{else}} desc{{end}
 order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 {{- end}}
 limit @ps offset @offset
-{{end -}}{###}{{end}}
+{{end -}}{###}
+
+{{- if and .Tab .TabList}}
+//Get{{.Name|rmhd|upperName}}DetailListCount 获取{{.Desc}}列表条数
+const Get{{.Name|rmhd|upperName}}DetailListCount = {###}
+select count(1)
+from {{.Name}} t
+where 
+{{- range $i,$c:=$deleterows}}
+	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+{{- end}}
+&{{(or ($.TabField) ($pks|firstStr))}}{###}
+
+//Get{{.Name|rmhd|upperName}}DetailList 查询{{.Desc}}列表数据
+const Get{{.Name|rmhd|upperName}}DetailList = {###}
+select 
+{{- range $i,$c:=$listrows}}
+	t.{{$c.Name}}{{if lt $i ($listrows|maxIndex)}},{{end}}
+{{- end}} 
+from {{.Name}} t
+where
+{{- range $i,$c:=$deleterows}}
+	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+{{- end}}
+&{{(or ($.TabField) ($pks|firstStr))}}
+limit @ps offset @offset{###}
+{{- end}}
+{{end}}
 
 {{- if and $isoracle }}
 {{if  (gt ($detailrows|len) 0) -}}

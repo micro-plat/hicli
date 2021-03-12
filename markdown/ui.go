@@ -81,8 +81,12 @@ func create(tp string) func(c *cli.Context) (err error) {
 		if err != nil {
 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
 		}
-		allTables := tbs.Tbs
 		//过滤数据表
+		allTables := tbs.Tbs
+		for _, tb := range tbs.Tbs {
+			tb.SetAllTables(allTables)
+			tb.DisposeTabTables()
+		}
 		tbs.FilterByKW(c.String("table"))
 
 		for _, tb := range tbs.Tbs {
@@ -93,8 +97,6 @@ func create(tp string) func(c *cli.Context) (err error) {
 				logs.Log.Error(err)
 			}
 
-			tb.SetAllTables(allTables)
-			tb.DisposeTabTables()
 			tb.SetELTableIndex()
 			//根据关键字过滤
 			tb.FilterRowByKW(c.String("kw"))
