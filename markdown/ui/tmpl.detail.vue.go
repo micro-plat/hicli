@@ -91,7 +91,7 @@ const TmplDetail = `
                       </el-tooltip>
                       <div v-else>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEmpty }}</div>
                     </el-col>
-              {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt)) (ne $c.Name ($pks|firstStr)) }}
+              {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt)) (ne $c.Name ($tab|pks|firstStr)) }}
                     <el-col :span="6">
                       <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} |  fltrNumberFormat({{or ($c.Con|rfCon) "0"}})}}</div>
                     </el-col>
@@ -138,7 +138,7 @@ const TmplDetail = `
                   </el-tooltip>
                   <span v-else>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
                 </template>
-              {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($pks|firstStr))}}
+              {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($tab|pks|firstStr))}}
               <template slot-scope="scope">
                 <span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
               </template>
