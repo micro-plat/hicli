@@ -74,15 +74,15 @@ where
 {{- end}}{{end}}{###}
 
 {{- if and .Tab (not .TabList)}}
-//Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabField) ($pks|firstStr))|upperName}} 查询{{.Desc}}单条详情数据
-const Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabField) ($pks|firstStr))|upperName}}= {###}
+//Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabProField) ($pks|firstStr))|upperName}} 查询{{.Desc}}单条详情数据
+const Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabProField) ($pks|firstStr))|upperName}}= {###}
 select 
 {{- range $i,$c:=$detailrows}}
 	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
 {{- end}}
 from {{.Name}} t
 where
-	&{{(or ($.TabField) ($pks|firstStr))}}
+	&{{(or ($.TabProField) ($pks|firstStr))}}
 {###}
 {{- end}}
 {{- end}}
@@ -148,7 +148,7 @@ where
 {{- range $i,$c:=$deleterows}}
 	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
-&{{(or ($.TabField) ($pks|firstStr))}}{###}
+&{{(or ($.TabProField) ($pks|firstStr))}}{###}
 
 //Get{{.Name|rmhd|upperName}}DetailList 查询{{.Desc}}列表数据
 const Get{{.Name|rmhd|upperName}}DetailList = {###}
@@ -161,7 +161,7 @@ where
 {{- range $i,$c:=$deleterows}}
 	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
-&{{(or ($.TabField) ($pks|firstStr))}}
+&{{(or ($.TabProField) ($pks|firstStr))}}
 limit @ps offset @offset{###}
 {{- end}}
 {{end}}

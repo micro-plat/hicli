@@ -97,7 +97,7 @@ func (u *{{.Name|rmhd|varName}}Handler) DetailHandle(ctx hydra.IContext) (r inte
 	}
 
 	ctx.Log().Info("2.执行操作")
-	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabField) ($pks|firstStr))|upperName}},ctx.Request().GetMap())
+	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabProField) ($pks|firstStr))|upperName}},ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
 	}
@@ -239,7 +239,7 @@ var get{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 }
 {{if and .Tab (not .TabList)}}
 var get{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	field.Field{{(or ($.TabField) ($pks|firstStr))|varName}}:"required",
+	field.Field{{(or ($.TabProField) ($pks|firstStr))|varName}}:"required",
 }
 {{- end}}
 {{- end}}
@@ -251,7 +251,7 @@ var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 }
 {{if and .Tab .TabList}}
 var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	field.Field{{(or ($.TabField) ($pks|firstStr))|varName}}:"required",
+	field.Field{{(or ($.TabProField) ($pks|firstStr))|varName}}:"required",
 }
 {{- end}}
 {{- end}}

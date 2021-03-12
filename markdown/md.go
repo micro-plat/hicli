@@ -35,7 +35,7 @@ func init() {
 					Usage:  "创建服务",
 					Action: createServiceBlock(),
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -65,7 +65,7 @@ func init() {
 					Usage:  "创建项目页面",
 					Action: createPage,
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -76,7 +76,7 @@ func init() {
 					Usage:  "生成列表代码",
 					Action: createList(),
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -87,7 +87,7 @@ func init() {
 					Usage:  "生成预览代码",
 					Action: createDetail(),
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -98,7 +98,7 @@ func init() {
 					Usage:  "生成预览代码",
 					Action: createEdit(),
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -109,7 +109,7 @@ func init() {
 					Usage:  "生成预览代码",
 					Action: createAdd(),
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -126,7 +126,7 @@ func init() {
 					Usage:  "创建实体类",
 					Action: showEnitfy(),
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
 				},
 				{
@@ -134,7 +134,7 @@ func init() {
 					Usage:  "创建表字段列表",
 					Action: showField(),
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
 					},
@@ -163,7 +163,7 @@ func init() {
 					Action: showSelect(),
 					Flags: []cli.Flag{
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
 				},
 				{
@@ -172,7 +172,7 @@ func init() {
 					Action: showUpdate(),
 					Flags: []cli.Flag{
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
 				},
 				{
@@ -181,7 +181,7 @@ func init() {
 					Action: showInsert(),
 					Flags: []cli.Flag{
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
 				},
 				{
@@ -190,7 +190,7 @@ func init() {
 					Action: createCurd(),
 					Flags: []cli.Flag{
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
-						cli.StringFlag{Name: "table,t", Required: true, Usage: `-表名称`},
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
 					},

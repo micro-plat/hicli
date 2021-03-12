@@ -31,7 +31,8 @@ type Table struct {
 	TabTables    []*Table //详情切换的tab页对应表
 	Tab          bool
 	TabList      bool   //详情是否生成list
-	TabField     string //详情tab关联字段
+	TabPreField  string //详情tab关联字段
+	TabProField  string //详情tab关联字段
 }
 
 //Row 行信息
@@ -172,10 +173,10 @@ func (t *Table) DisposeTabTables() {
 		}
 		tabName := tab[0]
 		tabList := ""
-		tabField := ""
+		tabField := []string{}
 
 		if len(tab) > 1 {
-			tabField = tab[1]
+			tabField = strings.Split(tab[1], "/")
 		}
 		if len(tab) > 2 {
 			tabList = tab[2]
@@ -188,7 +189,8 @@ func (t *Table) DisposeTabTables() {
 					tb.TabList = true
 				}
 				tb.Tab = true
-				tb.TabField = tabField
+				tb.TabPreField = tabField[0]
+				tb.TabProField = tabField[1]
 				t.TabTables = append(t.TabTables, tb)
 				exist = true
 				break
