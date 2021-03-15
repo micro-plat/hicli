@@ -21,7 +21,7 @@ type Table struct {
 	Drop         bool   //创建表前是否先删除
 	DBType       string //数据库类型
 	DBLink       string //
-	Rows         []*Row
+	Rows         TableColumn
 	RawRows      []*Row
 	Indexs       Indexs
 	BasePath     string   //生成项目基本路径
@@ -45,6 +45,30 @@ type Row struct {
 	Desc       string //描述
 	Len        int    //类型长度
 	DecimalLen int    //小数长度
+	Sort       int    //字段在列表中排序位置
+	After      string //字段排序位置
+}
+
+//TableColumn 表的列排序用
+type TableColumn []*Row
+
+func (t TableColumn) Len() int {
+	return len(t)
+}
+
+//从低到高
+func (t TableColumn) Less(i, j int) bool {
+	if t[i].Sort < t[j].Sort {
+		return true
+	}
+	if t[i].Sort == t[j].Sort && t[i].After == "" {
+		return true
+	}
+	return false
+}
+
+func (t TableColumn) Swap(i, j int) {
+	t[i], t[j] = t[j], t[i]
 }
 
 //Indexs 索引集
@@ -152,6 +176,23 @@ func (t *Table) SetELTableIndex() {
 //SetAllTables 添加行信息
 func (t *Table) SetAllTables(tbs []*Table) {
 	t.AllTables = tbs
+}
+
+//SortRows 行排序
+func (t *Table) SortRows() {
+	sorts := make(map[string]int, len(t.Rows))
+	for _, v := range t.Rows {
+		sorts[v.Name] = v.Sort
+	}
+	for k, v := range t.Rows {
+		if v.After != "" {
+			if _, ok := sorts[v.After]; ok {
+				t.Rows[k].Sort = sorts[v.After]
+			}
+		}
+	}
+	sort.Sort(t.Rows)
+	return
 }
 
 //SetAllTables 添加行信息

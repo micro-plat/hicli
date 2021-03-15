@@ -207,6 +207,8 @@ func line2TableRow(line *Line) (*Row, error) {
 		IsNull:     strings.TrimSpace(colums[3]),
 		Con:        strings.TrimSpace(colums[4]), // strings.Replace(strings.TrimSpace(colums[4]), " ", "", -1),
 		Desc:       strings.TrimSpace(strings.Replace(colums[5], "&#124;", "|", -1)),
+		Sort:       line.LineID,
+		After:      getAfter(strings.TrimSpace(colums[4])),
 	}
 	return c, nil
 }
@@ -273,4 +275,15 @@ func getType(line *Line) (string, int, int, error) {
 		return t, types.GetInt(names[1]), 0, nil
 	}
 	return t, types.GetInt(names[1]), types.GetInt(names[2]), nil
+}
+
+func getAfter(c string) string {
+	for _, v := range strings.Split(c, ",") {
+		if strings.Contains(v, "After(") {
+			s := strings.TrimPrefix(v, "After(")
+			s = strings.TrimSuffix(s, ")")
+			return s
+		}
+	}
+	return ""
 }

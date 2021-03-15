@@ -71,7 +71,7 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 
 		//过滤数据表
 		tbs.FilterByKW(c.String("table"))
-
+		tbs.Exclude()
 		for _, tb := range tbs.Tbs {
 			//设置项目目录
 			tb.SetBasePath(basePath)

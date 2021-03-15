@@ -88,7 +88,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 			tb.DisposeTabTables()
 		}
 		tbs.FilterByKW(c.String("table"))
-
+		tbs.Exclude()
 		for _, tb := range tbs.Tbs {
 
 			//保存的动态配置
@@ -100,6 +100,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 			tb.SetELTableIndex()
 			//根据关键字过滤
 			tb.FilterRowByKW(c.String("kw"))
+			tb.SortRows()
 
 			//翻译文件
 			content, err := tmpl.Translate(uiMap[tp], tmpl.MYSQL, tb)
