@@ -13,7 +13,7 @@ const TmplCreateVue = `
     	{{- range $i,$c:=$rows|create }}
       {{if $c.Con|TA -}}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input size="medium" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="addData.{{$c.Name}}">
+				<el-input size="medium" maxlength="{{$c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="addData.{{$c.Name}}">
         </el-input>
 			</el-form-item>
 			{{- else if $c.Con|RD }}

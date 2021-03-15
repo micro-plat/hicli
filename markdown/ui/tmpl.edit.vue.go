@@ -13,7 +13,7 @@ const TmplEditVue = `
     	{{- range $i,$c:=$rows|update}}
       {{if $c.Con|TA -}}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input size="medium" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="editData.{{$c.Name}}">
+				<el-input size="medium" maxlength="{{$c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="editData.{{$c.Name}}">
         </el-input>
 			</el-form-item>
 			{{- else if $c.Con|RD }}
@@ -113,6 +113,9 @@ export default {
 			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
 			{{range $i,$c:=$pks}}this.editData.{{$c}} = {{$c}}{{end}}
 			{{- range $i,$c:=$rows|update -}}
+			{{if (cDicPName $c.Con $tb)  }}
+			this.{{$c.Name|lowerName}} = this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}",this.editData.{{cDicPName $c.Con $tb}})
+			{{- end}}
 			{{- if or ($c.Con|SLM) ($c.Con|CB) }}
 			this.{{$c.Name|lowerName}}Array = this.editData.{{$c.Name}}.split(",")
 			{{- end -}}

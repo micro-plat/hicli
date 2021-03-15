@@ -197,7 +197,6 @@ func (t *Table) DisposeTabTables() {
 				if tabList == "list" {
 					tb.TabList = true
 				}
-				fmt.Println(t.Name, tb.Name)
 				tb.Tab = true
 				tb.TabPreField = tabField[0]
 				tb.TabProField = tabField[1]

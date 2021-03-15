@@ -14,7 +14,7 @@ const TmplList = `
 			{{- range $i,$c:=$rows|query}}
 				{{- if $c.Con|TA}}
 				<el-form-item>
-					<el-input size="medium" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="queryData.{{$c.Name}}">
+					<el-input size="medium" maxlength="{{$c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="queryData.{{$c.Name}}">
 					</el-input>
 				</el-form-item>
 				{{- else if or ($c.Con|SL) ($c.Con|SLM) }}
