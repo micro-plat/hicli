@@ -66,6 +66,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"maxIndex":  getMaxIndex,             //最大索引值
 		"lower":     getLower,                //获取变量的最小写字符
 		"order":     getOrderBy,              //order排序
+		"sort":      getRows("sort"),         //查询字段
 		"ismysql":   stringsEqual("mysql"),   //是否是mysql
 		"isoracle":  stringsEqual("oracle"),  //是否是oracle
 		"isTime":    isType("time.Time"),     //是否是time
@@ -346,16 +347,16 @@ func getOrderBy(tb *Table) []map[string]interface{} {
 
 	for _, v := range tb.Rows {
 		con := strings.ToLower(v.Con)
-		if strings.Contains(con, "ob") {
-			if !strings.Contains(con, "ob(") {
+		if strings.Contains(con, "order") {
+			if !strings.Contains(con, "order(") {
 				fileds = append(fileds, v.Name)
 				continue
 			}
 			for _, v1 := range strings.Split(con, ",") {
-				if !strings.Contains(v1, "ob(") {
+				if !strings.Contains(v1, "order(") {
 					continue
 				}
-				s := strings.Index(v1, "ob(")
+				s := strings.Index(v1, "order(")
 				e := strings.Index(v1, ")")
 				orders = append(orders, v1[s+1:e])
 				ob[v1[s+1:e]] = v.Name

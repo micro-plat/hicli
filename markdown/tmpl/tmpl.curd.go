@@ -12,6 +12,7 @@ const MarkdownCurdSql = `
 {{- $isoracle := .DBType|isoracle -}}
 {{- $pks := .|pks -}}
 {{- $order:=.|order -}}
+{{- $sort:=.Rows|sort -}}
 {{- $empty:="" -}}
 package {{.PKG}}
 
@@ -131,7 +132,9 @@ where
 {{- else}}
 	&t.{{$c.Name}}{{end}}
 {{- end}} 
-{{- if gt ($order|len) 0}}
+{{- if gt ($sort|len) 0}}
+order by #order_by
+{{- else if gt ($order|len) 0}}
 order by {{range $i,$c:=$order}}t.{{$c.name}}{{if $c.comma}},{{else}} desc{{end}}{{end}}
 {{- else}}
 order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
@@ -230,7 +233,9 @@ from (select L.*
 			{{- else}}
 				&t.{{$c.Name}}{{end}}
 			{{- end}}{{end}}
-			{{- if gt ($order|len) 0}}
+			{{- if gt ($sort|len) 0}}
+			order by #order_by
+			{{- else if gt ($order|len) 0}}
 			order by {{range $i,$c:=$order}}t.{{$c.Name}}{{if $c.comma}},{{else}} desc{{end}}{{end}}
 			{{- else}}
 			order by {{range $i,$c:=pks}}t.{{$c}} desc{{end}}

@@ -6,10 +6,11 @@ const TmplServiceHandler = `
 {{- $rows := .Rows -}}
 {{- $pks := .|pks -}}
 {{- $tabs := .TabTables -}}
+{{- $sort:=.Rows|sort -}}
 package {{.PKG}}
 
 import (
-	{{- if or (gt ($rows|query|len) 0) (gt ($rows|create|len) 0) (gt ($rows|detail|len) 0) (gt ($rows|update|len) 0) (gt ($rows|delete|len) 0)}}
+	{{- if or (gt ($rows|list|len) 0) (gt ($rows|create|len) 0) (gt ($rows|detail|len) 0) (gt ($rows|update|len) 0) (gt ($rows|delete|len) 0)}}
 	"net/http"
 	"github.com/micro-plat/hydra"
 	"github.com/micro-plat/lib4go/errs"
@@ -17,6 +18,7 @@ import (
 	"{{.BasePath}}/modules/const/field"
 	{{- end}}
 	{{if gt ($rows|list|len) 0}}"github.com/micro-plat/lib4go/types"{{end}}
+	{{if gt ($sort|len) 0}}"regexp"{{end}}
 	{{if and (.|seq) (gt (.Rows|create|len) 0)}}"{{.BasePath}}/modules/db"{{end}}
 )
 
@@ -121,6 +123,11 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 	if err := ctx.Request().CheckMap(query{{.Name|rmhd|varName}}CheckFields); err != nil {
 		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
 	}
+	{{if gt ($sort|len) 0}}
+	orderBy := ctx.Request().GetString("order_by")
+	if len(orderBy) > 1 && !regexp.MustCompile("^t.[A-Za-z0-9_,.\\s]+ (asc|desc)$").MatchString(orderBy) {
+		return errs.NewErrorf(http.StatusNotAcceptable, "排序参数校验错误!")
+	}{{end}}
 
 	ctx.Log().Info("2.执行操作")
 	m := ctx.Request().GetMap()

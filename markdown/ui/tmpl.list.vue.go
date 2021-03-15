@@ -5,6 +5,7 @@ const TmplList = `
 {{- $rows := .Rows -}}
 {{- $pks := .|pks -}}
 {{- $tb :=. -}}
+{{- $sort:=.Rows|sort -}}
 {{- $choose:= false -}}
 <template>
 	<div class="panel panel-default">
@@ -59,10 +60,10 @@ const TmplList = `
 
     <!-- list start-->
 		<el-scrollbar style="height:100%">
-			<el-table :data="dataList.items" stripe style="width: 100%" :height="maxHeight">
+			<el-table :data="dataList.items" stripe style="width: 100%" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}>
 				{{if gt $tb.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>{{end}}
 				{{- range $i,$c:=$rows|list}}
-				<el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
+				<el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
 				{{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
 					<template slot-scope="scope">
 						<span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{(or (dicName $c.Con ($c.Con|leCon) $tb) $c.Name)|lower}}")}}</span>
@@ -173,6 +174,9 @@ export default {
 			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			{{$c.Name|lowerName}}: this.$utility.dateFormat(new Date(),"{{dateFormatDef $c.Con ($c.Con|qfCon)}}"),{{end}}
       {{- end}}
+			{{- if gt ($sort|len) 0}}
+			order: "",
+			{{- end}}
 			dataList: {count: 0,items: []}, //表单数据对象,
 			maxHeight: 0
 		}
@@ -190,6 +194,18 @@ export default {
     init(){
       this.query()
 		},
+		{{- if gt ($sort|len) 0}}
+		sort(column) {
+      if (column.order == "ascending") {
+        this.order ="t." +  column.prop + " " + "asc"
+      } else if (column.order == "descending") {
+        this.order ="t." +  column.prop + " " + "desc"
+      } else {
+        this.order = ""
+      }
+      this.query()
+    },
+		{{- end}}
 		{{- if $choose}}
 		handleChooseTool() {
       this.$forceUpdate()
@@ -222,6 +238,9 @@ export default {
 			this.queryData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
 			{{- end -}}
       {{- end}}
+			{{- if gt ($sort|len) 0}}
+			this.queryData.order_by = this.order
+			{{- end}}
       let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.queryData))
 			this.dataList.items = res.items || []
 			this.dataList.count = res.count
