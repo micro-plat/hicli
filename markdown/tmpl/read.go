@@ -278,9 +278,10 @@ func getType(line *Line) (string, int, int, error) {
 }
 
 func getAfter(c string) string {
+	c = strings.ToLower(c)
 	for _, v := range strings.Split(c, ",") {
-		if strings.Contains(v, "After(") {
-			s := strings.TrimPrefix(v, "After(")
+		if strings.Contains(v, "after(") {
+			s := strings.TrimPrefix(v, "after(")
 			s = strings.TrimSuffix(s, ")")
 			return s
 		}

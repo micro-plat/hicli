@@ -160,6 +160,7 @@ func (t *Table) GetPKS() []string {
 			return index.fields.List()
 		}
 	}
+	logs.Log.Errorf("[%s]主键未配置", t.Name)
 	return nil
 }
 
@@ -185,10 +186,16 @@ func (t *Table) SortRows() {
 		sorts[v.Name] = v.Sort
 	}
 	for k, v := range t.Rows {
-		if v.After != "" {
-			if _, ok := sorts[v.After]; ok {
-				t.Rows[k].Sort = sorts[v.After]
-			}
+		if v.After == "" {
+			continue
+		}
+		if v.After == "0" {
+			t.Rows[k].Sort = 0
+			continue
+		}
+		if _, ok := sorts[v.After]; ok {
+			t.Rows[k].Sort = sorts[v.After]
+			sorts[t.Rows[k].Name] = sorts[v.After]
 		}
 	}
 	sort.Sort(t.Rows)
@@ -222,7 +229,7 @@ func (t *Table) DisposeTabTables() {
 				tabField = []string{"", ""}
 			}
 			if len(t) == 1 {
-				tabField = []string{t[0], ""}
+				tabField = []string{t[0], t[0]}
 			}
 			if len(t) == 2 {
 				tabField = []string{t[0], t[1]}
