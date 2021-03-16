@@ -14,25 +14,27 @@ import (
 
 //Table 表名称
 type Table struct {
-	Name         string //表名
-	Desc         string //表描述
-	ExtInfo      string //扩展信息
-	PKG          string //包名称
-	Drop         bool   //创建表前是否先删除
-	DBType       string //数据库类型
-	DBLink       string //
-	Rows         TableColumn
-	RawRows      []*Row
-	Indexs       Indexs
-	BasePath     string   //生成项目基本路径
-	AllTables    []*Table //所有表
-	Exclude      bool     //排除生成sql
-	ELTableIndex int
-	TabTables    []*Table //详情切换的tab页对应表
-	Tab          bool
-	TabList      bool   //详情是否生成list
-	TabPreField  string //详情tab关联字段
-	TabProField  string //详情tab关联字段
+	Name             string //表名
+	Desc             string //表描述
+	ExtInfo          string //扩展信息
+	PKG              string //包名称
+	Drop             bool   //创建表前是否先删除
+	DBType           string //数据库类型
+	DBLink           string //
+	Rows             TableColumn
+	RawRows          []*Row
+	Indexs           Indexs
+	BasePath         string   //生成项目基本路径
+	AllTables        []*Table //所有表
+	Exclude          bool     //排除生成sql
+	ELTableIndex     int
+	TabTables        []*Table //详情切换的tab页对应表
+	TabField         map[string]string
+	TabListField     map[string]string //详情是否生成list
+	TabTable         map[string]bool   //详情tab关联字段
+	TabTableList     map[string]bool   //详情tab关联字段
+	TabTablePreField map[string]string //详情tab关联字段
+	TabTableProField map[string]string //详情tab关联字段
 }
 
 //Row 行信息
@@ -126,12 +128,18 @@ func (t fields) Swap(i, j int) {
 //NewTable 创建表
 func NewTable(name, desc, extinfo string) *Table {
 	return &Table{
-		Name:    strings.TrimLeft(name, "^"),
-		Desc:    desc,
-		Rows:    make([]*Row, 0, 1),
-		RawRows: make([]*Row, 0, 1),
-		Exclude: strings.Contains(name, "^"),
-		ExtInfo: extinfo,
+		Name:             strings.TrimLeft(name, "^"),
+		Desc:             desc,
+		Rows:             make([]*Row, 0, 1),
+		RawRows:          make([]*Row, 0, 1),
+		Exclude:          strings.Contains(name, "^"),
+		ExtInfo:          extinfo,
+		TabField:         make(map[string]string),
+		TabListField:     make(map[string]string),
+		TabTablePreField: make(map[string]string),
+		TabTableProField: make(map[string]string),
+		TabTable:         make(map[string]bool),
+		TabTableList:     make(map[string]bool),
 	}
 }
 
@@ -225,9 +233,6 @@ func (t *Table) DisposeTabTables() {
 
 		if len(tab) > 1 {
 			t := strings.Split(tab[1], "/")
-			if len(t) == 0 {
-				tabField = []string{"", ""}
-			}
 			if len(t) == 1 {
 				tabField = []string{t[0], t[0]}
 			}
@@ -243,11 +248,14 @@ func (t *Table) DisposeTabTables() {
 		for _, tb := range t.AllTables {
 			if tb.Name == tabName {
 				if tabList == "list" {
-					tb.TabList = true
+					tb.TabTableList[t.Name] = true
+					tb.TabListField[tabField[1]] = tabField[1]
+				} else {
+					tb.TabTable[t.Name] = true
+					tb.TabField[tabField[1]] = tabField[1]
 				}
-				tb.Tab = true
-				tb.TabPreField = tabField[0]
-				tb.TabProField = tabField[1]
+				tb.TabTablePreField[t.Name] = tabField[0]
+				tb.TabTableProField[t.Name] = tabField[1]
 				t.TabTables = append(t.TabTables, tb)
 				exist = true
 				break

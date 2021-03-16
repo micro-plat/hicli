@@ -74,16 +74,18 @@ where
 	&{{$c}} 
 {{- end}}{{end}}{###}
 
-{{- if and .Tab (not .TabList)}}
-//Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabProField) ($pks|firstStr))|upperName}} 查询{{.Desc}}单条详情数据
-const Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabProField) ($pks|firstStr))|upperName}}= {###}
+{{- if gt (.TabField|len) 0}}
+//Get{{.Name|rmhd|upperName}}Detail 查询{{.Desc}}单条详情数据
+const Get{{.Name|rmhd|upperName}}Detail= {###}
 select 
 {{- range $i,$c:=$detailrows}}
 	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
 {{- end}}
 from {{.Name}} t
 where
-	&{{(or ($.TabProField) ($pks|firstStr))}}
+	{{- range $i,$c:=.TabField}}
+	&{{(or ($c) ($pks|firstStr))}}
+	{{- end}}
 {###}
 {{- end}}
 {{- end}}
@@ -142,7 +144,7 @@ order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 limit @ps offset @offset
 {{end -}}{###}
 
-{{- if and .Tab .TabList}}
+{{- if gt (.TabListField|len) 0}}
 //Get{{.Name|rmhd|upperName}}DetailListCount 获取{{.Desc}}列表条数
 const Get{{.Name|rmhd|upperName}}DetailListCount = {###}
 select count(1)
@@ -151,7 +153,9 @@ where
 {{- range $i,$c:=$deleterows}}
 	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
-&{{(or ($.TabProField) ($pks|firstStr))}}{###}
+{{- range $i,$c:=.TabListField}}
+&{{(or ($c) ($pks|firstStr))}}
+{{- end}}{###}
 
 //Get{{.Name|rmhd|upperName}}DetailList 查询{{.Desc}}列表数据
 const Get{{.Name|rmhd|upperName}}DetailList = {###}
@@ -164,7 +168,9 @@ where
 {{- range $i,$c:=$deleterows}}
 	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
-&{{(or ($.TabProField) ($pks|firstStr))}}
+{{- range $i,$c:=.TabListField}}
+&{{(or ($c) ($pks|firstStr))}}
+{{- end}}
 limit @ps offset @offset{###}
 {{- end}}
 {{end}}

@@ -87,7 +87,7 @@ func (u *{{.Name|rmhd|varName}}Handler) GetHandle(ctx hydra.IContext) (r interfa
 	ctx.Log().Info("3.返回结果")
 	return items.Get(0)
 }
-{{if and .Tab (not .TabList)}}
+{{if gt (.TabField|len) 0}}
 //DetailHandle 获取{{.Desc}}详情单条数据
 func (u *{{.Name|rmhd|varName}}Handler) DetailHandle(ctx hydra.IContext) (r interface{}) {
 
@@ -99,7 +99,7 @@ func (u *{{.Name|rmhd|varName}}Handler) DetailHandle(ctx hydra.IContext) (r inte
 	}
 
 	ctx.Log().Info("2.执行操作")
-	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}DetailBy{{(or ($.TabProField) ($pks|firstStr))|upperName}},ctx.Request().GetMap())
+	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}Detail,ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
 	}
@@ -152,7 +152,7 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 		"count": types.GetInt(count),
 	}
 }
-{{if and .Tab .TabList}}
+{{if gt (.TabListField|len) 0}}
 //QueryDetailHandle  获取{{.Desc}}数据列表
 func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r interface{}) {
 
@@ -244,9 +244,10 @@ var post{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 var get{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
 }
-{{if and .Tab (not .TabList)}}
+{{if gt (.TabField|len) 0}}
 var get{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	field.Field{{(or ($.TabProField) ($pks|firstStr))|varName}}:"required",
+	{{range $i,$c:=.TabField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
+	{{end}}
 }
 {{- end}}
 {{- end}}
@@ -256,9 +257,10 @@ var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=.Rows|query}}field.Field{{$c.Name|varName}}:"required",
 	{{end -}}
 }
-{{if and .Tab .TabList}}
+{{if gt (.TabListField|len) 0}}
 var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	field.Field{{(or ($.TabProField) ($pks|firstStr))|varName}}:"required",
+	{{range $i,$c:=.TabListField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
+	{{end}}
 }
 {{- end}}
 {{- end}}
