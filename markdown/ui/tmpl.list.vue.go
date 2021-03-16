@@ -175,7 +175,7 @@ export default {
 			{{$c.Name|lowerName}}: this.$utility.dateFormat(new Date(),"{{dateFormatDef $c.Con ($c.Con|qfCon)}}"),{{end}}
       {{- end}}
 			{{- if gt ($sort|len) 0}}
-			order: "",
+			order: "{{range $i,$c:=$sort|sortSort}}t.{{$c.Name}} {{or ($c.Con|sortCon) "desc"}}{{if lt $i ($sort|maxIndex)}}, {{end}}{{end}}",
 			{{- end}}
 			dataList: {count: 0,items: []}, //表单数据对象,
 			maxHeight: 0

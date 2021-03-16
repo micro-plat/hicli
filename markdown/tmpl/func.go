@@ -76,13 +76,16 @@ func getfuncs(tp string) map[string]interface{} {
 		"isString":  isType("string"),        //是否是string
 
 		//前后端约束处理函数
-		"query":  getRows("q"),           //查询字段
-		"list":   getRows("l"),           //列表展示字段
-		"detail": getRows("r"),           //详情展示字段
-		"create": getRows("c"),           //创建字段
-		"delete": getRows("d"),           //删除时判定字段
-		"update": getRows("u"),           //更新字段
-		"delCon": getBracketContent("d"), //删除字段约束
+		"query":   getRows("q"),                                      //查询字段
+		"list":    getRows("l"),                                      //列表展示字段
+		"detail":  getRows("r"),                                      //详情展示字段
+		"create":  getRows("c"),                                      //创建字段
+		"delete":  getRows("d"),                                      //删除时判定字段
+		"update":  getRows("u"),                                      //更新字段
+		"delCon":  getBracketContent([]string{"d"}),                  //删除字段约束
+		"sortCon": getBracketContent([]string{"sort"}, `(asc|desc)`), //
+
+		"sortSort": sortByKw("sort"), //
 
 		//前端约束处理函数
 		"SL":            getKWS("sl"),                                  //表单下拉框
@@ -341,6 +344,39 @@ func getMaxIndex(r interface{}) int {
 	return 0
 }
 
+func sortByKw(kw string) func(rows []*Row) []*Row {
+	return func(rows []*Row) []*Row {
+		columns := make([]*Row, 0, len(rows))
+		orders := []string{}
+		ob := map[string]*Row{}
+
+		for _, v := range rows {
+			if strings.Contains(v.Con, kw) {
+				scon := getBracketContent([]string{kw})(v.Con)
+				fmt.Println("scon:", scon)
+				if scon == "" {
+					continue
+				}
+				rex := regexp.MustCompile(`[\d]+`)
+				strs := rex.FindAllString(scon, -1)
+				if len(strs) < 1 {
+					logs.Log.Warnf("%s:sort排序未配置", v.Name)
+					continue
+				}
+				orders = append(orders, strs[0])
+				ob[strs[0]] = v
+			}
+		}
+		if len(orders) > 0 {
+			sort.Sort(sort.StringSlice(orders))
+		}
+		for _, v := range orders {
+			columns = append(columns, ob[v])
+		}
+		return columns
+	}
+}
+
 func getOrderBy(tb *Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.Rows))
 	fileds := []string{}
@@ -395,7 +431,7 @@ func getSeqs() func(tb *Table) []map[string]interface{} {
 		for _, v := range tb.Rows {
 			con := strings.ToLower(v.Con)
 			if strings.Contains(con, "seq") {
-				descsimple := getBracketContent("seq")(v.Desc)
+				descsimple := getBracketContent([]string{"seq"})(v.Desc)
 				row := map[string]interface{}{
 					"name":       v.Name,
 					"descsimple": descsimple,
@@ -567,7 +603,7 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 	return func(con string, subcon string, tb *Table) string {
 		tp := subcon
 		if tp == "" || strings.HasPrefix(subcon, "#") { //子约束为空或指定级联
-			tp = getBracketContent(keys...)(con)        //获取组件的约束
+			tp = getBracketContent(keys)(con)           //获取组件的约束
 			if tp == "" || strings.HasPrefix(tp, "#") { //约束不是表名，不是指定枚举名称
 				return ""
 			}
@@ -668,7 +704,7 @@ func getDicChildrenName(tp string, keys ...string) func(name string, t *Table) s
 			if subCon != "" { //字段标识配置配置了对应枚举,不再处理组件标识的级联枚举
 				continue
 			}
-			con := getBracketContent(keys...)(v.Con)
+			con := getBracketContent(keys)(v.Con)
 			if strings.Contains(con, kw) {
 				return v.Name
 			}
@@ -691,7 +727,7 @@ func getDicParentName(tp string, keys ...string) func(con string, t *Table) stri
 
 		if parentName == "" {
 			//查找组件约束的级联
-			c := getBracketContent(keys...)(con)
+			c := getBracketContent(keys)(con)
 			if strings.Index(c, "#") < 0 { //该字段组件约束没有级联
 				return ""
 			}
@@ -719,7 +755,7 @@ func getDicParentName(tp string, keys ...string) func(con string, t *Table) stri
 
 func getSubConContent(tp, kw string) func(con string) string {
 	return func(con string) string {
-		c := getBracketContent(tp)(con)
+		c := getBracketContent([]string{tp})(con)
 		if c == "" {
 			return ""
 		}
@@ -740,7 +776,7 @@ func getSubConContent(tp, kw string) func(con string) string {
 	}
 }
 
-func getBracketContent(keys ...string) func(con string) string {
+func getBracketContent(keys []string, pattern ...string) func(con string) string {
 	return func(con string) string {
 		s := ""
 		for _, key := range keys {
@@ -749,6 +785,9 @@ func getBracketContent(keys ...string) func(con string) string {
 				kw += fmt.Sprintf("[%s%s]", strings.ToLower(key[k:k+1]), strings.ToUpper(key[k:k+1]))
 			}
 			rex := regexp.MustCompile(fmt.Sprintf(`%s\((.+?)\)`, kw))
+			if len(pattern) > 0 {
+				rex = regexp.MustCompile(pattern[0])
+			}
 			strs := rex.FindAllString(con, -1)
 			if len(strs) < 1 {
 				continue

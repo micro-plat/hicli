@@ -177,7 +177,7 @@ func (t *Table) SetELTableIndex() {
 	if t.ExtInfo == "" {
 		return
 	}
-	c := getBracketContent("el_index")(t.ExtInfo)
+	c := getBracketContent([]string{"el_index"})(t.ExtInfo)
 	t.ELTableIndex = types.GetInt(c)
 
 }
@@ -216,7 +216,7 @@ func (t *Table) DisposeTabTables() {
 		return
 	}
 
-	c := getBracketContent("el_tab")(t.ExtInfo)
+	c := getBracketContent([]string{"el_tab"})(t.ExtInfo)
 	tabs := strings.Split(c, "|")
 	if len(tabs) == 0 {
 		return
