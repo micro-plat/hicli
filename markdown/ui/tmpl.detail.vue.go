@@ -234,8 +234,9 @@ export default {
     query{{$tab.Name|rmhd|varName}}Data(){
       this.query{{$tab.Name|rmhd|varName}}Params.pi = this.paging{{$tab.Name|rmhd|varName}}.pi
 			this.query{{$tab.Name|rmhd|varName}}Params.ps = this.paging{{$tab.Name|rmhd|varName}}.ps
-      this.query{{$tab.Name|rmhd|varName}}Params.{{or (index $tab.TabTableProField $name) ($pks|firstStr)}}=this.info.{{or (index $tab.TabTablePreField $name) ($pks|firstStr)}} 
-      let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/querydetail",this.$utility.delEmptyProperty(this.query{{$tab.Name|rmhd|varName}}Params))
+      var data = this.$utility.delEmptyProperty(this.query{{$tab.Name|rmhd|varName}}Params)
+      data.{{or (index $tab.TabTableProField $name) ($pks|firstStr)}}=this.info.{{or (index $tab.TabTablePreField $name) ($pks|firstStr)}} 
+      let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/querydetail",data)
 			this.{{$tab.Name|rmhd|varName}}List.items = res.items || []
 			this.{{$tab.Name|rmhd|varName}}List.count = res.count
     },
