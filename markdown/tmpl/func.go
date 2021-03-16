@@ -103,6 +103,8 @@ func getfuncs(tp string) map[string]interface{} {
 		"qeCon":         getSubConContent("q", "e"),                    //查询字段的枚举子约束q(e:xx)
 		"qfCon":         getSubConContent("q", "f"),                    //查询字段的枚举子约束q(f:xx)
 		"rfCon":         getSubConContent("r", "f"),                    //详情展示字段的过滤器子约束r(f:xx)
+		"ufCon":         getSubConContent("u", "f"),                    //详情展示字段的过滤器子约束r(f:xx)
+		"cfCon":         getSubConContent("c", "f"),                    //详情展示字段的过滤器子约束r(f:xx)
 		"reCon":         getSubConContent("r", "e"),                    //详情展示字段的枚举子约束r(e:xx)
 		"ueCon":         getSubConContent("u", "e"),                    //编辑字段的格式枚举子约束u(e:xx)
 		"ceCon":         getSubConContent("c", "e"),                    //添加字段的格式枚举子约束c(e:xx)
