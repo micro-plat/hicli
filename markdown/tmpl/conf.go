@@ -14,6 +14,8 @@ type SnippetConf struct {
 	HasDetail bool   `json:"has_detail"` //是否有详情页
 	BasePath  string `json:"base_path"`  //项目路径
 	Desc      string `json:"desc"`       //描述
+	PKG       string
+	PkGAlias  string
 }
 
 //NewSnippetConf .

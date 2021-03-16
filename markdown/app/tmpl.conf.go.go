@@ -98,7 +98,7 @@ const SnippetTmplConfGo = `package {{if (hasPrefix .GOMOD .ProjectPath )}}main{{
 import (
 	"github.com/micro-plat/hydra"
 	{{- range $i,$v:=.Confs|importPath }}
-	"{{$i}}"
+	{{if $v.PkGAlias}}{{$v.PkGAlias}} {{end}}"{{$i}}"
 	{{- end}}
 )
 
@@ -106,7 +106,7 @@ import (
 func init() {
 	hydra.OnReady(func() {
 	{{- range $i,$v:=.Confs }}
-		hydra.S.Web("/{{$v.Name|rmhd|rpath}}", {{$v.Name|rmhd|parentPath|snames|lastStr}}.New{{$v.Name|rmhd|varName}}Handler())
+		hydra.S.Web("/{{$v.Name|rmhd|rpath}}", {{$v.PKG}}.New{{$v.Name|rmhd|varName}}Handler())
 	{{- end}}
 	})
 }

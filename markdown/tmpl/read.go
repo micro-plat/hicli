@@ -26,10 +26,13 @@ func (t *Tables) FilterByKW(kwc string) {
 	if kwc == "" {
 		return
 	}
-	tbs := make([]*Table, 0, 1)
-	for _, tb := range t.RawTables {
-		if strings.Contains(tb.Name, kwc) {
-			tbs = append(tbs, tb)
+	kws := strings.Split(kwc, ",")
+	tbs := make([]*Table, 0, len(kws))
+	for _, v := range kws {
+		for _, tb := range t.RawTables {
+			if strings.Contains(tb.Name, v) {
+				tbs = append(tbs, tb)
+			}
 		}
 	}
 	t.Tbs = tbs

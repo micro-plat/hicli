@@ -589,9 +589,26 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 
 func getImportPath(s []*SnippetConf) map[string]*SnippetConf {
 	r := make(map[string]*SnippetConf, 0)
+	t := make(map[string]string)
+
 	for _, v := range s {
 		path, _ := Translate("{{.Name|rmhd|parentPath}}", "", v)
-		tpath := fmt.Sprintf("%s/services/%s", v.BasePath, path)
+		tpath := filepath.Join(fmt.Sprintf("%s/services", v.BasePath), path)
+		alias := getLastStringByIndex(getNames("/")(path))
+		if path == "" {
+			alias = "services"
+			v.PKG = alias
+			if _, ok := r[tpath]; !ok {
+				r[tpath] = v
+			}
+			continue
+		}
+		if p, ok := t[alias]; ok && p != tpath {
+			alias = alias + "new"
+			v.PkGAlias = alias
+		}
+		v.PKG = alias
+		t[alias] = tpath
 		if _, ok := r[tpath]; !ok {
 			r[tpath] = v
 		}
