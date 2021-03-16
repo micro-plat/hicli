@@ -604,8 +604,8 @@ func getImportPath(s []*SnippetConf) map[string]*SnippetConf {
 			continue
 		}
 		if p, ok := t[alias]; ok && p != tpath {
-			alias = alias + "new"
-			v.PkGAlias = alias
+			alias = fmt.Sprintf("%snew", alias)
+			v.PkGAlias = fmt.Sprintf("%s ", alias)
 		}
 		v.PKG = alias
 		t[alias] = tpath

@@ -98,7 +98,7 @@ const SnippetTmplConfGo = `package {{if (hasPrefix .GOMOD .ProjectPath )}}main{{
 import (
 	"github.com/micro-plat/hydra"
 	{{- range $i,$v:=.Confs|importPath }}
-	{{if $v.PkGAlias}}{{$v.PkGAlias}} {{end}}"{{$i}}"
+	{{or $v.PkGAlias ""}}"{{$i}}"
 	{{- end}}
 )
 
