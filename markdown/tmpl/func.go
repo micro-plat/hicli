@@ -701,7 +701,7 @@ func getBracketContent(keys []string, pattern ...string) func(con string) string
 			if len(pattern) > 0 {
 				rex = regexp.MustCompile(pattern[0])
 			}
-			value := rex.FindStringSubmatch(strings.ToLower(con))
+			value := rex.FindStringSubmatch(con)
 			if len(value) == 2 {
 				s = append(s, value[1])
 			}
