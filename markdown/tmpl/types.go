@@ -54,6 +54,8 @@ var any2code = map[string]string{
 	"^clob$":                      "string",
 }
 
+var keywordSubMatch = `\b%s\(([\w\s-:#,|/]+)\)`
+
 var keywordMatch = []string{"^\\w*%s\\w*$", ",\\w*%s\\w*,", "^\\w*%s\\w*,", ",\\w*%s\\w*$"}
 
 var cons = map[string][]string{
@@ -66,7 +68,7 @@ var cons = map[string][]string{
 	"rd":    {"\\brd(\\([\\w,]+\\)|\\b)"},
 	"cb":    {"\\bcb(\\([\\w,]+\\)|\\b)"},
 	"ta":    {"\\bta(\\([\\w,]+\\)|\\b)"},
-	"cc":    {"\\bd(\\(\\w+\\)|\\b)"},
+	"cc":    {"\\bcc(\\(\\w+\\)|\\b)"},
 	"idx":   {"\\bidx(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
 	"unq":   {"\\bunq(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
 	"d":     {"\\bd(\\([0-9]*\\)|\\b)"},

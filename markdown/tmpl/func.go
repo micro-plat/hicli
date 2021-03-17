@@ -697,7 +697,7 @@ func getBracketContent(keys []string, pattern ...string) func(con string) string
 			for k := range key {
 				kw += fmt.Sprintf("[%s%s]", strings.ToLower(key[k:k+1]), strings.ToUpper(key[k:k+1]))
 			}
-			rex := regexp.MustCompile(fmt.Sprintf(`\b%s\(([\w:#,|/]+)\)`, kw))
+			rex := regexp.MustCompile(fmt.Sprintf(keywordSubMatch, kw))
 			if len(pattern) > 0 {
 				rex = regexp.MustCompile(pattern[0])
 			}
