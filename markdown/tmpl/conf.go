@@ -159,7 +159,7 @@ func GetFieldConfPath(root string) string {
 	if projectPath == "" {
 		return ""
 	}
-	return path.Join(projectPath, fmt.Sprintf(".gitcli/server_filed.json"))
+	return path.Join(projectPath, fmt.Sprintf(".hicli/server_filed.json"))
 }
 
 func GetWebConfPath(root string) string {
@@ -168,7 +168,7 @@ func GetWebConfPath(root string) string {
 	if webPath == "" {
 		return ""
 	}
-	return path.Join(webPath, fmt.Sprintf(".gitcli/web.json"))
+	return path.Join(webPath, fmt.Sprintf(".hicli/web.json"))
 }
 
 func GetGoConfPath(root string) string {
@@ -176,5 +176,5 @@ func GetGoConfPath(root string) string {
 	if projectPath == "" {
 		return ""
 	}
-	return path.Join(projectPath, fmt.Sprintf(".gitcli/server.json"))
+	return path.Join(projectPath, fmt.Sprintf(".hicli/server.json"))
 }

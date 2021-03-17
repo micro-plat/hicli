@@ -87,8 +87,8 @@ func (r *Repository) Reset(branch ...string) error {
 func (r *Repository) Update() error {
 	session := sh.InteractiveSession()
 	session.SetDir(r.GetLocalPath())
-	logs.Log.Info("gitcli", "pull", r.FullPath)
-	session.Command("gitcli", "pull", r.FullPath)
+	logs.Log.Info("hicli", "pull", r.FullPath)
+	session.Command("hicli", "pull", r.FullPath)
 	if err := session.Run(); err != nil {
 		return err
 	}
@@ -98,8 +98,8 @@ func (r *Repository) Update() error {
 		return err
 	}
 
-	logs.Log.Info(r.GetLocalPath(), ">", "gitcli", "--version")
-	session.Command("gitcli", "--version")
+	logs.Log.Info(r.GetLocalPath(), ">", "hicli", "--version")
+	session.Command("hicli", "--version")
 	if err := session.Run(); err != nil {
 		return err
 	}

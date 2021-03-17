@@ -20,7 +20,7 @@ import (
 func GetGitcliHomePath() string {
 	user, err := user.Current()
 	if nil == err {
-		return filepath.Join(user.HomeDir, ".gitcli")
+		return filepath.Join(user.HomeDir, ".hicli")
 	}
 
 	// cross compile support
@@ -35,7 +35,7 @@ func GetGitcliHomePath() string {
 		panic(err)
 	}
 
-	return filepath.Join(home, ".gitcli")
+	return filepath.Join(home, ".hicli")
 }
 
 func homeUnix() (string, error) {

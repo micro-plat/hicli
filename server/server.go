@@ -136,7 +136,7 @@ func (s *server) close() (err error) {
 	return err
 }
 
-var defExcludePath = []string{"vendor", "node_modules", ".gitignore", ".gitcli"}
+var defExcludePath = []string{"vendor", "node_modules", ".gitignore", ".hicli"}
 
 func (s *server) isExclude(path string) bool {
 	for _, v := range defExcludePath {
