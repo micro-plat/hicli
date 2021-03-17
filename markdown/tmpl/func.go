@@ -761,30 +761,22 @@ func getSubConContent(tp, kw string) func(con string) string {
 
 func getBracketContent(keys []string, pattern ...string) func(con string) string {
 	return func(con string) string {
-		s := ""
+		s := make([]string, 0)
 		for _, key := range keys {
 			kw := ""
 			for k := range key {
 				kw += fmt.Sprintf("[%s%s]", strings.ToLower(key[k:k+1]), strings.ToUpper(key[k:k+1]))
 			}
-			rex := regexp.MustCompile(fmt.Sprintf(`%s\((.+?)\)`, kw))
+			rex := regexp.MustCompile(fmt.Sprintf(`\b%s\(([\w:#,|/]+)\)`, kw))
 			if len(pattern) > 0 {
 				rex = regexp.MustCompile(pattern[0])
 			}
-			strs := rex.FindAllString(con, -1)
-			if len(strs) < 1 {
-				continue
+			value := rex.FindStringSubmatch(strings.ToLower(con))
+			if len(value) == 2 {
+				s = append(s, value[1])
 			}
-			str := strs[0]
-			str = str[strings.Index(str, "(")+1 : len(str)]
-			str = strings.TrimRight(str, ")")
-			s = fmt.Sprintf("%s,%s", s, str)
 		}
-		if s == "" {
-			return ""
-		}
-		s = strings.TrimLeft(s, ",")
-		return s
+		return strings.Join(s, ",")
 	}
 }
 
