@@ -22,7 +22,8 @@ CC: "color-class"  //状态颜色过滤器
 DATE: "date-picker" //表单日期选择器
 DTIME: "datetime-picker" //表单日期时间选择器,
 FIXED: 列表表单固定列
-SORT: 列表表单排序列
+SORT: 列表表单排序列 ,sort(asc,顺序)
+AFTER:在某个字段后面
 列表自定义索引， 约定给当前表添加一行，字段名为_el_table_index,约束为索引大小
 
 //C,R,U,Q,L子约束
@@ -33,6 +34,6 @@ e:枚举参数
 
 //排除表 ^表名
 
-//{el_tab(表名，字段名，list),el_index(2)}
+//{el_tab(表名，字段名/字段名，list),el_index(2)}
 
 ```

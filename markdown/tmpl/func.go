@@ -348,23 +348,12 @@ func sortByKw(kw string) func(rows TableColumn) []*Row {
 	return func(rows TableColumn) []*Row {
 		result := make(TableColumn, 0, len(rows))
 		for _, v := range rows {
-			if strings.Contains(v.Con, kw) {
-				scon := getBracketContent([]string{kw})(v.Con)
-				if scon == "" {
-					v.Sort = 0
-					result = append(result, v)
-					continue
-				}
-				rex := regexp.MustCompile(`[\d]+`)
-				strs := rex.FindAllString(scon, -1)
-				if len(strs) < 1 { //未设置排序
-					v.Sort = 0
-					result = append(result, v)
-					continue
-				}
-				v.Sort = types.GetInt(strs[0])
-				result = append(result, v)
+			ok, _, sort := getIndex(v.Con, kw)
+			if !ok {
+				continue
 			}
+			v.Sort = sort
+			result = append(result, v)
 		}
 		sort.Sort(result)
 		return result
@@ -490,11 +479,11 @@ func getIndex(input string, tp string) (bool, string, int) {
 		reg := regexp.MustCompile(v)
 		if reg.Match(buff) {
 			value := reg.FindStringSubmatch(strings.ToLower(input))
-			if len(value) > 2 {
-				return true, value[1], types.GetInt(value[2], 0)
+			if len(value) == 4 {
+				return true, value[2], types.GetInt(value[3], 0)
 			}
-			if len(value) > 1 {
-				return true, value[1], 0
+			if len(value) == 3 {
+				return true, value[2], 0
 			}
 			return true, "", 0
 		}
