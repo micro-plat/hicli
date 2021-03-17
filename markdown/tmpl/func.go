@@ -344,36 +344,30 @@ func getMaxIndex(r interface{}) int {
 	return 0
 }
 
-func sortByKw(kw string) func(rows []*Row) []*Row {
-	return func(rows []*Row) []*Row {
-		columns := make([]*Row, 0, len(rows))
-		orders := []string{}
-		ob := map[string]*Row{}
-
+func sortByKw(kw string) func(rows TableColumn) []*Row {
+	return func(rows TableColumn) []*Row {
+		result := make(TableColumn, 0, len(rows))
 		for _, v := range rows {
 			if strings.Contains(v.Con, kw) {
 				scon := getBracketContent([]string{kw})(v.Con)
-				fmt.Println("scon:", scon)
 				if scon == "" {
+					v.Sort = 0
+					result = append(result, v)
 					continue
 				}
 				rex := regexp.MustCompile(`[\d]+`)
 				strs := rex.FindAllString(scon, -1)
-				if len(strs) < 1 {
-					logs.Log.Warnf("%s:sort排序未配置", v.Name)
+				if len(strs) < 1 { //未设置排序
+					v.Sort = 0
+					result = append(result, v)
 					continue
 				}
-				orders = append(orders, strs[0])
-				ob[strs[0]] = v
+				v.Sort = types.GetInt(strs[0])
+				result = append(result, v)
 			}
 		}
-		if len(orders) > 0 {
-			sort.Sort(sort.StringSlice(orders))
-		}
-		for _, v := range orders {
-			columns = append(columns, ob[v])
-		}
-		return columns
+		sort.Sort(result)
+		return result
 	}
 }
 

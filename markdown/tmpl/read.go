@@ -202,6 +202,7 @@ func line2TableRow(line *Line) (*Row, error) {
 		return nil, err
 	}
 	c := &Row{
+		LineID:     line.LineID,
 		Name:       strings.TrimSpace(strings.Replace(colums[0], "&#124;", "|", -1)),
 		Type:       tp,
 		Len:        len,
@@ -210,7 +211,6 @@ func line2TableRow(line *Line) (*Row, error) {
 		IsNull:     strings.TrimSpace(colums[3]),
 		Con:        strings.TrimSpace(colums[4]), // strings.Replace(strings.TrimSpace(colums[4]), " ", "", -1),
 		Desc:       strings.TrimSpace(strings.Replace(colums[5], "&#124;", "|", -1)),
-		Sort:       line.LineID,
 		After:      getAfter(strings.TrimSpace(colums[4])),
 	}
 	return c, nil

@@ -57,9 +57,15 @@ func getStartFlag(c *cli.Context) map[string][]interface{} {
 		"run":     []interface{}{"run"},
 	}
 	for _, v := range strings.Split(c.String("install"), " ") {
+		if v == "" {
+			continue
+		}
 		startFlag["install"] = append(startFlag["install"], v)
 	}
 	for _, v := range strings.Split(c.String("run"), " ") {
+		if v == "" {
+			continue
+		}
 		startFlag["run"] = append(startFlag["run"], v)
 	}
 	return startFlag
@@ -95,6 +101,7 @@ func (s *server) start() {
 	//文件打包
 	err := s.session.Command("go", s.startFlag["install"]...).Run()
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 

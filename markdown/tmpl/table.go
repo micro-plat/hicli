@@ -47,6 +47,7 @@ type Row struct {
 	Desc       string //描述
 	Len        int    //类型长度
 	DecimalLen int    //小数长度
+	LineID     int
 	Sort       int    //字段在列表中排序位置
 	After      string //字段排序位置
 }
@@ -61,9 +62,6 @@ func (t TableColumn) Len() int {
 //从低到高
 func (t TableColumn) Less(i, j int) bool {
 	if t[i].Sort < t[j].Sort {
-		return true
-	}
-	if t[i].Sort == t[j].Sort && t[i].After == "" {
 		return true
 	}
 	return false
@@ -191,6 +189,7 @@ func (t *Table) SetAllTables(tbs []*Table) {
 func (t *Table) SortRows() {
 	sorts := make(map[string]int, len(t.Rows))
 	for _, v := range t.Rows {
+		v.Sort = v.LineID
 		sorts[v.Name] = v.Sort
 	}
 	for k, v := range t.Rows {
