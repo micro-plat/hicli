@@ -11,7 +11,7 @@ const MarkdownCurdSql = `
 {{- $ismysql := .DBType|ismysql -}}
 {{- $isoracle := .DBType|isoracle -}}
 {{- $pks := .|pks -}}
-{{- $order:=.|order -}}
+{{- $order:=.Rows|order|orderSort -}}
 {{- $sort:=.Rows|sort -}}
 {{- $empty:="" -}}
 package {{.PKG}}
@@ -137,7 +137,7 @@ where
 {{- if gt ($sort|len) 0}}
 order by #order_by
 {{- else if gt ($order|len) 0}}
-order by {{range $i,$c:=$order}}t.{{$c.name}}{{if $c.comma}},{{else}} desc{{end}}{{end}}
+order by {{range $i,$c:=$order}}t.{{$c.Name}} {{or ($c.Con|orderCon) "desc"}}{{if lt $i ($order|maxIndex)}}, {{end}}{{end}}
 {{- else}}
 order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 {{- end}}

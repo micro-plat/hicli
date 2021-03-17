@@ -65,8 +65,10 @@ func getfuncs(tp string) map[string]interface{} {
 		"indexs":    getDBIndex(tp),          //获取表的索引串
 		"maxIndex":  getMaxIndex,             //最大索引值
 		"lower":     getLower,                //获取变量的最小写字符
-		"order":     getOrderBy,              //order排序
+		"order":     getRows("order"),        //order排序
 		"sort":      getRows("sort"),         //查询字段
+		"sortSort":  sortByKw("sort"),        //
+		"orderSort": sortByKw("order"),       //
 		"ismysql":   stringsEqual("mysql"),   //是否是mysql
 		"isoracle":  stringsEqual("oracle"),  //是否是oracle
 		"isTime":    isType("time.Time"),     //是否是time
@@ -76,16 +78,15 @@ func getfuncs(tp string) map[string]interface{} {
 		"isString":  isType("string"),        //是否是string
 
 		//前后端约束处理函数
-		"query":   getRows("q"),                                      //查询字段
-		"list":    getRows("l"),                                      //列表展示字段
-		"detail":  getRows("r"),                                      //详情展示字段
-		"create":  getRows("c"),                                      //创建字段
-		"delete":  getRows("d"),                                      //删除时判定字段
-		"update":  getRows("u"),                                      //更新字段
-		"delCon":  getBracketContent([]string{"d"}),                  //删除字段约束
-		"sortCon": getBracketContent([]string{"sort"}, `(asc|desc)`), //
-
-		"sortSort": sortByKw("sort"), //
+		"query":    getRows("q"),                                       //查询字段
+		"list":     getRows("l"),                                       //列表展示字段
+		"detail":   getRows("r"),                                       //详情展示字段
+		"create":   getRows("c"),                                       //创建字段
+		"delete":   getRows("d"),                                       //删除时判定字段
+		"update":   getRows("u"),                                       //更新字段
+		"delCon":   getBracketContent([]string{"d"}),                   //删除字段约束
+		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`),  //
+		"orderCon": getBracketContent([]string{"order"}, `(asc|desc)`), //
 
 		//前端约束处理函数
 		"SL":            getKWS("sl"),                                  //表单下拉框
@@ -357,77 +358,6 @@ func sortByKw(kw string) func(rows TableColumn) []*Row {
 		}
 		sort.Sort(result)
 		return result
-	}
-}
-
-func getOrderBy(tb *Table) []map[string]interface{} {
-	columns := make([]map[string]interface{}, 0, len(tb.Rows))
-	fileds := []string{}
-	orders := []string{}
-	ob := map[string]string{}
-
-	for _, v := range tb.Rows {
-		con := strings.ToLower(v.Con)
-		if strings.Contains(con, "order") {
-			if !strings.Contains(con, "order(") {
-				fileds = append(fileds, v.Name)
-				continue
-			}
-			for _, v1 := range strings.Split(con, ",") {
-				if !strings.Contains(v1, "order(") {
-					continue
-				}
-				s := strings.Index(v1, "order(")
-				e := strings.Index(v1, ")")
-				orders = append(orders, v1[s+1:e])
-				ob[v1[s+1:e]] = v.Name
-			}
-		}
-	}
-
-	if len(orders) > 0 {
-		sort.Sort(sort.StringSlice(orders))
-	}
-
-	for _, v := range orders {
-		fileds = append(fileds, ob[v])
-	}
-
-	for _, v := range fileds {
-		row := map[string]interface{}{
-			"name":  v,
-			"comma": true,
-		}
-		columns = append(columns, row)
-	}
-
-	if len(columns) > 0 {
-		columns[len(columns)-1]["comma"] = false
-	}
-	return columns
-}
-
-func getSeqs() func(tb *Table) []map[string]interface{} {
-	return func(tb *Table) []map[string]interface{} {
-		columns := make([]map[string]interface{}, 0, len(tb.Rows))
-
-		for _, v := range tb.Rows {
-			con := strings.ToLower(v.Con)
-			if strings.Contains(con, "seq") {
-				descsimple := getBracketContent([]string{"seq"})(v.Desc)
-				row := map[string]interface{}{
-					"name":       v.Name,
-					"descsimple": descsimple,
-					"seqname":    "seqname", //  fmt.Sprintf("seq_%s_%s", fGetNName(tb.Name), getFilterName(tb.Name, v.Cname)),
-					"desc":       v.Desc,
-					"type":       v.Type,
-					"len":        v.Len,
-					"comma":      true,
-				}
-				columns = append(columns, row)
-			}
-		}
-		return columns
 	}
 }
 
@@ -751,7 +681,6 @@ func getSubConContent(tp, kw string) func(con string) string {
 			}
 			subConMap[v[0:sub]] = v[sub+1 : len(v)]
 		}
-		//		fmt.Println("con:", con, "map:", subConMap)
 		if v, ok := subConMap[kw]; ok {
 			return v
 		}
@@ -759,6 +688,7 @@ func getSubConContent(tp, kw string) func(con string) string {
 	}
 }
 
+//pattern 只能带有一个分组
 func getBracketContent(keys []string, pattern ...string) func(con string) string {
 	return func(con string) string {
 		s := make([]string, 0)
