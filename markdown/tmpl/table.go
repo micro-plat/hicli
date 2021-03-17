@@ -14,27 +14,22 @@ import (
 
 //Table 表名称
 type Table struct {
-	Name             string //表名
-	Desc             string //表描述
-	ExtInfo          string //扩展信息
-	PKG              string //包名称
-	Drop             bool   //创建表前是否先删除
-	DBType           string //数据库类型
-	DBLink           string //
-	Rows             TableColumn
-	RawRows          []*Row
-	Indexs           Indexs
-	BasePath         string   //生成项目基本路径
-	AllTables        []*Table //所有表
-	Exclude          bool     //排除生成sql
-	ELTableIndex     int
-	TabTables        []*Table //详情切换的tab页对应表
-	TabField         map[string]string
-	TabListField     map[string]string //详情是否生成list
-	TabTable         map[string]bool   //详情tab关联字段
-	TabTableList     map[string]bool   //详情tab关联字段
-	TabTablePreField map[string]string //详情tab关联字段
-	TabTableProField map[string]string //详情tab关联字段
+	Name         string //表名
+	Desc         string //表描述
+	ExtInfo      string //扩展信息
+	PKG          string //包名称
+	Drop         bool   //创建表前是否先删除
+	DBType       string //数据库类型
+	DBLink       string //
+	Rows         TableColumn
+	RawRows      []*Row
+	Indexs       Indexs
+	BasePath     string   //生成项目基本路径
+	AllTables    []*Table //所有表
+	Exclude      bool     //排除生成sql
+	ELTableIndex int
+	TabTables    []*Table //详情切换的tab页对应表
+	TabInfo      *TabInfo
 }
 
 //Row 行信息
@@ -48,8 +43,7 @@ type Row struct {
 	Len        int    //类型长度
 	DecimalLen int    //小数长度
 	LineID     int
-	Sort       int    //字段在列表中排序位置
-	After      string //字段排序位置
+	Sort       int //字段在列表中排序位置
 }
 
 //TableColumn 表的列排序用
@@ -126,18 +120,12 @@ func (t fields) Swap(i, j int) {
 //NewTable 创建表
 func NewTable(name, desc, extinfo string) *Table {
 	return &Table{
-		Name:             strings.TrimLeft(name, "^"),
-		Desc:             desc,
-		Rows:             make([]*Row, 0, 1),
-		RawRows:          make([]*Row, 0, 1),
-		Exclude:          strings.Contains(name, "^"),
-		ExtInfo:          extinfo,
-		TabField:         make(map[string]string),
-		TabListField:     make(map[string]string),
-		TabTablePreField: make(map[string]string),
-		TabTableProField: make(map[string]string),
-		TabTable:         make(map[string]bool),
-		TabTableList:     make(map[string]bool),
+		Name:    strings.TrimLeft(name, "^"),
+		Desc:    desc,
+		Rows:    make([]*Row, 0, 1),
+		RawRows: make([]*Row, 0, 1),
+		Exclude: strings.Contains(name, "^"),
+		ExtInfo: extinfo,
 	}
 }
 
@@ -170,7 +158,7 @@ func (t *Table) GetPKS() []string {
 	return nil
 }
 
-//SetAllTables 添加行信息
+//SetELTableIndex 设置前端列表索引
 func (t *Table) SetELTableIndex() {
 	if t.ExtInfo == "" {
 		return
@@ -180,7 +168,7 @@ func (t *Table) SetELTableIndex() {
 
 }
 
-//SetAllTables 添加行信息
+//SetAllTables 关联所有表
 func (t *Table) SetAllTables(tbs []*Table) {
 	t.AllTables = tbs
 }
@@ -193,80 +181,24 @@ func (t *Table) SortRows() {
 		sorts[v.Name] = v.Sort
 	}
 	for k, v := range t.Rows {
-		if v.After == "" {
+		after := getBracketContent([]string{"after"})(v.Con)
+		if after == "" {
 			continue
 		}
-		if v.After == "0" {
+		if after == "0" {
 			t.Rows[k].Sort = 0
 			continue
 		}
-		if _, ok := sorts[v.After]; ok {
-			t.Rows[k].Sort = sorts[v.After]
-			sorts[t.Rows[k].Name] = sorts[v.After]
+		if _, ok := sorts[after]; ok {
+			t.Rows[k].Sort = sorts[after]
+			sorts[t.Rows[k].Name] = sorts[after]
 		}
 	}
 	sort.Sort(t.Rows)
 	return
 }
 
-//SetAllTables 添加行信息
-func (t *Table) DisposeTabTables() {
-	if t.ExtInfo == "" {
-		return
-	}
-
-	c := getBracketContent([]string{"el_tab"})(t.ExtInfo)
-	tabs := strings.Split(c, "|")
-	if len(tabs) == 0 {
-		return
-	}
-	for _, v := range tabs {
-		tab := strings.Split(v, ",")
-		if len(tab) < 1 || len(tab) > 3 {
-			logs.Log.Warn("tab格式不正确：", v)
-			continue
-		}
-		tabName := tab[0]
-		tabList := ""
-		tabField := make([]string, 2)
-
-		if len(tab) > 1 {
-			t := strings.Split(tab[1], "/")
-			if len(t) == 1 {
-				tabField = []string{t[0], t[0]}
-			}
-			if len(t) == 2 {
-				tabField = []string{t[0], t[1]}
-			}
-		}
-		if len(tab) > 2 {
-			tabList = tab[2]
-		}
-
-		exist := false
-		for _, tb := range t.AllTables {
-			if tb.Name == tabName {
-				if tabList == "list" {
-					tb.TabTableList[t.Name] = true
-					tb.TabListField[tabField[1]] = tabField[1]
-				} else {
-					tb.TabTable[t.Name] = true
-					tb.TabField[tabField[1]] = tabField[1]
-				}
-				tb.TabTablePreField[t.Name] = tabField[0]
-				tb.TabTableProField[t.Name] = tabField[1]
-				t.TabTables = append(t.TabTables, tb)
-				exist = true
-				break
-			}
-		}
-		if !exist {
-			logs.Log.Warn("tab表名不正确：", tabName)
-		}
-	}
-}
-
-//FilterRowByKW	过滤行信息
+//FilterRowByKW 过滤行信息
 func (t *Table) FilterRowByKW(kwc string) {
 	if kwc == "" {
 		return

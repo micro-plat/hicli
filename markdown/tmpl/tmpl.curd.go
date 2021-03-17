@@ -74,7 +74,7 @@ where
 	&{{$c}} 
 {{- end}}{{end}}{###}
 
-{{- if gt (.TabField|len) 0}}
+{{- if gt (.TabInfo.TabField|len) 0}}
 //Get{{.Name|rmhd|upperName}}Detail 查询{{.Desc}}单条详情数据
 const Get{{.Name|rmhd|upperName}}Detail= {###}
 select 
@@ -83,7 +83,7 @@ select
 {{- end}}
 from {{.Name}} t
 where
-	{{- range $i,$c:=.TabField}}
+	{{- range $i,$c:=.TabInfo.TabField}}
 	&{{(or ($c) ($pks|firstStr))}}
 	{{- end}}
 {###}
@@ -144,7 +144,7 @@ order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 limit @ps offset @offset
 {{end -}}{###}
 
-{{- if gt (.TabListField|len) 0}}
+{{- if gt (.TabInfo.TabListField|len) 0}}
 //Get{{.Name|rmhd|upperName}}DetailListCount 获取{{.Desc}}列表条数
 const Get{{.Name|rmhd|upperName}}DetailListCount = {###}
 select count(1)
@@ -153,7 +153,7 @@ where
 {{- range $i,$c:=$deleterows}}
 	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
-{{- range $i,$c:=.TabListField}}
+{{- range $i,$c:=.TabInfo.TabListField}}
 &{{(or ($c) ($pks|firstStr))}}
 {{- end}}{###}
 
@@ -168,7 +168,7 @@ where
 {{- range $i,$c:=$deleterows}}
 	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
-{{- range $i,$c:=.TabListField}}
+{{- range $i,$c:=.TabInfo.TabListField}}
 &{{(or ($c) ($pks|firstStr))}}
 {{- end}}
 limit @ps offset @offset{###}

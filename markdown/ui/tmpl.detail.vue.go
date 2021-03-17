@@ -68,7 +68,7 @@ const TmplDetail = `
         </el-tab-pane>
         {{range $index,$tab:=$tabs -}}
         <el-tab-pane label="{{$tab.Desc|shortName}}" name="{{$tab.Name|rmhd|varName}}Detail">
-        {{- if (index $tab.TabTable $name) }}
+        {{- if (index $tab.TabInfo.TabTable $name) }}
           <div class="table-responsive">
             <table :date="{{$tab.Name|rmhd|lowerName}}Info" class="table table-striped m-b-none">
               <tbody class="table-border">
@@ -121,7 +121,7 @@ const TmplDetail = `
               </tbody>
             </table>
           </div>
-        {{- else if (index $tab.TabTableList $name) }}
+        {{- else if (index $tab.TabInfo.TabTableList $name) }}
           <el-scrollbar style="height:100%" id="panel-body">
             <el-table :data="{{$tab.Name|rmhd|varName}}List.items" stripe style="width: 100%" :height="maxHeight">
               {{if gt $tab.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod"></el-table-column>{{end}}
@@ -166,7 +166,7 @@ const TmplDetail = `
       </el-tabs>
     </div>
     {{- range $index,$tab:=$tabs -}}  
-    {{- if (index $tab.TabTableList $name)}}   
+    {{- if (index $tab.TabInfo.TabTableList $name)}}   
     <div class="page-pagination" v-show="tabName =='{{$tab.Name|rmhd|varName}}Detail'">
     <el-pagination
       @size-change="page{{$tab.Name|rmhd|varName}}SizeChange"
@@ -190,9 +190,9 @@ export default {
       tabName: "{{.Name|rmhd|varName}}Detail",
       info: {},
       {{- range $index,$tab:=$tabs }}
-      {{- if (index $tab.TabTable $name) }}
+      {{- if (index $tab.TabInfo.TabTable $name) }}
       {{$tab.Name|rmhd|lowerName}}Info:{},
-      {{- else if (index $tab.TabTableList $name) }}
+      {{- else if (index $tab.TabInfo.TabTableList $name) }}
       paging{{$tab.Name|rmhd|varName}}: {ps: 10, pi: 1,total:0,sizes:[5, 10, 20, 50]},
       {{$tab.Name|rmhd|varName}}List: {count: 0,items: []}, //表单数据对象,
       query{{$tab.Name|rmhd|varName}}Params:{},  //查询数据对象
@@ -221,11 +221,11 @@ export default {
       this.info = this.$http.xget("/{{.Name|rmhd|rpath}}",this.$route.query)
     },
     {{- range $index,$tab:=$tabs }}
-    {{- if (index $tab.TabTable $name)}}
+    {{- if (index $tab.TabInfo.TabTable $name)}}
     query{{$tab.Name|rmhd|varName}}Data() {
-      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}/detail",{ {{or (index $tab.TabTableProField $name) ($pks|firstStr)}}: this.info.{{or (index $tab.TabTablePreField $name) ($pks|firstStr)}} })
+      this.{{$tab.Name|rmhd|lowerName}}Info = this.$http.xget("/{{$tab.Name|rmhd|rpath}}/detail",{ {{or (index $tab.TabInfo.TabTableProField $name) ($pks|firstStr)}}: this.info.{{or (index $tab.TabInfo.TabTablePreField $name) ($pks|firstStr)}} })
     },
-    {{- else if (index $tab.TabTableList $name)}}
+    {{- else if (index $tab.TabInfo.TabTableList $name)}}
     /**查询数据并赋值*/
 		query{{$tab.Name|rmhd|varName}}Datas() {
       this.paging{{$tab.Name|rmhd|varName}}.pi = 1
@@ -235,7 +235,7 @@ export default {
       this.query{{$tab.Name|rmhd|varName}}Params.pi = this.paging{{$tab.Name|rmhd|varName}}.pi
 			this.query{{$tab.Name|rmhd|varName}}Params.ps = this.paging{{$tab.Name|rmhd|varName}}.ps
       var data = this.$utility.delEmptyProperty(this.query{{$tab.Name|rmhd|varName}}Params)
-      data.{{or (index $tab.TabTableProField $name) ($pks|firstStr)}} = this.info.{{or (index $tab.TabTablePreField $name) ($pks|firstStr)}} || ""
+      data.{{or (index $tab.TabInfo.TabTableProField $name) ($pks|firstStr)}} = this.info.{{or (index $tab.TabInfo.TabTablePreField $name) ($pks|firstStr)}} || ""
       let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/querydetail", data)
 			this.{{$tab.Name|rmhd|varName}}List.items = res.items || []
 			this.{{$tab.Name|rmhd|varName}}List.count = res.count

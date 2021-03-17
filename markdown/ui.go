@@ -88,7 +88,6 @@ func create(tp string) func(c *cli.Context) (err error) {
 			tb.DisposeTabTables()
 		}
 		tbs.FilterByKW(c.String("table"))
-		tbs.Exclude()
 		for _, tb := range tbs.Tbs {
 
 			//保存的动态配置

@@ -87,7 +87,7 @@ func (u *{{.Name|rmhd|varName}}Handler) GetHandle(ctx hydra.IContext) (r interfa
 	ctx.Log().Info("3.返回结果")
 	return items.Get(0)
 }
-{{if gt (.TabField|len) 0}}
+{{if gt (.TabInfo.TabField|len) 0}}
 //DetailHandle 获取{{.Desc}}详情单条数据
 func (u *{{.Name|rmhd|varName}}Handler) DetailHandle(ctx hydra.IContext) (r interface{}) {
 
@@ -152,7 +152,7 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 		"count": types.GetInt(count),
 	}
 }
-{{if gt (.TabListField|len) 0}}
+{{if gt (.TabInfo.TabListField|len) 0}}
 //QueryDetailHandle  获取{{.Desc}}数据列表
 func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r interface{}) {
 
@@ -244,9 +244,9 @@ var post{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 var get{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
 }
-{{if gt (.TabField|len) 0}}
+{{if gt (.TabInfo.TabField|len) 0}}
 var get{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	{{range $i,$c:=.TabField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
+	{{range $i,$c:=.TabInfo.TabField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
 	{{end}}
 }
 {{- end}}
@@ -257,9 +257,9 @@ var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=.Rows|query}}field.Field{{$c.Name|varName}}:"required",
 	{{end -}}
 }
-{{if gt (.TabListField|len) 0}}
+{{if gt (.TabInfo.TabListField|len) 0}}
 var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	{{range $i,$c:=.TabListField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
+	{{range $i,$c:=.TabInfo.TabListField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
 	{{end}}
 }
 {{- end}}

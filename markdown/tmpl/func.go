@@ -54,39 +54,39 @@ func getfuncs(tp string) map[string]interface{} {
 		"fIsDT":     getKWS("dt"),      //字段是否为字典Type
 
 		//数据库，sql，后端modules相关处理函数
-		"shortName": shortName,               //获取特殊字段前的字符串
-		"dbType":    dbType(tp),              //转换为SQL的数据类型
-		"codeType":  codeType,                //转换为GO代码的数据类型
-		"defValue":  defValue(tp),            //返回SQL中的默认值
-		"seqTag":    getSEQTag(tp),           //获取SEQ的变量值
-		"seqValue":  getSEQValue(tp),         //获取SEQ起始值
-		"seq":       getSEQ(tp),              //获取SEQ
-		"pks":       getPKS,                  //获取主键列表
-		"indexs":    getDBIndex(tp),          //获取表的索引串
-		"maxIndex":  getMaxIndex,             //最大索引值
-		"lower":     getLower,                //获取变量的最小写字符
-		"order":     getRows("order"),        //order排序
-		"sort":      getRows("sort"),         //查询字段
-		"sortSort":  sortByKw("sort"),        //
-		"orderSort": sortByKw("order"),       //
-		"ismysql":   stringsEqual("mysql"),   //是否是mysql
-		"isoracle":  stringsEqual("oracle"),  //是否是oracle
-		"isTime":    isType("time.Time"),     //是否是time
-		"isDecimal": isType("types.Decimal"), //是否是decimal
-		"isInt64":   isType("int64"),         //是否是int64
-		"isInt":     isType("int"),           //是否是int
-		"isString":  isType("string"),        //是否是string
+		"shortName": shortName,                                          //获取特殊字段前的字符串
+		"dbType":    dbType(tp),                                         //转换为SQL的数据类型
+		"codeType":  codeType,                                           //转换为GO代码的数据类型
+		"defValue":  defValue(tp),                                       //返回SQL中的默认值
+		"seqTag":    getSEQTag(tp),                                      //获取SEQ的变量值
+		"seqValue":  getSEQValue(tp),                                    //获取SEQ起始值
+		"seq":       getSEQ(tp),                                         //获取SEQ
+		"pks":       getPKS,                                             //获取主键列表
+		"indexs":    getDBIndex(tp),                                     //获取表的索引串
+		"maxIndex":  getMaxIndex,                                        //最大索引值
+		"lower":     getLower,                                           //获取变量的最小写字符
+		"order":     getRows("order"),                                   //order排序
+		"orderSort": sortByKw("order"),                                  //
+		"orderCon":  getBracketContent([]string{"order"}, `(asc|desc)`), //
+		"ismysql":   stringsEqual("mysql"),                              //是否是mysql
+		"isoracle":  stringsEqual("oracle"),                             //是否是oracle
+		"isTime":    isType("time.Time"),                                //是否是time
+		"isDecimal": isType("types.Decimal"),                            //是否是decimal
+		"isInt64":   isType("int64"),                                    //是否是int64
+		"isInt":     isType("int"),                                      //是否是int
+		"isString":  isType("string"),                                   //是否是string
 
 		//前后端约束处理函数
-		"query":    getRows("q"),                                       //查询字段
-		"list":     getRows("l"),                                       //列表展示字段
-		"detail":   getRows("r"),                                       //详情展示字段
-		"create":   getRows("c"),                                       //创建字段
-		"delete":   getRows("d"),                                       //删除时判定字段
-		"update":   getRows("u"),                                       //更新字段
-		"delCon":   getBracketContent([]string{"d"}),                   //删除字段约束
-		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`),  //
-		"orderCon": getBracketContent([]string{"order"}, `(asc|desc)`), //
+		"query":    getRows("q"),                                      //查询字段
+		"list":     getRows("l"),                                      //列表展示字段
+		"detail":   getRows("r"),                                      //详情展示字段
+		"create":   getRows("c"),                                      //创建字段
+		"delete":   getRows("d"),                                      //删除时判定字段
+		"update":   getRows("u"),                                      //更新字段
+		"delCon":   getBracketContent([]string{"d"}),                  //删除字段约束
+		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
+		"sort":     getRows("sort"),                                   //查询字段
+		"sortSort": sortByKw("sort"),                                  //
 
 		//前端约束处理函数
 		"SL":            getKWS("sl"),                                  //表单下拉框
