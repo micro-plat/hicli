@@ -676,7 +676,7 @@ func getSubConContent(tp, kw string) func(con string) string {
 		for _, v := range strings.Split(c, ",") {
 			sub := strings.Index(v, ":")
 			if sub < 1 {
-				logs.Log.Warn("约束格式不正确：", con)
+				logs.Log.Warn("约束格式不正确：", con, tp, kw)
 				continue
 			}
 			subConMap[v[0:sub]] = v[sub+1 : len(v)]

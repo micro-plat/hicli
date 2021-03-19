@@ -1,12 +1,14 @@
 package ui
 
-const TmplList1 = `
+const TmplList = `
 {{- $len := 32 -}}
 {{- $rows := .Rows -}}
+{{- $name := .Name -}}
 {{- $pks := .|pks -}}
 {{- $tb :=. -}}
 {{- $sort:=.Rows|sort -}}
 {{- $choose:= false -}}
+{{- $btn:=.BtnInfo -}}
 <template>
 	<div class="panel panel-default">
     <!-- query start -->
@@ -106,11 +108,35 @@ const TmplList1 = `
 						{{- if gt ($rows|delete|len) 0}}
 						<el-button type="text" size="mini" @click="del(scope.row)">删除</el-button>
 						{{- end}}
+
+						{{- range $i,$c:= $btn }}
+							{{- if gt ($c.VIF|len) 0}}
+								{{- range $k,$v:= $c.VIF}}
+									{{- if eq $k 0}}
+						<el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+									{{- else if lt $k ($c.VIF|maxIndex) }}		
+						<el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+									{{- else}}
+						<el-button v-else type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+									{{- end}}
+								{{- end}}
+							{{- else}}	
+						<el-button type="text" size="small" @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+							{{- end }}
+						{{- end}}
 					</template>
 				</el-table-column>
 			</el-table>
 		</el-scrollbar>
 		<!-- list end-->
+
+		{{- range $i,$c:= $btn }}
+		{{- if eq ($c.VIF|len) 0}}
+		<!-- {{$c.Name|upperName}} Form -->
+		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
+		<!--{{$c.Name|upperName}} Form -->
+		{{- end}}
+		{{- end}}
 
 		{{if gt ($rows|create|len) 0 -}}
 		<!-- Add Form -->
@@ -149,6 +175,11 @@ import Add from "./{{.Name|rmhd|l2d}}.add"
 {{- if gt ($rows|update|len) 0}}
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
+{{- range $i,$c:= $btn }}
+{{- if eq ($c.VIF|len) 0}}
+import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
+{{- end}}
+{{- end}}
 export default {
   components: {
 		{{- if gt ($rows|create|len) 0}}
@@ -156,6 +187,11 @@ export default {
 		{{- end}}
 		{{- if gt ($rows|update|len) 0}}
 		Edit
+		{{- end}}
+		{{- range $i,$c:= $btn }}
+		{{- if eq ($c.VIF|len) 0 -}},
+		{{$c.Name|upperName}}
+		{{- end}}
 		{{- end}}
   },
   data () {
@@ -279,20 +315,43 @@ export default {
       this.$refs.Edit.show();
 		},
 		{{- end}}
+		
+		{{- range $i,$c:= $btn }}
+		{{- if eq ($c.VIF|len) 0}}
+	  show{{$c.Name}}(val) {
+      this.$refs.{{$c.Name|upperName}}.editData = val
+      this.$refs.{{$c.Name|upperName}}.show();
+		},
+		{{- end}}
+		{{- end}}
+
+		{{- range $i,$c:= $btn }}
+		{{- if gt ($c.VIF|len) 0}}
+		{{$c.Name}}(val){
+			{{- if $c.Confirm}}
+      this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+					this.$http.post("{{$c.URL}}", val, {}, true, true)
+					.then(res => {
+						this.dialogFormVisible = false;
+						this.query()
+					})
+			{{- if $c.Confirm}}
+				});
+			{{- end}}
+		},
+		{{- end}}
+		{{- end}}
+
 		{{- if gt ($rows|delete|len) 0}}
     del(val){
 			this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {confirmButtonText: "确定",  cancelButtonText: "取消", type: "warning"})
 			.then(() => {
 				this.$http.del("/{{.Name|rmhd|rpath}}",val, {}, true, true)
-				.then(res => {			
-					this.dialogFormVisible = false;
-					this.query()
-				})
-      }).catch(() => {
-        this.$message({
-          type: "info",
-          message: "已取消删除"
-        });          
+					.then(res => {
+						this.query()
+					})
       });
 		}
 		{{- end}}

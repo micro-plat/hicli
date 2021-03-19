@@ -25,7 +25,7 @@ const TmplCreateVue = `
 			{{- else if $c.Con|SL }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
 				<el-select size="medium" style="width: 100%;"	v-model="addData.{{$c.Name}}"	clearable filterable class="input-cos" placeholder="---请选择---"
-				{{- if (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
+				{{- if (cDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
 				{{- if (cDicCName $c.Name $tb) }} @change="set{{(cDicCName $c.Name $tb)|upperName}}(addData.{{$c.Name}})" {{- end}}>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>

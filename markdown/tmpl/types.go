@@ -54,7 +54,7 @@ var any2code = map[string]string{
 	"^clob$":                      "string",
 }
 
-var keywordSubMatch = `\b%s\(([\w\s-:#,|/]+)\)`
+var keywordSubMatch = `\b%s\(([\w\s-:#,|/\p{Han}]+)\)`
 
 var keywordMatch = []string{"^\\w*%s\\w*$", ",\\w*%s\\w*,", "^\\w*%s\\w*,", ",\\w*%s\\w*$"}
 

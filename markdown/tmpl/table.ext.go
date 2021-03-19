@@ -1,9 +1,11 @@
 package tmpl
 
 import (
+	"fmt"
 	"strings"
 
 	logs "github.com/lib4dev/cli/logger"
+	"github.com/micro-plat/lib4go/types"
 )
 
 type TabInfo struct {
@@ -78,4 +80,116 @@ func (t *Table) DisposeTabTables() {
 			logs.Log.Warn("tab表名不正确：", tabName)
 		}
 	}
+}
+
+type BtnInfo struct {
+	Name    string
+	DESC    string
+	VIF     []*VIF
+	KeyWord string
+	Confirm string
+	URL     string
+	Table   []*Table
+	Rows    []*Row
+}
+type VIF struct {
+	IfName string
+	IfDESC string
+}
+
+//DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,table:adas/iqe,key:sa)}
+func (t *Table) DispostBtnTables() {
+	if t.ExtInfo == "" {
+		return
+	}
+	a := []string{"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+
+	for _, v := range a {
+		key := fmt.Sprintf("el_btn%s", v)
+		if !strings.Contains(t.ExtInfo, key) {
+			break
+		}
+
+		info := &BtnInfo{}
+
+		//name
+		info.Name = getSubConContent(key, "name")(t.ExtInfo)
+		if info.Name == "" {
+			logs.Log.Warn("列表页面btn的name选项未配置：", t.ExtInfo)
+			continue
+		}
+
+		//desc and if
+		desc := getSubConContent(key, "desc")(t.ExtInfo)
+		if desc == "" {
+			logs.Log.Warn("列表页面btn的desc选项未配置：", t.ExtInfo)
+			continue
+		}
+
+		if strings.Contains(desc, "|") {
+			for _, v := range strings.Split(desc, "|") {
+				pos := strings.Index(v, "-")
+				fmt.Println("desc_v:", v, pos, v[0:pos])
+				if pos < 0 {
+					logs.Log.Warn("列表页面btn的if选项不正确：", desc)
+					continue
+				}
+				info.VIF = append(info.VIF, &VIF{
+					IfName: v[:pos],
+					IfDESC: v[pos+1:],
+				})
+			}
+
+			if len(info.VIF) < 2 {
+				logs.Log.Warn("列表页面btn的if选项最少为2个：", desc)
+			}
+		} else {
+			info.DESC = desc
+		}
+
+		//confirm
+		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
+
+		info.URL = getSubConContent(key, "url")(t.ExtInfo)
+
+		//key
+		info.KeyWord = types.GetString(getSubConContent(key, "key")(t.ExtInfo), key)
+
+		//table
+		tabs := getSubConContent(key, "table")(t.ExtInfo)
+		for _, v := range strings.Split(tabs, "|") {
+			pos := strings.Index(v, "/")
+			if pos < 0 {
+				continue
+			}
+			tabName := v[0:pos]
+			for _, tb := range t.AllTables {
+				if tb.Name == tabName {
+					info.Table = append(info.Table, tb)
+				}
+			}
+		}
+
+		//Rows
+		for _, v := range getRows(info.KeyWord)(t.Rows) {
+			v.BelongTable = t
+			info.Rows = append(info.Rows, v)
+		}
+
+		for _, v := range info.Table {
+			for _, v1 := range getRows(info.KeyWord)(v.Rows) {
+				v1.BelongTable = v
+				v1.Disable = true
+				info.Rows = append(info.Rows, v1)
+			}
+		}
+
+		if len(info.Rows) < 1 {
+			logs.Log.Warn("列表页面btn的更新的字段未配置")
+			continue
+		}
+
+		t.BtnInfo = append(t.BtnInfo, info)
+	}
+
 }

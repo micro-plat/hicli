@@ -30,20 +30,24 @@ type Table struct {
 	ELTableIndex int
 	TabTables    []*Table //详情切换的tab页对应表
 	TabInfo      *TabInfo
+	BtnInfo      []*BtnInfo
+	TempIndex    int
 }
 
 //Row 行信息
 type Row struct {
-	Name       string //字段名
-	Type       string //类型
-	Def        string //默认值
-	IsNull     string //为空
-	Con        string //约束
-	Desc       string //描述
-	Len        int    //类型长度
-	DecimalLen int    //小数长度
-	LineID     int
-	Sort       int //字段在列表中排序位置
+	Name        string //字段名
+	Type        string //类型
+	Def         string //默认值
+	IsNull      string //为空
+	Con         string //约束
+	Desc        string //描述
+	Len         int    //类型长度
+	DecimalLen  int    //小数长度
+	LineID      int
+	Sort        int //字段在列表中排序位置
+	BelongTable *Table
+	Disable     bool
 }
 
 //TableColumn 表的列排序用

@@ -31,6 +31,10 @@ func createPage(c *cli.Context) (err error) {
 		}
 	}
 	//创建路由
+	if err := createExt()(c); err != nil {
+		return err
+	}
+	//创建路由
 	if err := createVueRouter()(c); err != nil {
 		return err
 	}
@@ -86,6 +90,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
 			tb.DisposeTabTables()
+			tb.DispostBtnTables()
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {
@@ -131,4 +136,62 @@ var uiMap = map[string]string{
 	"detail": ui.TmplDetail,
 	"edit":   ui.TmplEditVue,
 	"add":    ui.TmplCreateVue,
+}
+
+func createExt() func(c *cli.Context) (err error) {
+	return func(c *cli.Context) (err error) {
+		if len(c.Args()) == 0 {
+			return fmt.Errorf("未指定markdown文件")
+		}
+
+		root := c.Args().Get(1)
+
+		//读取文件
+		tbs, err := tmpl.Markdown2DB(c.Args().First())
+		if err != nil {
+			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
+		}
+		//过滤数据表
+		allTables := tbs.Tbs
+		for _, tb := range tbs.Tbs {
+			tb.SetAllTables(allTables)
+			tb.DisposeTabTables()
+			tb.DispostBtnTables()
+		}
+		tbs.FilterByKW(c.String("table"))
+		for _, tb := range tbs.Tbs {
+
+			//根据关键字过滤
+			tb.FilterRowByKW(c.String("kw"))
+			tb.SortRows()
+
+			for k, v := range tb.BtnInfo {
+				if len(v.VIF) > 0 {
+					continue
+				}
+
+				//翻译文件
+				tb.TempIndex = k
+				content, err := tmpl.Translate(ui.TmplEditExtVue, tmpl.MYSQL, tb)
+				if err != nil {
+					return fmt.Errorf("翻译edit模板出错:%+v", err)
+				}
+				if !c.Bool("w2f") {
+					logs.Log.Info(content)
+					return nil
+				}
+
+				//生成文件
+				path := tmpl.GetFilePath(root, fmt.Sprintf("%s.%s", tb.Name, v.Name))
+				fs, err := tmpl.Create(path, c.Bool("cover"))
+				if err != nil {
+					return err
+				}
+				logs.Log.Info("生成文件:", path)
+				fs.WriteString(content)
+				fs.Close()
+			}
+		}
+		return nil
+	}
 }
