@@ -79,7 +79,10 @@ func create(tp string) func(c *cli.Context) (err error) {
 
 		root := c.Args().Get(1)
 		confPath := tmpl.GetWebConfPath(root)
-
+		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
 		//读取文件
 		tbs, err := tmpl.Markdown2DB(c.Args().First())
 		if err != nil {
@@ -107,7 +110,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 			tb.SortRows()
 
 			//翻译文件
-			content, err := tmpl.Translate(uiMap[tp], tmpl.MYSQL, tb)
+			content, err := tmpl.Translate(uiMap[tp], dbtp, tb)
 			if err != nil {
 				return fmt.Errorf("翻译%s模板出错:%+v", tp, err)
 			}
@@ -146,6 +149,10 @@ func createExt() func(c *cli.Context) (err error) {
 
 		root := c.Args().Get(1)
 
+		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
 		//读取文件
 		tbs, err := tmpl.Markdown2DB(c.Args().First())
 		if err != nil {
@@ -172,7 +179,7 @@ func createExt() func(c *cli.Context) (err error) {
 
 				//翻译文件
 				tb.TempIndex = k
-				content, err := tmpl.Translate(ui.TmplEditExtVue, tmpl.MYSQL, tb)
+				content, err := tmpl.Translate(ui.TmplEditExtVue, dbtp, tb)
 				if err != nil {
 					return fmt.Errorf("翻译edit模板出错:%+v", err)
 				}

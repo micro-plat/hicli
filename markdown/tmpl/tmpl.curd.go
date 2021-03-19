@@ -14,6 +14,11 @@ const MarkdownCurdSql = `
 {{- $order:=.Rows|order|orderSort -}}
 {{- $sort:=.Rows|sort -}}
 {{- $empty:="" -}}
+{{- if $isoracle -}}
+// +build oracle
+{{else}}
+// +build mysql
+{{end}}
 package {{.PKG}}
 
 {{- if and $ismysql (gt ($createrows|len) 0)}}
@@ -41,18 +46,20 @@ values
 const Insert{{.Name|rmhd|upperName}} = {###}
 insert into {{.Name}}{{.DBLink}}
 (
-	{{- range $i,$c:=.seqs}}
-	{{$c.Name}},{{end}}{{range $i,$c:=$createrows}}
+	{{- range $i,$c:=.|seqs}}
+	{{$c.name}},
+	{{- end}}
+	{{- range $i,$c:=$createrows}}
 	{{$c.Name}}{{if lt $i ($createrows|maxIndex)}},{{end}}
 	{{- end}}
 )
 values(
-	{{- range $i,$c:=.seqs}}
+	{{- range $i,$c:=.|seqs}}
 	{{$c.seqname}}.nextval,
 	{{- end}}
 	{{- range $i,$c:=$createrows}}
 	{{if $c.Type|codeType|isTime }}to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss'){{else -}}
-	@{{$c.Name}}{{end}}{{if $c.comma}},{{end}}
+	@{{$c.Name}}{{end}}{{if lt $i ($createrows|maxIndex)}},{{end}}
 	{{- end}}
 ){###}
 {{end -}}
@@ -242,7 +249,7 @@ from (select L.*
 			{{- if gt ($sort|len) 0}}
 			order by #order_by
 			{{- else if gt ($order|len) 0}}
-			order by {{range $i,$c:=$order}}t.{{$c.Name}}{{if $c.comma}},{{else}} desc{{end}}{{end}}
+			order by {{range $i,$c:=$order}}t.{{$c.Name}} {{or ($c.Con|orderCon) "desc"}}{{if lt $i ($order|maxIndex)}}, {{end}}{{end}}
 			{{- else}}
 			order by {{range $i,$c:=pks}}t.{{$c}} desc{{end}}
 			{{- end}}

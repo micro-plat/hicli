@@ -5,7 +5,6 @@ const tmplMainGo = `package main
 import (
 	"github.com/micro-plat/hydra"
 	"github.com/micro-plat/hydra/hydra/servers/http"
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var App = hydra.NewApp(

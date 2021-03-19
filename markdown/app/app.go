@@ -35,7 +35,7 @@ func CreateApp(name string, sso bool) error {
 			"router":      true,
 			"basePath":    utils.GetProjectBasePath(projectPath),
 		}
-		content, err := tmpl.Translate(template, tmpl.MYSQL, param)
+		content, err := tmpl.Translate(template, "", param)
 		if err != nil {
 			return fmt.Errorf("翻译%s模板出错:%+v", file, err)
 		}

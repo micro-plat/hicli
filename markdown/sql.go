@@ -19,6 +19,9 @@ func createCurd() func(c *cli.Context) (err error) {
 		if err = createConstFile("driver")(c); err != nil {
 			return err
 		}
+		if c.Bool("oracle") {
+			return
+		}
 		//创建序列sql
 		if err = createConstFile("seq")(c); err != nil {
 			return err
@@ -75,6 +78,9 @@ func showSQL(sqlType string) func(c *cli.Context) (err error) {
 		tb.FilterByKW(c.String("table"))
 
 		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
 
 		for _, tb := range tb.Tbs {
 			path := tmpl.GetFileName(fmt.Sprintf("%s/modules/const/sql", projectPath), tb.Name, fmt.Sprintf("%s.", dbtp))
@@ -86,7 +92,7 @@ func showSQL(sqlType string) func(c *cli.Context) (err error) {
 			//翻译文件
 			content, err := tmpl.Translate(sqlMap[sqlType], dbtp, tb)
 			if err != nil {
-				return err
+				return fmt.Errorf("翻译%s模板出错:%+v", sqlType, err)
 			}
 			if !c.Bool("w2f") {
 				logs.Log.Info(content)
@@ -117,6 +123,9 @@ func createConstFile(tp string) func(c *cli.Context) (err error) {
 		projectPath := utils.GetProjectPath(root)
 
 		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
 		path := tmpl.GetFileName(fmt.Sprintf("%s/modules/const/sql", projectPath), sqlPathMap[tp], dbtp)
 
 		//文件存在则不生成
@@ -126,6 +135,7 @@ func createConstFile(tp string) func(c *cli.Context) (err error) {
 		//翻译文件
 		content, err := tmpl.Translate(sqlMap[tp], dbtp, map[string]interface{}{
 			"BasePath": utils.GetProjectBasePath(projectPath),
+			"IsOracle": c.Bool("oracle"),
 		})
 		if err != nil {
 			return err

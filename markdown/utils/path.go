@@ -16,8 +16,8 @@ import (
 	"strings"
 )
 
-//GetGitcliHomePath 获取用户home目录
-func GetGitcliHomePath() string {
+//GetHicliHomePath 获取用户home目录
+func GetHicliHomePath() string {
 	user, err := user.Current()
 	if nil == err {
 		return filepath.Join(user.HomeDir, ".hicli")

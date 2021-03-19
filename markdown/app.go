@@ -29,16 +29,19 @@ func createServiceBlock() func(c *cli.Context) (err error) {
 		if err := createCurd()(c); err != nil {
 			return err
 		}
-		//生成modules/db/seq
-		if err := createModulesSeq()(c); err != nil {
-			return err
-		}
 		//生成field.go
 		if err := showField()(c); err != nil {
 			return err
 		}
 		//生成conf.go
-		return createGORouter()(c)
+		if err := createGORouter()(c); err != nil {
+			return err
+		}
+		if c.Bool("oracle") {
+			return
+		}
+		//生成modules/db/seq
+		return createModulesSeq()(c)
 	}
 }
 
@@ -49,6 +52,9 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 		}
 
 		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
 
 		//获取生成文件有关路径
 		root := c.Args().Get(1)
@@ -71,7 +77,7 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 
 		//过滤数据表
 		tbs.FilterByKW(c.String("table"))
-	
+
 		for _, tb := range tbs.Tbs {
 			//设置项目目录
 			tb.SetBasePath(basePath)
@@ -153,7 +159,11 @@ func createEnum() func(c *cli.Context) (err error) {
 		}
 
 		//翻译文件
-		content, err := tmpl.Translate(tml, tmpl.MYSQL, tbs)
+		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
+		content, err := tmpl.Translate(tml, dbtp, tbs)
 		if err != nil {
 			return fmt.Errorf("翻译%s模板出错:%+v", "enums", err)
 		}

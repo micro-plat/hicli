@@ -17,6 +17,7 @@ func init() {
 					Action: createApp,
 					Flags: []cli.Flag{
 						cli.BoolFlag{Name: "sso", Usage: `-生成sso相关内容`},
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 					},
 				},
 				{
@@ -25,6 +26,7 @@ func init() {
 					Action: createEnums(),
 					Flags: []cli.Flag{
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
 						cli.BoolFlag{Name: "dds", Usage: `-引用dds`},
@@ -36,6 +38,7 @@ func init() {
 					Action: createServiceBlock(),
 					Flags: []cli.Flag{
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -65,6 +68,7 @@ func init() {
 					Usage:  "创建项目页面",
 					Action: createPage,
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
@@ -76,6 +80,7 @@ func init() {
 					Usage:  "生成列表代码",
 					Action: createList(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
@@ -87,6 +92,7 @@ func init() {
 					Usage:  "生成预览代码",
 					Action: createDetail(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
@@ -98,6 +104,7 @@ func init() {
 					Usage:  "生成预览代码",
 					Action: createEdit(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
@@ -109,6 +116,7 @@ func init() {
 					Usage:  "生成预览代码",
 					Action: createAdd(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
@@ -126,6 +134,7 @@ func init() {
 					Usage:  "创建实体类",
 					Action: showEnitfy(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
 				},
@@ -134,6 +143,7 @@ func init() {
 					Usage:  "创建表字段列表",
 					Action: showField(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
@@ -150,6 +160,7 @@ func init() {
 					Usage:  "创建数据库结构文件",
 					Action: createScheme,
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.BoolFlag{Name: "gofile,g", Usage: `-生成到gofile中`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.BoolFlag{Name: "drop,d", Usage: `-包含表删除语句`},
@@ -162,6 +173,7 @@ func init() {
 					Usage:  "创建select语句",
 					Action: showSelect(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
@@ -171,6 +183,7 @@ func init() {
 					Usage:  "创建update语句",
 					Action: showUpdate(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
@@ -180,6 +193,7 @@ func init() {
 					Usage:  "创建insert语句",
 					Action: showInsert(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 					},
@@ -189,6 +203,7 @@ func init() {
 					Usage:  "创建crud语句",
 					Action: createCurd(),
 					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "oracle", Usage: `-生成oracle相关内容`},
 						cli.StringFlag{Name: "kw,k", Usage: `-约束字段`},
 						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},

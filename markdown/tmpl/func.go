@@ -16,6 +16,9 @@ import (
 //MYSQL mysql数据库
 const MYSQL = "mysql"
 
+//ORACLE ORACLE数据库
+const ORACLE = "oracle"
+
 //webEnumComponents 前端涉及枚举的组件类型名称
 var webEnumComponents = []string{"sl", "cb", "rd", "slm"}
 
@@ -31,7 +34,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"varName":   getVarName,            //获取pascal变量名称
 		"snames":    getNames("/"),         //去掉首位斜线，并根据斜线分隔字符串
 		"rmhd":      rmhd,                  //去除首段名称
-		"isNull":    isNull(tp),            //返回空语句
+		"isNull":    isNull(),              //返回空语句
 		"firstStr":  getStringByIndex(0),   //第一个字符
 		"lastStr":   getLastStringByIndex,  //最后一个字符
 		"l2d":       replaceUnderline("."), //下划线替换为.
@@ -61,6 +64,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"seqTag":    getSEQTag(tp),                                      //获取SEQ的变量值
 		"seqValue":  getSEQValue(tp),                                    //获取SEQ起始值
 		"seq":       getSEQ(tp),                                         //获取SEQ
+		"seqs":      getSeqs,                                            //获取表的序列
 		"pks":       getPKS,                                             //获取主键列表
 		"indexs":    getDBIndex(tp),                                     //获取表的索引串
 		"maxIndex":  getMaxIndex,                                        //最大索引值
@@ -144,14 +148,10 @@ func shortName(input string) string {
 }
 
 //获取短文字
-func isNull(tp string) func(*Row) string {
-	switch tp {
-	case MYSQL:
-		return func(row *Row) string {
-			return mysqlIsNull[row.IsNull]
-		}
+func isNull() func(*Row) string {
+	return func(row *Row) string {
+		return IsNull[row.IsNull]
 	}
-	return func(row *Row) string { return "" }
 }
 
 //首字母大写，并去掉下划线
@@ -214,6 +214,41 @@ func fGetUpperCase(n string) string {
 		nitems = append(nitems, strings.ToUpper(i[0:1])+i[1:])
 	}
 	return strings.Join(nitems, "")
+}
+
+func getSeqs(tb *Table) []map[string]interface{} {
+	columns := make([]map[string]interface{}, 0, len(tb.Rows))
+
+	for _, v := range tb.Rows {
+		ok, seqName, start, increament := getIndex1(v.Con, "seq")
+		if ok {
+			if seqName == "" {
+				seqName = fmt.Sprintf("seq_%s_id", rmhd(tb.Name))
+			}
+			if len(seqName) > 64 {
+				logs.Log.Errorf("自动生成或配置%s的序列名长度不正确(%s),请重新配置", v.Name, seqName)
+				return nil
+			}
+			if start == 0 {
+				start = 1
+			}
+			if increament == 0 {
+				increament = 1
+			}
+			row := map[string]interface{}{
+				"name":      v.Name,
+				"seqname":   seqName,
+				"desc":      v.Desc,
+				"type":      v.Type,
+				"len":       v.Len,
+				"increment": increament,
+				"min":       start,
+				"max":       99999999999,
+			}
+			columns = append(columns, row)
+		}
+	}
+	return columns
 }
 
 //通过正则表达式，转换正确的数据库类型
@@ -321,7 +356,7 @@ func getSEQValue(tp string) func(r *Table) string {
 
 func getSEQ(tp string) func(r *Table) bool {
 	switch tp {
-	case MYSQL:
+	case MYSQL, ORACLE:
 		return func(r *Table) bool {
 			for _, r := range r.RawRows {
 				if isCons(r.Con, "seq") {
@@ -403,6 +438,7 @@ func getDBIndex(tp string) func(r *Table) string {
 	return func(r *Table) string { return "" }
 }
 
+// 类似 tp(字符串,数字)
 func getIndex(input string, tp string) (bool, string, int) {
 	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
 	for _, v := range cons[tp] {
@@ -419,6 +455,28 @@ func getIndex(input string, tp string) (bool, string, int) {
 		}
 	}
 	return false, "", 0
+}
+
+// 类似 tp(字符串,数字,数字)
+func getIndex1(input string, tp string) (bool, string, int, int) {
+	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
+	for _, v := range cons[tp] {
+		reg := regexp.MustCompile(v)
+		if reg.Match(buff) {
+			value := reg.FindStringSubmatch(strings.ToLower(input))
+			if len(value) == 5 {
+				return true, value[2], types.GetInt(value[3], 0), types.GetInt(value[4], 0)
+			}
+			if len(value) == 4 {
+				return true, value[2], types.GetInt(value[3], 0), 0
+			}
+			if len(value) == 3 {
+				return true, value[2], 0, 0
+			}
+			return true, "", 0, 0
+		}
+	}
+	return false, "", 0, 0
 }
 
 func getRows(tp ...string) func(row []*Row) []*Row {

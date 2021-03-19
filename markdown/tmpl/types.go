@@ -59,8 +59,8 @@ var keywordSubMatch = `\b%s\(([\w\s-:#,|/\p{Han}]+)\)`
 var keywordMatch = []string{"^\\w*%s\\w*$", ",\\w*%s\\w*,", "^\\w*%s\\w*,", ",\\w*%s\\w*$"}
 
 var cons = map[string][]string{
-	"pk":    {"\\bpk\\b"},
-	"seq":   {"\\bseq\\b"},
+	"pk": {"\\bpk\\b"},
+	//"seq":   {"\\bseq\\b"},
 	"di":    {"\\bdi\\b"},
 	"dn":    {"\\bdn\\b"},
 	"sl":    {"\\bsl(\\([\\w,]+\\)|\\b)"},
@@ -80,8 +80,9 @@ var cons = map[string][]string{
 	"sort":  {"\\bsort(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
 	"order": {"\\border(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
 	"*":     {"\\b%s\\b"},
+	"seq":   {"\\bseq(\\(([\\w]+)[,]?([\\d]?)[,]?([\\d]?)\\)|\\b)"},
 }
-var mysqlIsNull = map[string]string{
+var IsNull = map[string]string{
 	"否":   "not null",
 	"N":   "not null",
 	"NO":  "not null",

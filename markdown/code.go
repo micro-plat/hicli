@@ -36,12 +36,16 @@ func showCode(tp string) func(c *cli.Context) (err error) {
 		tb.FilterByKW(c.String("table"))
 
 		script := entityMap[tp]
+		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
 
 		for _, tb := range tb.Tbs {
 			path := tmpl.GetFileName(fmt.Sprintf("%s/modules/const/%s", projectPath, tp), tb.Name, "")
 			tb.SetPkg(path)
 			//翻译文件
-			content, err := tmpl.Translate(script, tmpl.MYSQL, tb)
+			content, err := tmpl.Translate(script, dbtp, tb)
 			if err != nil {
 				return err
 			}
@@ -79,9 +83,12 @@ func showFiledCode(tp string) func(c *cli.Context) (err error) {
 		if err != nil {
 			return err
 		}
-
+		dbtp := tmpl.MYSQL
+		if c.Bool("oracle") {
+			dbtp = tmpl.ORACLE
+		}
 		//翻译文件
-		content, err := tmpl.Translate(entityMap[tp], tmpl.MYSQL, confs)
+		content, err := tmpl.Translate(entityMap[tp], dbtp, confs)
 		if err != nil {
 			return err
 		}
