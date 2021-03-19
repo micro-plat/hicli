@@ -130,6 +130,8 @@ func NewTable(name, desc, extinfo string) *Table {
 		RawRows: make([]*Row, 0, 1),
 		Exclude: strings.Contains(name, "^"),
 		ExtInfo: extinfo,
+		TabInfo: new(TabInfo),
+		BtnInfo: make([]*BtnInfo, 0),
 	}
 }
 
