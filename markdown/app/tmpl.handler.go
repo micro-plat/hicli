@@ -138,7 +138,7 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 		return errs.NewErrorf(http.StatusNotExtended, "查询数据数量出错:%+v", err)
 	}
 	
-	var items types.IXMaps
+	var items types.XMaps
 	if types.GetInt(count) > 0 {
 		items, err = hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}List, m)
 		if err != nil {
@@ -172,7 +172,7 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r
 		return errs.NewErrorf(http.StatusNotExtended, "查询数据数量出错:%+v", err)
 	}
 	
-	var items types.IXMaps
+	var items types.XMaps
 	if types.GetInt(count) > 0 {
 		items, err = hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}DetailList, m)
 		if err != nil {
