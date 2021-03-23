@@ -25,7 +25,7 @@ func (o *SystemEnumsHandler) QueryHandle(ctx hydra.IContext) interface{} {
 	//根据传入的枚举类型获取数据
 	tp := ctx.Request().GetString("dic_type")
 	if tp != "" {
-		var items types.XMaps
+		var items types.IXMaps
 		var err error
 		if _, ok := enumsMap[tp]; !ok {
 			items, err = dds.GetEnums(ctx, ctx.Request().GetMap())
