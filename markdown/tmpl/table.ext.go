@@ -17,6 +17,17 @@ type TabInfo struct {
 	TabTableProField map[string]string //详情tab关联字段
 }
 
+func newTableInfo() *TabInfo {
+	return &TabInfo{
+		TabField:         make(map[string]string),
+		TabListField:     make(map[string]string),
+		TabTable:         make(map[string]bool),
+		TabTableList:     make(map[string]bool),
+		TabTablePreField: make(map[string]string),
+		TabTableProField: make(map[string]string),
+	}
+}
+
 //DisposeTabTables 处理前端详情页
 func (t *Table) DisposeTabTables() {
 	if t.ExtInfo == "" {
@@ -54,14 +65,6 @@ func (t *Table) DisposeTabTables() {
 		exist := false
 		for _, tb := range t.AllTables {
 			if tb.Name == tabName {
-				tb.TabInfo = &TabInfo{
-					TabField:         make(map[string]string),
-					TabListField:     make(map[string]string),
-					TabTable:         make(map[string]bool),
-					TabTableList:     make(map[string]bool),
-					TabTablePreField: make(map[string]string),
-					TabTableProField: make(map[string]string),
-				}
 				if tabList == "list" {
 					tb.TabInfo.TabTableList[t.Name] = true
 					tb.TabInfo.TabListField[tabField[1]] = tabField[1]
