@@ -20,10 +20,6 @@ func createScheme(c *cli.Context) (err error) {
 	}
 
 	//读取文件
-	dbtp := tmpl.MYSQL
-	if c.Bool("oracle") {
-		dbtp = tmpl.ORACLE
-	}
 	tbs, err := tmpl.Markdown2DB(c.Args().First())
 	if err != nil {
 		return err

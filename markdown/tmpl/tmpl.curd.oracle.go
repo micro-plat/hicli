@@ -112,7 +112,6 @@ from (select L.*
 			) R 
 	where rownum <= @pi * @ps) L 
 where L.rn > (@pi - 1) * @ps) TAB1{###}
-{{end}}
 
 {{- if (gt ($updaterows|len) 0)}}
 //Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 更新{{.Desc}}

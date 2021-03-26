@@ -79,10 +79,6 @@ func create(tp string) func(c *cli.Context) (err error) {
 
 		root := c.Args().Get(1)
 		confPath := tmpl.GetWebConfPath(root)
-		dbtp := tmpl.MYSQL
-		if c.Bool("oracle") {
-			dbtp = tmpl.ORACLE
-		}
 		//读取文件
 		tbs, err := tmpl.Markdown2DB(c.Args().First())
 		if err != nil {
@@ -148,11 +144,6 @@ func createExt() func(c *cli.Context) (err error) {
 		}
 
 		root := c.Args().Get(1)
-
-		dbtp := tmpl.MYSQL
-		if c.Bool("oracle") {
-			dbtp = tmpl.ORACLE
-		}
 		//读取文件
 		tbs, err := tmpl.Markdown2DB(c.Args().First())
 		if err != nil {

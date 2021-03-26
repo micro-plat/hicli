@@ -13,6 +13,8 @@ import (
 	"github.com/codeskyblue/go-sh"
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/urfave/cli"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 type server struct {
@@ -179,6 +181,12 @@ func (s *server) watchChildren(path string) {
 			s.fs.Close()
 			return
 		case cldWatcher := <-ch:
+			if cldWatcher.GetOp() == fsnotify.Remove {
+				logs.Log.Info("----------------------项目文件被删除，应用程序重启----------------------")
+				s.notifyChan <- 1
+				delete(s.watchers, path)
+				return
+			}
 			if cldWatcher.GetError() != nil && s.running {
 				s.errChan <- fmt.Errorf("监控项目文件发生错误：%+v", cldWatcher.GetError())
 				return

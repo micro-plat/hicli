@@ -19,7 +19,7 @@ func createCurd() func(c *cli.Context) (err error) {
 		if err = createConstFile("driver")(c); err != nil {
 			return err
 		}
-		if c.Bool("oracle") {
+		if isOracle {
 			return
 		}
 		//创建序列sql
@@ -77,11 +77,6 @@ func showSQL(sqlType string) func(c *cli.Context) (err error) {
 		//过滤数据表
 		tb.FilterByKW(c.String("table"))
 
-		dbtp := tmpl.MYSQL
-		if c.Bool("oracle") {
-			dbtp = tmpl.ORACLE
-		}
-
 		for _, tb := range tb.Tbs {
 			path := tmpl.GetFileName(fmt.Sprintf("%s/modules/const/sql", projectPath), tb.Name, fmt.Sprintf("%s.", dbtp))
 			//根据关键字过滤
@@ -122,10 +117,6 @@ func createConstFile(tp string) func(c *cli.Context) (err error) {
 		root := c.Args().Get(1)
 		projectPath := utils.GetProjectPath(root)
 
-		dbtp := tmpl.MYSQL
-		if c.Bool("oracle") {
-			dbtp = tmpl.ORACLE
-		}
 		path := tmpl.GetFileName(fmt.Sprintf("%s/modules/const/sql", projectPath), sqlPathMap[tp], dbtp)
 
 		//文件存在则不生成

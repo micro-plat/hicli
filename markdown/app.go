@@ -37,7 +37,7 @@ func createServiceBlock() func(c *cli.Context) (err error) {
 		if err := createGORouter()(c); err != nil {
 			return err
 		}
-		if c.Bool("oracle") {
+		if isOracle {
 			return
 		}
 		//生成modules/db/seq
@@ -49,11 +49,6 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 	return func(c *cli.Context) (err error) {
 		if len(c.Args()) == 0 {
 			return fmt.Errorf("未指定markdown文件")
-		}
-
-		dbtp := tmpl.MYSQL
-		if c.Bool("oracle") {
-			dbtp = tmpl.ORACLE
 		}
 
 		//获取生成文件有关路径
@@ -159,10 +154,6 @@ func createEnum() func(c *cli.Context) (err error) {
 		}
 
 		//翻译文件
-		dbtp := tmpl.MYSQL
-		if c.Bool("oracle") {
-			dbtp = tmpl.ORACLE
-		}
 		content, err := tmpl.Translate(tml, dbtp, tbs)
 		if err != nil {
 			return fmt.Errorf("翻译%s模板出错:%+v", "enums", err)

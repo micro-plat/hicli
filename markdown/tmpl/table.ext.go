@@ -25,7 +25,7 @@ func (t *Table) DisposeTabTables() {
 
 	c := getBracketContent([]string{"el_tab"})(t.ExtInfo)
 	tabs := strings.Split(c, "|")
-	if len(tabs) == 0 {
+	if len(tabs) == 0 || c == "" {
 		return
 	}
 	for _, v := range tabs {
@@ -129,7 +129,6 @@ func (t *Table) DispostBtnTables() {
 		if strings.Contains(desc, "|") {
 			for _, v := range strings.Split(desc, "|") {
 				pos := strings.Index(v, "-")
-				fmt.Println("desc_v:", v, pos, v[0:pos])
 				if pos < 0 {
 					logs.Log.Warn("列表页面btn的if选项不正确：", desc)
 					continue

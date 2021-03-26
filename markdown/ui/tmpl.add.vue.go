@@ -42,7 +42,7 @@ const TmplCreateVue = `
 					<el-checkbox v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
 				</el-checkbox-group>
 			</el-form-item>
-			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) }}
+			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			<el-form-item prop="{{$c.Name}}" label="{{$c.Desc|shortName}}:">
 					<el-date-picker size="medium" class="input-cos"  v-model="addData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ceCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ceCon)}}"  placeholder="选择日期"></el-date-picker>
 			</el-form-item>
@@ -124,7 +124,7 @@ export default {
 		{{- end }}
 		add(formName) {
 			{{- range $i,$c:=$rows|create -}}
-			{{- if or ($c.Con|DTIME) ($c.Con|DATE) }}
+			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			this.addData.{{$c.Name}} = this.$utility.dateFormat(this.addData.{{$c.Name}},"{{dateFormat $c.Con ($c.Con|ueCon)}}")
 			{{- else if or ($c.Con|SLM) ($c.Con|CB) }}
 			this.addData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
