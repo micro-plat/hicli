@@ -55,6 +55,22 @@ where
 	&{{$c}}
 {{- end}}
 {{- end}}{###}
+
+{{- if gt (.TabInfo.TabField|len) 0}}
+//Get{{.Name|rmhd|upperName}}Detail 查询{{.Desc}}单条详情数据
+const Get{{.Name|rmhd|upperName}}Detail= {###}
+select 
+{{- range $i,$c:=$detailrows}}
+	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
+{{- end}}
+from {{.Name}} t
+where
+	{{- range $i,$c:=.TabInfo.TabField}}
+	&{{(or ($c) ($pks|firstStr))}}
+	{{- end}}
+{###}
+{{- end}}
+
 {{- end}}
 
 //Get{{.Name|rmhd|upperName}}ListCount 获取{{.Desc}}列表条数
@@ -107,11 +123,49 @@ from (select L.*
 			{{- else if gt ($order|len) 0}}
 			order by {{range $i,$c:=$order}}t.{{$c.Name}} {{or ($c.Con|orderCon) "desc"}}{{if lt $i ($order|maxIndex)}}, {{end}}{{end}}
 			{{- else}}
-			order by {{range $i,$c:=pks}}t.{{$c}} desc{{end}}
+			order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 			{{- end}}
 			) R 
 	where rownum <= @pi * @ps) L 
 where L.rn > (@pi - 1) * @ps) TAB1{###}
+
+
+{{- if gt (.TabInfo.TabListField|len) 0}}
+//Get{{.Name|rmhd|upperName}}DetailListCount 获取{{.Desc}}列表条数
+const Get{{.Name|rmhd|upperName}}DetailListCount = {###}
+select count(1)
+from {{.Name}} t
+where 
+{{- range $i,$c:=$deleterows}}
+	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+{{- end}}
+{{- range $i,$c:=.TabInfo.TabListField}}
+&{{(or ($c) ($pks|firstStr))}}
+{{- end}}{###}
+
+//Get{{.Name|rmhd|upperName}}DetailList 查询{{.Desc}}列表数据
+const Get{{.Name|rmhd|upperName}}DetailList = {###}
+select 
+	TAB1.*
+from (select L.*  
+	from (select rownum as rn,R.* 
+		from (
+select 
+{{- range $i,$c:=$listrows}}
+	t.{{$c.Name}}{{if lt $i ($listrows|maxIndex)}},{{end}}
+{{- end}} 
+from {{.Name}} t
+where
+{{- range $i,$c:=$deleterows}}
+	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+{{- end}}
+{{- range $i,$c:=.TabInfo.TabListField}}
+&{{(or ($c) ($pks|firstStr))}}
+{{- end}}
+) R 
+where rownum <= @pi * @ps) L
+where L.rn > (@pi - 1) * @ps) TAB1{###}
+{{- end}}
 
 {{- if (gt ($updaterows|len) 0)}}
 //Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 更新{{.Desc}}
