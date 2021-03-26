@@ -57,16 +57,14 @@ func getStartFlag(c *cli.Context) map[string][]interface{} {
 		"run":     []interface{}{"run"},
 	}
 	for _, v := range strings.Split(c.String("install"), " ") {
-		if v == "" {
-			continue
+		if v != "" {
+			startFlag["install"] = append(startFlag["install"], v)
 		}
-		startFlag["install"] = append(startFlag["install"], v)
 	}
 	for _, v := range strings.Split(c.String("run"), " ") {
-		if v == "" {
-			continue
+		if v != "" {
+			startFlag["run"] = append(startFlag["run"], v)
 		}
-		startFlag["run"] = append(startFlag["run"], v)
 	}
 	return startFlag
 }

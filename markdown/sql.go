@@ -135,7 +135,6 @@ func createConstFile(tp string) func(c *cli.Context) (err error) {
 		//翻译文件
 		content, err := tmpl.Translate(sqlMap[tp], dbtp, map[string]interface{}{
 			"BasePath": utils.GetProjectBasePath(projectPath),
-			"IsOracle": c.Bool("oracle"),
 		})
 		if err != nil {
 			return err

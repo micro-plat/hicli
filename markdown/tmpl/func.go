@@ -72,8 +72,6 @@ func getfuncs(tp string) map[string]interface{} {
 		"order":     getRows("order"),                                   //order排序
 		"orderSort": sortByKw("order"),                                  //
 		"orderCon":  getBracketContent([]string{"order"}, `(asc|desc)`), //
-		"ismysql":   stringsEqual("mysql"),                              //是否是mysql
-		"isoracle":  stringsEqual("oracle"),                             //是否是oracle
 		"isTime":    isType("time.Time"),                                //是否是time
 		"isDecimal": isType("types.Decimal"),                            //是否是decimal
 		"isInt64":   isType("int64"),                                    //是否是int64
