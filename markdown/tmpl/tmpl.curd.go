@@ -151,7 +151,6 @@ where
 {{- end}}
 limit @ps offset @offset{###}
 {{- end}}
-{{end}}
 
 
 {{- if (gt ($updaterows|len) 0)}}

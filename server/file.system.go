@@ -10,17 +10,10 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/micro-plat/lib4go/registry"
 )
 
 var fileMode = os.FileMode(0664)
 var dirMode = os.FileMode(0755)
-
-type fsValueWatcher struct {
-	watcher  chan registry.ValueWatcher
-	event    chan fsnotify.Event
-	syncChan chan fsnotify.Event
-}
 
 type fsChildrenWatcher struct {
 	watcher  chan ChildrenWatcher
@@ -30,7 +23,6 @@ type fsChildrenWatcher struct {
 
 type fs struct {
 	watcher             *fsnotify.Watcher
-	valueWatcherMaps    map[string]*fsValueWatcher
 	childrenWatcherMaps map[string]*fsChildrenWatcher
 	watchLock           sync.Mutex
 	tempNodes           map[string]bool
@@ -54,7 +46,6 @@ func NewFileSystem(rootDir string) (*fs, error) {
 	registryfs := &fs{
 		rootDir:             rootDir,
 		watcher:             w,
-		valueWatcherMaps:    make(map[string]*fsValueWatcher),
 		childrenWatcherMaps: make(map[string]*fsChildrenWatcher),
 		tempNodes:           make(map[string]bool),
 		closeCh:             make(chan struct{}),
@@ -79,11 +70,6 @@ func (l *fs) Start() {
 					defer l.watchLock.Unlock()
 					dataPath := l.formatPath(event.Name)
 					path := filepath.Dir(dataPath)
-					valueWatcher, ok := l.valueWatcherMaps[path]
-					if ok {
-						valueWatcher.event <- event
-						return
-					}
 					l.bubblingChildrenEvent(path, event)
 				}(event)
 
@@ -118,22 +104,6 @@ func (l *fs) formatPath(path string) string {
 		return l.rootDir + filepath.Join("/", path)
 	}
 	return path
-}
-
-//exposePath 将rootDir 去除
-func (l *fs) exposePath(path string) string {
-	if strings.HasPrefix(path, l.rootDir) {
-		return strings.TrimLeft(path, l.rootDir)
-	}
-	return path
-}
-
-//getDataPath 获取目录下的.init路径
-func (l *fs) getDataPath(path string) string {
-	if strings.HasSuffix(path, ".init") {
-		return path
-	}
-	return fmt.Sprintf("%s/.init", path)
 }
 
 func (l *fs) GetChildren(path string) (paths []string, version int32, err error) {
