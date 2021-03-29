@@ -118,14 +118,14 @@ func (t *Table) DispostBtnTables() {
 		//name
 		info.Name = getSubConContent(key, "name")(t.ExtInfo)
 		if info.Name == "" {
-			logs.Log.Warn("列表页面btn的name选项未配置：", t.ExtInfo)
+			logs.Log.Warn("列表页面btn的name选项未配置:", key, t.ExtInfo)
 			continue
 		}
 
 		//desc and if
 		desc := getSubConContent(key, "desc")(t.ExtInfo)
 		if desc == "" {
-			logs.Log.Warn("列表页面btn的desc选项未配置：", t.ExtInfo)
+			logs.Log.Warn("列表页面btn的desc选项未配置:", t.ExtInfo)
 			continue
 		}
 
@@ -133,7 +133,7 @@ func (t *Table) DispostBtnTables() {
 			for _, v := range strings.Split(desc, "|") {
 				pos := strings.Index(v, "-")
 				if pos < 0 {
-					logs.Log.Warn("列表页面btn的if选项不正确：", desc)
+					logs.Log.Warn("列表页面btn的if选项不正确:", desc)
 					continue
 				}
 				info.VIF = append(info.VIF, &VIF{
@@ -159,12 +159,14 @@ func (t *Table) DispostBtnTables() {
 
 		//table
 		tabs := getSubConContent(key, "table")(t.ExtInfo)
+
 		for _, v := range strings.Split(tabs, "|") {
-			pos := strings.Index(v, "/")
-			if pos < 0 {
-				continue
+
+			tabName := v
+			if pos := strings.Index(v, "/"); pos > 0 {
+				tabName = v[0:pos]
 			}
-			tabName := v[0:pos]
+
 			for _, tb := range t.AllTables {
 				if tb.Name == tabName {
 					info.Table = append(info.Table, tb)
