@@ -9,9 +9,9 @@ import (
 )
 
 type TabInfo struct {
-	TabField         map[string]string
-	TabListField     map[string]string //详情是否生成list
-	TabTable         map[string]bool   //详情tab关联字段
+	TabField         map[string]string //详情字段名---详情字段名
+	TabListField     map[string]string //详情列表字段名---详情列表字段名
+	TabTable         map[string]bool   //主页
 	TabTableList     map[string]bool   //详情tab关联字段
 	TabTablePreField map[string]string //详情tab关联字段
 	TabTableProField map[string]string //详情tab关联字段

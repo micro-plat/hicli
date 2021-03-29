@@ -14,7 +14,7 @@ func runServer() func(c *cli.Context) (err error) {
 		//判断项目是否存在
 		projectPath := utils.GetProjectPath(c.Args().Get(0))
 		if !utils.PathExists(filepath.Join(projectPath, "main.go")) {
-			return fmt.Errorf("未指定的运行应用程序的项目路径")
+			return fmt.Errorf("未指定的运行应用程序的项目路径:%s", projectPath)
 		}
 
 		//构建服务
