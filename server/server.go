@@ -32,16 +32,17 @@ type server struct {
 	startFlag  map[string][]interface{}
 }
 
-func newServer(c *cli.Context, path string) (*server, error) {
+func newServer(c *cli.Context, path, watchpath string) (*server, error) {
 	session := sh.InteractiveSession()
 	session.SetDir(path)
-	r, err := NewFileSystem(path)
+
+	r, err := NewFileSystem(watchpath)
 	if err != nil {
 		return nil, err
 	}
 	return &server{
 		serverName: filepath.Base(path),
-		path:       path,
+		path:       watchpath,
 		fs:         r,
 		session:    session,
 		notifyChan: make(chan int, 1),
