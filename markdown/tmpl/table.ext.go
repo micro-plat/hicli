@@ -86,18 +86,28 @@ func (t *Table) DisposeTabTables() {
 }
 
 type BtnInfo struct {
-	Name    string
-	DESC    string
-	VIF     []*VIF
-	KeyWord string
-	Confirm string
-	URL     string
-	Table   []*Table
-	Rows    []*Row
+	Name               string
+	DESC               string
+	VIF                []*VIF
+	KeyWord            string
+	Confirm            string
+	URL                string
+	Table              []*Table
+	Rows               []Row
+	RelativeShelfFiled map[string]string
+	RelativeFiled      map[string]string
+	LastRowIndex       string
 }
 type VIF struct {
 	IfName string
 	IfDESC string
+}
+
+func newBtnInfo() *BtnInfo {
+	return &BtnInfo{
+		RelativeShelfFiled: make(map[string]string),
+		RelativeFiled:      make(map[string]string),
+	}
 }
 
 //DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,table:adas/iqe,key:sa)}
@@ -113,7 +123,7 @@ func (t *Table) DispostBtnTables() {
 			break
 		}
 
-		info := &BtnInfo{}
+		info := newBtnInfo()
 
 		//name
 		info.Name = getSubConContent(key, "name")(t.ExtInfo)
@@ -163,12 +173,22 @@ func (t *Table) DispostBtnTables() {
 		for _, v := range strings.Split(tabs, "|") {
 
 			tabName := v
-			if pos := strings.Index(v, "/"); pos > 0 {
+			tabField := make([]string, 2)
+			if pos := strings.Index(v, ":"); pos > 0 {
 				tabName = v[0:pos]
+				t := strings.Split(v[pos+1:], "/")
+				if len(t) == 1 {
+					tabField = []string{t[0], t[0]}
+				}
+				if len(t) == 2 {
+					tabField = []string{t[0], t[1]}
+				}
 			}
 
 			for _, tb := range t.AllTables {
 				if tb.Name == tabName {
+					info.RelativeShelfFiled[tb.Name] = tabField[0]
+					info.RelativeFiled[tb.Name] = tabField[1]
 					info.Table = append(info.Table, tb)
 				}
 			}
@@ -177,17 +197,18 @@ func (t *Table) DispostBtnTables() {
 		//Rows
 		for _, v := range getRows(info.KeyWord)(t.Rows) {
 			v.BelongTable = t
-			info.Rows = append(info.Rows, v)
+			info.Rows = append(info.Rows, *v)
+			info.LastRowIndex = v.Name
 		}
 
-		for _, v := range info.Table {
+		for k, v := range info.Table {
 			for _, v1 := range getRows(info.KeyWord)(v.Rows) {
 				v1.BelongTable = v
 				v1.Disable = true
-				info.Rows = append(info.Rows, v1)
+				v1.SQLAliasName = fmt.Sprintf("t%d", k)
+				info.Rows = append(info.Rows, *v1)
 			}
 		}
-
 		if len(info.Rows) < 1 {
 			logs.Log.Warn("列表页面btn的更新的字段未配置")
 			continue

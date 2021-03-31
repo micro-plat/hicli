@@ -110,7 +110,7 @@ export default {
     },{{end}}
 		show() {
 			{{range $i,$c:=$pks}}var {{$c}} = this.editData.{{$c}}{{end}}
-			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
+			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}/get{{$btnInfo.Name}}", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
 			{{range $i,$c:=$pks}}this.editData.{{$c}} = {{$c}}{{end}}
 			{{- range $i,$c:=$rows -}}
 			{{if (uDicPName $c.Con $c.BelongTable)  }}
@@ -142,7 +142,7 @@ export default {
       this.$confirm("{{$btnInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-			this.$http.put("{{$btnInfo.URL}}", this.editData, {}, true, true)
+			this.$http.post("/{{.Name|rmhd|rpath}}/{{$btnInfo.Name}}", this.editData, {}, true, true)
 			.then(res => {			
 				this.dialogFormVisible = false;
 				this.refresh()

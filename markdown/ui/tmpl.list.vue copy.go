@@ -328,11 +328,16 @@ export default {
 		{{- range $i,$c:= $btn }}
 		{{- if gt ($c.VIF|len) 0}}
 		{{$c.Name}}(val){
+			var data = {
+				{{- range $i,$c:=$c.Rows}}
+				{{$c.Name}} : ""
+				{{- end}}
+			}
 			{{- if $c.Confirm}}
       this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-					this.$http.post("{{$c.URL}}", val, {}, true, true)
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
 					.then(res => {
 						this.dialogFormVisible = false;
 						this.query()
