@@ -14,6 +14,8 @@ const MarkdownCurdSql = `
 {{- $order:=.Rows|order|orderSort -}}
 {{- $sort:=.Rows|sort -}}
 {{- $empty:="" -}}
+{{- $btns:=.BtnInfo -}}
+{{- $table := . -}}
 package {{.PKG}}
 
 {{- if (gt ($createrows|len) 0)}}
@@ -191,4 +193,50 @@ where
 {{- end}}
 {{end }}{###}
 {{end}}
+
+
+{{- range $i,$btn:=$btns }}
+//Update{{$table.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 更新数据
+const Update{{$table.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
+update {{$table.Name}}{{$table.DBLink}} 
+set
+{{- range $i,$c:=$btn.Rows}}
+{{- if not $c.Disable}}
+	{{- if $c.Type|codeType|isTime }}
+	{{$c.Name}}=to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')
+	{{- else}}
+	{{$c.Name}} = @{{$c.Name}}{{end}}{{if ne $c.Name $btn.LastRowIndex}},{{end}}
+{{- end}}
+{{- end}}
+where
+{{- if eq ($pks|len) 0}}
+	1=1
+{{- else -}}
+{{- range $i,$c:=$pks}}
+	&{{$c}}
+{{- end}}
+{{- end}}{###}
+
+{{- if eq ($btn.VIF|len) 0}}
+//Get{{$table.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 查询单条数据{{$table.Desc}}
+const Get{{$table.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
+select 
+{{- range $i,$c:=$btn.Rows}}
+	{{or $c.SQLAliasName "t"}}.{{$c.Name}}{{if lt $i ($btn.Rows|maxIndex)}},{{end}}
+{{- end}} 
+from {{$table.Name}}{{$table.DBLink}} t
+{{- range $i,$c:=$btn.Table}}
+left join {{$c.Name}}{{$table.DBLink}} t{{$i}} on t.{{index $btn.RelativeShelfFiled $c.Name}} = t{{$i}}.{{index $btn.RelativeFiled $c.Name}} 
+{{- end}}
+where
+{{- if eq ($pks|len) 0}}
+1=1
+{{- else -}}
+{{- range $i,$c:=$pks}}
+	&t.{{$c}}
+{{- end}}
+{{- end}}{###}
+{{- end}}
+
+{{- end}}
 `
