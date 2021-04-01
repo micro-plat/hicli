@@ -21,13 +21,18 @@ func createDataDic(c *cli.Context) (err error) {
 		return fmt.Errorf("连接串有误%s", c.String("dbstr"))
 	}
 	f := dbProviderFunc[provider]
+	connstr := strings.TrimPrefix(c.String("dbstr"), fmt.Sprintf("%s:", provider))
 	//获取对应表
-	tbs, err := f(provider, strings.TrimPrefix(c.String("dbstr"), provider+":"))
+	tbs, err := f(provider, connstr)
 	if err != nil {
 		return err
 	}
-	tempArr := strings.Split(c.String("dbstr"), "/")
+	tempArr := strings.Split(connstr, "/")
 	tableScheme := tempArr[len(tempArr)-1]
+	if provider == "oracle" {
+		tableScheme = tempArr[0]
+	}
+
 	content := ""
 	//循环创建表
 	for _, tb := range tbs {
@@ -43,7 +48,7 @@ func createDataDic(c *cli.Context) (err error) {
 		content += ct
 	}
 	//生成文件
-	path := filepath.Join(c.Args().Get(0), fmt.Sprintf("./%s.mysql.md", tableScheme))
+	path := filepath.Join(c.Args().Get(0), fmt.Sprintf("./%s.%s.md", tableScheme, provider))
 	fs, err := tmpl.Create(path, c.Bool("cover"))
 	if err != nil {
 		return err
@@ -65,7 +70,7 @@ var dbProviderFunc map[string]func(string, string) ([]*tmpl.Table, error)
 func init() {
 	dbProviderFunc = make(map[string]func(string, string) ([]*tmpl.Table, error))
 	registerProviderFunc("mysql", generateMysqlMD)
-	//registerProviderFunc("oracle", generateOracleMD)
+	registerProviderFunc("oracle", generateOracleMD)
 }
 
 //RegisterFrame 注册模板
@@ -107,6 +112,40 @@ func generateMysqlMD(provider, connstr string) (tabs []*tmpl.Table, err error) {
 		d[tableName].AddRow(d[tableName].Mysql2Column(v))
 	}
 
+	tbs := []*tmpl.Table{}
+	for _, v := range d {
+		tbs = append(tbs, v)
+	}
+	return tbs, nil
+}
+
+//generateMysqlMD 生成oracle的markdown文件
+func generateOracleMD(provider, connstr string) (tabs []*tmpl.Table, err error) {
+	dbObj, err := db.NewDB(provider, connstr, 20, 10, 20000)
+	if err != nil {
+		return nil, fmt.Errorf("createOracleMD，NewDB出错，err:%+v,provider:%s,connstr:%s", err, provider, connstr)
+	}
+	tableNames, err := dbObj.Query(sql.GetAllTableNameInOracle, map[string]interface{}{})
+	if err != nil {
+		return nil, fmt.Errorf("oracle(err:%v)", err)
+	}
+
+	d := map[string]*tmpl.Table{}
+	for _, v := range tableNames {
+		tableName := v.GetString("table_name")
+		datas, err := dbObj.Query(sql.GetSingleTableInfoInOracle, map[string]interface{}{
+			"table_name": strings.ToUpper(tableName),
+		})
+		if err != nil {
+			return nil, fmt.Errorf("oracle(err:%v)", err)
+		}
+		if _, ok := d[tableName]; !ok {
+			d[tableName] = tmpl.NewTable(strings.ToLower(tableName), datas.Get(0).GetString("table_comments"), "")
+		}
+		for _, v2 := range datas {
+			d[tableName].AddRow(d[tableName].Oracle2Column(v2))
+		}
+	}
 	tbs := []*tmpl.Table{}
 	for _, v := range d {
 		tbs = append(tbs, v)
