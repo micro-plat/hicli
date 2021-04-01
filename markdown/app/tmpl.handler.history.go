@@ -16,7 +16,7 @@ import (
 	"{{.BasePath}}/modules/const/field"
 	{{- end}}
 	{{if gt ($rows|list|len) 0}}"github.com/micro-plat/lib4go/types"{{end}}
-	{{if and (.|seq) (gt (.Rows|create|len) 0)}}"{{.BasePath}}/modules/db"{{end}}
+	{{if and (.|mysqlseq) (gt (.Rows|create|len) 0)}}"{{.BasePath}}/modules/db"{{end}}
 )
 
 //{{.Name|rmhd|varName}}Handler {{.Desc}}处理服务
@@ -39,7 +39,7 @@ func (u *{{.Name|rmhd|varName}}Handler) PostHandle(ctx hydra.IContext) (r interf
 	}
 
 	ctx.Log().Info("2.执行操作")
-	{{- if (.|seq) }}
+	{{- if (.|mysqlseq) }}
 	xdb := hydra.C.DB().GetRegularDB()
 	{{$pks|firstStr|lowerName}}, err := db.GetNewID(xdb, sql.SQLGetSEQ, map[string]interface{}{"name": "{{.Desc}}"})
 	if err != nil {

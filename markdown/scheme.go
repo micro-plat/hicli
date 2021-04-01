@@ -28,7 +28,6 @@ func createScheme(c *cli.Context) (err error) {
 	if c.Bool(gofile) {
 		tbs.SetPkg(c.Args().Get(1))
 	}
-
 	//是否删除表
 	tbs.DropTable(c.Bool("drop"))
 	//过滤数据表
@@ -60,7 +59,7 @@ func createScheme(c *cli.Context) (err error) {
 		if err != nil {
 			return err
 		}
-		path := tmpl.GetSEQFilePath(c.Args().Get(1))
+		path := tmpl.GetSEQFilePath(c.Args().Get(1), c.Bool(gofile))
 		fs, err := tmpl.Create(path, c.Bool("cover"))
 		if err != nil {
 			return err
@@ -68,7 +67,6 @@ func createScheme(c *cli.Context) (err error) {
 		logs.Log.Info("生成文件:", path)
 		fs.WriteString(content)
 		fs.Close()
-
 	}
 
 	//生成安装文件

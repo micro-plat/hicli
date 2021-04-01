@@ -20,13 +20,81 @@ var tp2mysql = map[string]string{
 	"^longtext$":                  "longtext",
 	"^clob$":                      "longtext",
 }
+
+var tp2oracle = map[string]string{
+	"bigint":            "number(19)",
+	"binary":            "raw",
+	"bit":               "raw", //长度正确为（n/8）
+	"blob":              "blob",
+	"boolean":           "char(1)",
+	"bool":              "char(1)",
+	"char":              "char",
+	"character":         "character",
+	"character varying": "character varying",
+	"date":              "date",
+	"datetime":          "timestamp",
+	"decimal":           "number",
+	"dec":               "number",
+	"double":            "binary_double",
+	"double precision":  "binary_double",
+	"fixed":             "number",
+	"float":             "binary_double",
+	"float4":            "binary_double",
+	"float8":            "binary_double",
+	"int":               "number",
+	"integer":           "number",
+	"int1":              "number(3)",
+	"int2":              "number(5)",
+	"int3":              "number(7)",
+	"int4":              "number(10)",
+	"int8":              "number(19)",
+	"longblob":          "blob",
+	"longtext":          "clob",
+	"long varbinary":    "blob",
+	"long":              "clob",
+	"long varchar":      "clob",
+	"mediumblob":        "blob",
+	"mediumint":         "number(7)",
+	"mediumtext":        "clob",
+	"middleint":         "number(7)",
+	"nchar":             "nchar",
+	"nvarchar":          "nvarchar2",
+	"numeric":           "number",
+	"real":              "binary_double",
+	"smallint":          "number(5)",
+	"text":              "clob",
+	"time":              "timestamp",
+	"timestamp":         "timestamp",
+	"tinyblob":          "raw(255)",
+	"tinyint":           "number(3)",
+	"tinytext":          "varchar2(255)",
+	"varbinary":         "raw",
+	"varchar":           "varchar2",
+	"year":              "number(4)",
+}
+
 var def2mysql = []map[string]string{
 	{
-		"^$":         "",
-		"^-$":        "default '-'",
-		"^seq$":      "",
-		"^sysdate$":  "default current_timestamp",
-		"^([0-9]+)$": "default *",
+		"^$":                  "",
+		"^-$":                 "default '-'",
+		"^seq$":               "",
+		"^current_timestamp$": "default current_timestamp",
+		"^sysdate$":           "default current_timestamp",
+		"^([0-9]+)$":          "default *",
+	},
+	{
+		"^(.+)$": "default '*'",
+	},
+}
+
+var def2oracle = []map[string]string{
+	{
+		"^$":                  "",
+		"^-$":                 "default '-'",
+		"^seq$":               "",
+		"^current_timestamp$": "default sysdate",
+		"^sysdate$":           "default sysdate",
+		"^([0-9]+)$":          "default *",
 	},
 	{
 		"^(.+)$": "default '*'",
@@ -52,6 +120,7 @@ var any2code = map[string]string{
 	"^text$":                      "string",
 	"^longtext$":                  "string",
 	"^clob$":                      "string",
+	//mysql ?
 }
 
 var keywordSubMatch = `\b%s\(([\w\s-:#,|/\p{Han}]+)\)`

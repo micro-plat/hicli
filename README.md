@@ -35,5 +35,6 @@ e:枚举参数
 //排除表 ^表名
 
 //{el_tab(表名，字段名/字段名，list),el_index(2)}
-
+el_btn(name:方法名,desc:1-禁用|2-启用,confirm:确定要进行此操作吗,key:)
+el_btn1(name:方法名,desc:按钮名称,confirm:确定要进行此操作吗,table:关联表:字段1/字段2|关联表2,key:btn_key)
 ```

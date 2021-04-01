@@ -23,14 +23,14 @@ package {{.PKG}}
 const Insert{{.Name|rmhd|upperName}} = {###}
 insert into {{.Name}}{{.DBLink}}
 (
-	{{if (.|seq) }}{{range $i,$c:=$pks}}{{$c}},{{end}}{{end}}
+	{{if (.|mysqlseq) }}{{range $i,$c:=$pks}}{{$c}},{{end}}{{end}}
 	{{- range $i,$c:=$createrows}}
 	{{$c.Name}}{{if lt $i ($createrows|maxIndex)}},{{end}}
 	{{- end}}
 )
 values
 (
-	{{if (.|seq)}}{{range $i,$c:=$pks}}@{{$c}},{{end}}{{end}}
+	{{if (.|mysqlseq)}}{{range $i,$c:=$pks}}@{{$c}},{{end}}{{end}}
 	{{- range $i,$c:=$createrows}}
 	{{if or ($c.Type|codeType|isInt) ($c.Type|codeType|isInt64) ($c.Type|codeType|isDecimal) }}if(isnull(@{{$c.Name}})||@{{$c.Name}}='',0,@{{$c.Name}}){{if lt $i ($createrows|maxIndex)}},{{end}}{{else -}}
 	@{{$c.Name}}{{if lt $i ($createrows|maxIndex)}},{{end}}{{end}}

@@ -63,7 +63,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"defValue":  defValue(tp),                                       //返回SQL中的默认值
 		"seqTag":    getSEQTag(tp),                                      //获取SEQ的变量值
 		"seqValue":  getSEQValue(tp),                                    //获取SEQ起始值
-		"seq":       getSEQ(tp),                                         //获取SEQ
+		"mysqlseq":  getSEQ(tp),                                         //获取SEQ
 		"seqs":      getSeqs,                                            //获取表的序列
 		"pks":       getPKS,                                             //获取主键列表
 		"indexs":    getDBIndex(tp),                                     //获取表的索引串
@@ -270,6 +270,15 @@ func dbType(tp string) callHanlder {
 			}
 			return input
 		}
+	case ORACLE:
+		return func(input string) string {
+			for k, v := range tp2oracle {
+				if k == strings.ToLower(input) {
+					return v
+				}
+			}
+			return input
+		}
 	}
 	return func(input string) string { return "" }
 }
@@ -288,33 +297,35 @@ func codeType(input string) string {
 
 //通过正则表达式，转换正确的数据库类型
 func defValue(tp string) func(*Row) string {
+	defMaps := []map[string]string{}
 	switch tp {
-
 	case MYSQL:
-		return func(row *Row) string {
-			if isCons(row.Con, "seq") {
-				return ""
-			}
-			buff := []byte(strings.Trim(strings.ToLower(row.Def), "'"))
-			for _, defs := range def2mysql {
-				for k, v := range defs {
-					reg := regexp.MustCompile(k)
-					if reg.Match(buff) {
-						if !strings.Contains(v, "*") {
-							return v
-						}
-						value := reg.FindStringSubmatch(row.Def)
-						if len(value) > 1 {
-							return strings.Replace(v, "*", strings.Join(value[1:], ","), -1)
-						}
-						return row.Def
+		defMaps = def2mysql
+	case ORACLE:
+		defMaps = def2oracle
+	}
+	return func(row *Row) string {
+		if isCons(row.Con, "seq") {
+			return ""
+		}
+		buff := []byte(strings.Trim(strings.ToLower(row.Def), "'"))
+		for _, defs := range defMaps {
+			for k, v := range defs {
+				reg := regexp.MustCompile(k)
+				if reg.Match(buff) {
+					if !strings.Contains(v, "*") {
+						return v
 					}
+					value := reg.FindStringSubmatch(row.Def)
+					if len(value) > 1 {
+						return strings.Replace(v, "*", strings.Join(value[1:], ","), -1)
+					}
+					return row.Def
 				}
 			}
-			return row.Def
 		}
+		return row.Def
 	}
-	return func(row *Row) string { return "" }
 }
 
 func getPKS(t *Table) []string {
@@ -354,7 +365,7 @@ func getSEQValue(tp string) func(r *Table) string {
 
 func getSEQ(tp string) func(r *Table) bool {
 	switch tp {
-	case MYSQL, ORACLE:
+	case MYSQL:
 		return func(r *Table) bool {
 			for _, r := range r.RawRows {
 				if isCons(r.Con, "seq") {
@@ -429,6 +440,25 @@ func getDBIndex(tp string) func(r *Table) string {
 			}
 			if len(list) > 0 {
 				return "," + strings.Join(list, "\n\t\t,")
+			}
+			return ""
+		}
+	case ORACLE:
+		return func(r *Table) string {
+			indexs := r.GetIndexs()
+			list := make([]string, 0, len(indexs))
+			for _, index := range indexs {
+				switch index.Type {
+				case "idx":
+					list = append(list, fmt.Sprintf("create index %s on %s(%s);\n\t", index.Name, r.Name, index.fields.Join(",")))
+				case "unq":
+					list = append(list, fmt.Sprintf("alter table %s add constraint %s unique(%s);\n\t", r.Name, index.Name, index.fields.Join(",")))
+				case "pk":
+					list = append(list, fmt.Sprintf("alter table %s add constraint pk_%s primary key (%s);\n\t", r.Name, index.Name, index.fields.Join(",")))
+				}
+			}
+			if len(list) > 0 {
+				return strings.Join(list, "")
 			}
 			return ""
 		}
