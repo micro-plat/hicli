@@ -84,7 +84,7 @@ func registerProviderFunc(dbType string, f func(string, string) ([]*tmpl.Table, 
 	dbProviderFunc[dbType] = f
 }
 
-//generateMysqlMD 生成mysql的markdown文件 mysql:root:rTo0CesHi2018Qx@tcp(192.168.0.36:3306)/sms_test
+//generateMysqlMD 生成mysql的markdown文件 mysql:root:xxxx@tcp(192.168.0.36:3306)/sms_test
 func generateMysqlMD(provider, connstr string) (tabs []*tmpl.Table, err error) {
 	tempArr := strings.Split(connstr, "/")
 	tableScheme := tempArr[len(tempArr)-1]
@@ -119,7 +119,7 @@ func generateMysqlMD(provider, connstr string) (tabs []*tmpl.Table, err error) {
 	return tbs, nil
 }
 
-//generateMysqlMD 生成oracle的markdown文件
+//generateMysqlMD 生成oracle的markdown文件 //oracle:sso/123456@orcl136
 func generateOracleMD(provider, connstr string) (tabs []*tmpl.Table, err error) {
 	dbObj, err := db.NewDB(provider, connstr, 20, 10, 20000)
 	if err != nil {
