@@ -6,8 +6,10 @@ require (
 	github.com/atotto/clipboard v0.1.2 // indirect
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27
 	github.com/fsnotify/fsnotify v1.4.9
+	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/jordan-wright/email v0.0.0-20200917010138-e1c00e156980
 	github.com/lib4dev/cli v1.2.6
+	github.com/mattn/go-oci8 v0.1.1 // indirect
 	github.com/micro-plat/lib4go v1.1.0
 	github.com/urfave/cli v1.22.4
 )

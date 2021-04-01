@@ -35,6 +35,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"snames":    getNames("/"),         //去掉首位斜线，并根据斜线分隔字符串
 		"rmhd":      rmhd,                  //去除首段名称
 		"isNull":    isNull(),              //返回空语句
+		"IsMDNull":  isMDNull(),            //数据字典对应的为空判断
 		"firstStr":  getStringByIndex(0),   //第一个字符
 		"lastStr":   getLastStringByIndex,  //最后一个字符
 		"l2d":       replaceUnderline("."), //下划线替换为.
@@ -149,6 +150,12 @@ func shortName(input string) string {
 func isNull() func(*Row) string {
 	return func(row *Row) string {
 		return IsNull[row.IsNull]
+	}
+}
+
+func isMDNull() func(*Row) string {
+	return func(row *Row) string {
+		return IsMDNull[row.IsNull]
 	}
 }
 

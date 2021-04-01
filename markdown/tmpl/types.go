@@ -151,6 +151,7 @@ var cons = map[string][]string{
 	"*":     {"\\b%s\\b"},
 	"seq":   {"\\bseq(\\(([\\w]+)[,]?([\\d]?)[,]?([\\d]?)\\)|\\b)"},
 }
+
 var IsNull = map[string]string{
 	"否":   "not null",
 	"N":   "not null",
@@ -159,4 +160,15 @@ var IsNull = map[string]string{
 	"":    "",
 	"Y":   "",
 	"YES": "",
+}
+
+var IsMDNull = map[string]string{
+	"NO":  "否",
+	"N":   "否",
+	"n":   "否",
+	"no":  "否",
+	"YES": "是",
+	"yes": "是",
+	"Y":   "是",
+	"y":   "是",
 }
