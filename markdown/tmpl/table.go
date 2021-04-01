@@ -238,7 +238,7 @@ func (t *Table) GetIndexs() Indexs {
 	return t.Indexs
 }
 func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) {
-	ok, name, index := getIndex(row.Con, tp)
+	ok, name, index, _ := getIndex(row.Con, tp)
 	if !ok {
 		return
 	}

@@ -23,7 +23,7 @@ package {{.PKG}}
 const Insert{{.Name|rmhd|upperName}} = {###}
 insert into {{.Name}}{{.DBLink}}
 (
-	{{- range $i,$c:=.|seqs}}
+	{{- range $i,$c:=.|oracleseq}}
 	{{$c.name}},
 	{{- end}}
 	{{- range $i,$c:=$createrows}}
@@ -31,7 +31,7 @@ insert into {{.Name}}{{.DBLink}}
 	{{- end}}
 )
 values(
-	{{- range $i,$c:=.|seqs}}
+	{{- range $i,$c:=.|oracleseq}}
 	{{$c.seqname}}.nextval,
 	{{- end}}
 	{{- range $i,$c:=$createrows}}

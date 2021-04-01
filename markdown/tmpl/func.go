@@ -35,7 +35,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"snames":    getNames("/"),         //去掉首位斜线，并根据斜线分隔字符串
 		"rmhd":      rmhd,                  //去除首段名称
 		"isNull":    isNull(),              //返回空语句
-		"IsMDNull":  isMDNull(),            //数据字典对应的为空判断
+		"isMDNull":  isMDNull(),            //数据字典对应的为空判断
 		"firstStr":  getStringByIndex(0),   //第一个字符
 		"lastStr":   getLastStringByIndex,  //最后一个字符
 		"l2d":       replaceUnderline("."), //下划线替换为.
@@ -65,7 +65,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"seqTag":    getSEQTag(tp),                                      //获取SEQ的变量值
 		"seqValue":  getSEQValue(tp),                                    //获取SEQ起始值
 		"mysqlseq":  getSEQ(tp),                                         //获取SEQ
-		"seqs":      getSeqs,                                            //获取表的序列
+		"oracleseq": getSeqs,                                            //获取表的序列
 		"pks":       getPKS,                                             //获取主键列表
 		"indexs":    getDBIndex(tp),                                     //获取表的索引串
 		"maxIndex":  getMaxIndex,                                        //最大索引值
@@ -225,7 +225,7 @@ func getSeqs(tb *Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.Rows))
 
 	for _, v := range tb.Rows {
-		ok, seqName, start, increament := getIndex1(v.Con, "seq")
+		ok, seqName, start, increament := getIndex(v.Con, "seq")
 		if ok {
 			if seqName == "" {
 				seqName = fmt.Sprintf("seq_%s_id", rmhd(tb.Name))
@@ -400,7 +400,7 @@ func sortByKw(kw string) func(rows TableColumn) []*Row {
 	return func(rows TableColumn) []*Row {
 		result := make(TableColumn, 0, len(rows))
 		for _, v := range rows {
-			ok, _, sort := getIndex(v.Con, kw)
+			ok, _, sort, _ := getIndex(v.Con, kw)
 			if !ok {
 				continue
 			}
@@ -474,28 +474,28 @@ func getDBIndex(tp string) func(r *Table) string {
 }
 
 // 类似 tp(字符串,数字)
-func getIndex(input string, tp string) (bool, string, int) {
-	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
-	for _, v := range cons[tp] {
-		reg := regexp.MustCompile(v)
-		if reg.Match(buff) {
-			value := reg.FindStringSubmatch(strings.ToLower(input))
-			if len(value) == 4 {
-				return true, value[2], types.GetInt(value[3], 0)
-			}
-			if len(value) == 3 {
-				return true, value[2], 0
-			}
-			return true, "", 0
-		}
-	}
-	return false, "", 0
-}
+// func getIndex(input string, tp string) (bool, string, int) {
+// 	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
+// 	for _, v := range cons[tp] {
+// 		reg := regexp.MustCompile(v)
+// 		if reg.Match(buff) {
+// 			value := reg.FindStringSubmatch(strings.ToLower(input))
+// 			if len(value) == 4 {
+// 				return true, value[2], types.GetInt(value[3], 0)
+// 			}
+// 			if len(value) == 3 {
+// 				return true, value[2], 0
+// 			}
+// 			return true, "", 0
+// 		}
+// 	}
+// 	return false, "", 0
+// }
 
-// 类似 tp(字符串,数字,数字)
-func getIndex1(input string, tp string) (bool, string, int, int) {
+// 类似 kw(字符串,数字,数字)
+func getIndex(input string, kw string) (bool, string, int, int) {
 	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
-	for _, v := range cons[tp] {
+	for _, v := range cons[kw] {
 		reg := regexp.MustCompile(v)
 		if reg.Match(buff) {
 			value := reg.FindStringSubmatch(strings.ToLower(input))

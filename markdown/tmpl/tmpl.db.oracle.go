@@ -27,7 +27,7 @@ const {{.Name}}={###}{{end -}}
 
 	{{.|indexs}}
 
-	{{- range $i,$c:=.|seqs}}
+	{{- range $i,$c:=.|oracleseq}}
 	create sequence {{$c.seqname}}
 	increment by {{$c.increment}}
 	minvalue {{$c.min}}

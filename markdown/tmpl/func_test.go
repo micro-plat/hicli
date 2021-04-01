@@ -237,7 +237,7 @@ func TestGetIndex(t *testing.T) {
 		{input: "seq,pk,di", tp: "pk", result: true},
 	}
 	for _, c := range cases {
-		ok, name, index := getIndex(c.input, c.tp)
+		ok, name, index, _ := getIndex1(c.input, c.tp)
 		assert.Equal(t, c.result, ok, c.input)
 		assert.Equal(t, c.name, name, c.input)
 		assert.Equal(t, index, c.index, c.input)

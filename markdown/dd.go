@@ -17,37 +17,41 @@ func createDataDic(c *cli.Context) (err error) {
 
 	str := strings.Split(c.String("dbstr"), ":")
 	provider := str[0]
-	if _, ok := ddTmplMaps[provider]; !ok {
+	if _, ok := dbProviderFunc[provider]; !ok {
 		return fmt.Errorf("连接串有误%s", c.String("dbstr"))
 	}
+
+	//获取对应表
 	f := dbProviderFunc[provider]
 	connstr := strings.TrimPrefix(c.String("dbstr"), fmt.Sprintf("%s:", provider))
-	//获取对应表
 	tbs, err := f(provider, connstr)
 	if err != nil {
 		return err
 	}
+
+	//循环创建表
+	content := ""
+	for _, tb := range tbs {
+		//翻译文件
+		ct, err := tmpl.Translate(tmpl.MdDictionaryTPL, dbtp, tb)
+		if err != nil {
+			return err
+		}
+		content += ct
+	}
+
+	if !c.Bool("w2f") {
+		logs.Log.Info(content)
+		return nil
+	}
+
+	//生成文件
 	tempArr := strings.Split(connstr, "/")
 	tableScheme := tempArr[len(tempArr)-1]
 	if provider == "oracle" {
 		tableScheme = tempArr[0]
 	}
 
-	content := ""
-	//循环创建表
-	for _, tb := range tbs {
-		//翻译文件
-		ct, err := tmpl.Translate(ddTmplMaps[provider], dbtp, tb)
-		if err != nil {
-			return err
-		}
-		if !c.Bool("w2f") {
-			logs.Log.Info(ct)
-			return nil
-		}
-		content += ct
-	}
-	//生成文件
 	path := filepath.Join(c.Args().Get(0), fmt.Sprintf("./%s.%s.md", tableScheme, provider))
 	fs, err := tmpl.Create(path, c.Bool("cover"))
 	if err != nil {
@@ -60,28 +64,9 @@ func createDataDic(c *cli.Context) (err error) {
 	return nil
 }
 
-var ddTmplMaps = map[string]string{
-	"mysql":  tmpl.MdMysqlTPL,
-	"oracle": tmpl.MdOracleTPL,
-}
-
-var dbProviderFunc map[string]func(string, string) ([]*tmpl.Table, error)
-
-func init() {
-	dbProviderFunc = make(map[string]func(string, string) ([]*tmpl.Table, error))
-	registerProviderFunc("mysql", generateMysqlMD)
-	registerProviderFunc("oracle", generateOracleMD)
-}
-
-//RegisterFrame 注册模板
-func registerProviderFunc(dbType string, f func(string, string) ([]*tmpl.Table, error)) {
-	if f == nil {
-		return
-	}
-	if _, ok := dbProviderFunc[dbType]; ok {
-		panic("dbProviderFunc存在同样的dbtype:" + dbType)
-	}
-	dbProviderFunc[dbType] = f
+var dbProviderFunc = map[string]func(string, string) ([]*tmpl.Table, error){
+	"mysql":  generateMysqlMD,
+	"oracle": generateOracleMD,
 }
 
 //generateMysqlMD 生成mysql的markdown文件 mysql:root:xxxx@tcp(192.168.0.36:3306)/sms_test
@@ -99,7 +84,7 @@ func generateMysqlMD(provider, connstr string) (tabs []*tmpl.Table, err error) {
 		return nil, fmt.Errorf("mysql(err:%v)", err)
 	}
 	if len(datas) < 1 {
-		return nil, fmt.Errorf("mysql(未查询到相关信息)，schema:%s，data:%v", tableScheme, datas)
+		return nil, fmt.Errorf("mysql(未查询到相关信息)，scheme:%s，data:%v", tableScheme, datas)
 	}
 
 	d := map[string]*tmpl.Table{}
