@@ -10,7 +10,6 @@ const TmplServiceHandler = `
 {{- $tabs := .TabTables -}}
 {{- $sort:=.Rows|sort -}}
 {{- $btns:=.BtnInfo -}}
-{{- $table := . -}}
 package {{.PKG}}
 
 import (
@@ -217,18 +216,18 @@ func (u *{{.Name|rmhd|varName}}Handler) PutHandle(ctx hydra.IContext) (r interfa
 
 
 {{- range $i,$btn:=$btns }}
-//{{$btn.Name|upperName}}Handle 更新{{$table.Desc}}数据
-func (u *{{$table.Name|rmhd|varName}}Handler) {{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
+//{{$btn.Name|upperName}}Handle 更新{{$.Desc}}数据
+func (u *{{$.Name|rmhd|varName}}Handler) {{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
 
-	ctx.Log().Info("--------更新{{$table.Desc}}数据--------")
+	ctx.Log().Info("--------更新{{$.Desc}}数据--------")
 
 	ctx.Log().Info("1.参数校验")
-	if err := ctx.Request().CheckMap(update{{$table.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields); err != nil {
+	if err := ctx.Request().CheckMap(update{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields); err != nil {
 		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
 	}
 
 	ctx.Log().Info("2.执行操作")
-	_, err := hydra.C.DB().GetRegularDB().Execute(sql.Update{{$table.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
+	_, err := hydra.C.DB().GetRegularDB().Execute(sql.Update{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended,"更新数据出错:%+v", err)
 	}
@@ -237,18 +236,18 @@ func (u *{{$table.Name|rmhd|varName}}Handler) {{$btn.Name|upperName}}Handle(ctx 
 	return "success"
 }
 {{- if eq ($btn.VIF|len) 0}}
-//Get{{$btn.Name|upperName}}Handle 获取{{$table.Desc}}单条数据
-func (u *{{$table.Name|rmhd|varName}}Handler) Get{{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
+//Get{{$btn.Name|upperName}}Handle 获取{{$.Desc}}单条数据
+func (u *{{$.Name|rmhd|varName}}Handler) Get{{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
 
-	ctx.Log().Info("--------获取{{$table.Desc}}单条数据--------")
+	ctx.Log().Info("--------获取{{$.Desc}}单条数据--------")
 
 	ctx.Log().Info("1.参数校验")
-	if err := ctx.Request().CheckMap(get{{$table.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields); err != nil {
+	if err := ctx.Request().CheckMap(get{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields); err != nil {
 		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
 	}
 
 	ctx.Log().Info("2.执行操作")
-	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{$table.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
+	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
 	}
@@ -286,8 +285,11 @@ func (u *{{.Name|rmhd|varName}}Handler) DeleteHandle(ctx hydra.IContext) (r inte
 
 {{if gt (.Rows|create|len) 0 -}}
 var post{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=.Rows|create}}{{if ne ($c|isNull) $empty}}field.Field{{$c.Name|varName}}:"required",{{end}}
-	{{end -}}
+	{{- range $i,$c:=.Rows|create}}
+	{{- if ne ($c|isNull) $empty}}
+	field.Field{{$c.Name|varName}}:"required",
+	{{- end}}
+	{{- end}}
 }
 {{- end}}
 
@@ -331,12 +333,12 @@ var delete{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 
 
 {{- range $i,$btn:=$btns }}
-var update{{$table.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
+var update{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=$btn.Rows}}{{if not $c.Disable}}field.Field{{$c.Name|varName}}:"required",{{end}}{{end}}
 	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
 }
 {{- if eq ($btn.VIF|len) 0}}
-var get{{$table.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
+var get{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
 }
 {{- end}}
