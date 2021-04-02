@@ -69,7 +69,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"pks":       getPKS,                                             //获取主键列表
 		"indexs":    getDBIndex(tp),                                     //获取表的索引串
 		"maxIndex":  getMaxIndex,                                        //最大索引值
-		"lower":     getLower,                                           //获取变量的最小写字符
+		"lower":     strings.ToLower,                                    //获取变量的最小写字符
 		"order":     getRows("order"),                                   //order排序
 		"orderSort": sortByKw("order"),                                  //
 		"orderCon":  getBracketContent([]string{"order"}, `(asc|desc)`), //
@@ -124,10 +124,6 @@ func getfuncs(tp string) map[string]interface{} {
 		"uDicPName":     getDicParentName("u", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
 
 	}
-}
-
-func getLower(s string) string {
-	return strings.ToLower(s)
 }
 
 func getMod(x int, y int) int {
@@ -472,25 +468,6 @@ func getDBIndex(tp string) func(r *Table) string {
 	}
 	return func(r *Table) string { return "" }
 }
-
-// 类似 tp(字符串,数字)
-// func getIndex(input string, tp string) (bool, string, int) {
-// 	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
-// 	for _, v := range cons[tp] {
-// 		reg := regexp.MustCompile(v)
-// 		if reg.Match(buff) {
-// 			value := reg.FindStringSubmatch(strings.ToLower(input))
-// 			if len(value) == 4 {
-// 				return true, value[2], types.GetInt(value[3], 0)
-// 			}
-// 			if len(value) == 3 {
-// 				return true, value[2], 0
-// 			}
-// 			return true, "", 0
-// 		}
-// 	}
-// 	return false, "", 0
-// }
 
 // 类似 kw(字符串,数字,数字)
 func getIndex(input string, kw string) (bool, string, int, int) {

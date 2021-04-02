@@ -29,7 +29,7 @@ func CreateApp(name string, sso bool) error {
 		}
 	}
 	for file, template := range tmptls {
-		//翻译文件
+		//翻译模板
 		param := map[string]interface{}{
 			"projectPath": projectPath,
 			"router":      true,
@@ -39,6 +39,7 @@ func CreateApp(name string, sso bool) error {
 		if err != nil {
 			return fmt.Errorf("翻译%s模板出错:%+v", file, err)
 		}
+		//写入文件
 		fs, err := tmpl.Create(filepath.Join(projectPath, file), true)
 		if err != nil {
 			return err
