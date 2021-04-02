@@ -85,20 +85,20 @@ hicli db create docs/dic.md [outpath] -t "" -d -s -v -g
 ##### 创建前端vue项目
 1.创建vue项目文件
 ```
-gitcli ui create project_name
+hicli ui create project_name
 ```
 2.创建vue项目页面文件
 ```
-gitcli ui page md文档路径 [输出文件路径] -table [指定表名] -f -cover
+hicli ui page md文档路径 [输出文件路径] -table [指定表名] -f -cover
 ```
 ##### 创建后端hydra项目
 1.创建web服务文件
 ```
-gitcli app create server_name
+hicli app create server_name
 ```
 2.创建服务层和sql文件
 ```
-gitcli app service md文档路径 [输出文件路径] -table [指定表名] --exclude [排除表名] -f -cover
+hicli app service md文档路径 [输出文件路径] -table [指定表名] --exclude [排除表名] -f -cover
 ```
 
 ##### 数据字典约束配置（约束关键字不区分大小写，内容区分大小写）
