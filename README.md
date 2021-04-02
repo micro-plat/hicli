@@ -135,11 +135,11 @@ hicli app service md文档路径 [输出文件路径] -table [指定表名] --ex
 
 字典表名的约束关键字
 	^:排除表，示例：^表名
-    复合功能:{el_tab(),el_index(),el_btn(),el_btn1(),el_btn2}
-    	el_tab:生成关联的详情页，{el_tab(表名，字段名/字段名，list)}
-        el_index:生成列表页面的索引，示例，索引大小为2，{el_index(2)}
-    	el_btn:生成页面的按钮操作,多个按钮,以el_btn,el_btn1,el_btn2...顺序配置，最多为10个
-          状态扭转:el_btn(name:方法名,desc:1-禁用|2-启用,confirm:确定要进行此操作吗,key:)
-		  关联表数据及数据更新:el_btn(name:方法名,desc:按钮名称,confirm:确定要进行此操作吗,table:关联表:字段1/字段2|关联表2,key:btn_key)
+  复合功能:{el_tab(),el_index(),el_btn(),el_btn1(),el_btn2}
+    el_tab:生成关联的详情页，{el_tab(表名，字段名/字段名，list)}
+      el_index:生成列表页面的索引，示例，索引大小为2，{el_index(2)}
+    el_btn:生成页面的按钮操作,多个按钮,以el_btn,el_btn1,el_btn2...顺序配置，最多为10个
+        状态扭转:el_btn(name:方法名,desc:1-禁用|2-启用,confirm:确定要进行此操作吗,key:)
+    关联表数据及数据更新:el_btn(name:方法名,desc:按钮名称,confirm:确定要进行此操作吗,table:关联表:字段1/字段2|关联表2,key:btn_key)
 	
 ```
