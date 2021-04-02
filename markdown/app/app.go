@@ -9,16 +9,6 @@ import (
 	"github.com/micro-plat/hicli/markdown/utils"
 )
 
-var tmptls = map[string]string{
-	"main.go": tmplMainGo,
-	"conf.go": tmplConfGo,
-	"go.mod":  tmplGoMod,
-}
-
-var tmptlsSSO = map[string]string{
-	"conf.go": tmplConfSSoGo,
-}
-
 //CreateApp 创建web项目
 func CreateApp(name string, sso bool) error {
 	projectPath := utils.GetProjectPath(name)
@@ -49,4 +39,14 @@ func CreateApp(name string, sso bool) error {
 		logs.Log.Info("生成文件:", file)
 	}
 	return nil
+}
+
+var tmptls = map[string]string{
+	"main.go": tmplMainGo,
+	"conf.go": tmplConfGo,
+	"go.mod":  tmplGoMod,
+}
+
+var tmptlsSSO = map[string]string{
+	"conf.go": tmplConfSSoGo,
 }

@@ -206,7 +206,7 @@ func init() {
 					Usage:  "创建数据字典",
 					Action: createDataDic,
 					Flags: []cli.Flag{
-						cli.StringFlag{Name: "dbstr,db", Usage: `-数据库连接串，参考hydra的db配置时的连接串`},
+						cli.StringFlag{Name: "dbstr,db", Required: true, Usage: `-数据库连接串，参考hydra的db配置时的连接串`},
 						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
 						cli.BoolFlag{Name: "w2f,f", Usage: `-生成到文件`},
 					},
