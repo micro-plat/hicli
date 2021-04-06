@@ -6,6 +6,7 @@ import { Env } from './env'
 import { Utility } from './utility'
 import { Sys } from './sys'
 import { Message } from './message'
+import {BuildExcel,ExportTemplate} from './export_upload'
 
 import packageData from '../../package.json'
 
@@ -24,6 +25,8 @@ export default {
         Vue.prototype.$env = new Env(getConf(Vue, path))    
         Vue.prototype.$sys = new Sys(Vue);
         Vue.prototype.$utility = new Utility();
+        Vue.prototype.BuildExcel = BuildExcel;
+        Vue.prototype.ExportTemplate = ExportTemplate;
 
         let that = Vue.prototype
 

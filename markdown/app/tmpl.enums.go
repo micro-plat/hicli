@@ -60,7 +60,7 @@ var enumsMap = map[string]string{
 {{if $c.Con|fIsDN -}}{{if gt $count 0}},{{end}}{{$count = 1}} t.{{$c.Name}} name {{end -}}
 {{if $c.Con|fIsDT -}}{{if gt $count 0}},{{end}}{{$count = 1}} t.{{$c.Name}} type {{end -}}
 {{end}} from {{$t.Name}} t {{if gt (.Rows|delete|len) 0}}where{{end}}
-{{- range $i,$c:=.Rows|delete}}	&t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($t.Rows|delete|maxIndex)}},{{end}}{{- end}}{###},
+{{- range $i,$c:=.Rows|delete}}	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($t.Rows|delete|maxIndex)}},{{end}}{{- end}}{###},
 {{end -}}
 {{- end -}}
 }`
@@ -120,7 +120,7 @@ var enumsMap = map[string]string{
 {{if $c.Con|fIsDN -}}{{if gt $count 0}},{{end}}{{$count = 1}} t.{{$c.Name}} name {{end -}}
 {{if $c.Con|fIsDT -}}{{if gt $count 0}},{{end}}{{$count = 1}} t.{{$c.Name}} type {{end -}}
 {{end}} from {{$t.Name}} t {{if gt (.Rows|delete|len) 0}}where{{end}}
-{{- range $i,$c:=.Rows|delete}}	&t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($t.Rows|delete|maxIndex)}},{{end}}{{- end}}{###},
+{{- range $i,$c:=.Rows|delete}}	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($t.Rows|delete|maxIndex)}},{{end}}{{- end}}{###},
 {{end -}}
 {{- end -}}
 }`
