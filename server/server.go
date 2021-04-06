@@ -54,21 +54,35 @@ func newServer(c *cli.Context, path, watchpath string) (*server, error) {
 	}, nil
 }
 
+var tags = map[string][]string{
+	"install": {"tags", "mod"},
+	"run":     {"fixed", "registry", "plat", "system", "server_types", "cluster", "trace", "tport", "mask", "debug"},
+}
+
 func getStartFlag(c *cli.Context) map[string][]interface{} {
-	startFlag := map[string][]interface{}{
-		"install": []interface{}{"install"},
-		"run":     []interface{}{"run"},
-	}
-	for _, v := range strings.Split(c.String("install"), " ") {
-		if v != "" {
-			startFlag["install"] = append(startFlag["install"], v)
+	startFlag := make(map[string][]interface{})
+	for k, v := range tags {
+		startFlag[k] = []interface{}{k}
+
+		for _, v1 := range strings.Split(c.String(k), " ") {
+			if v1 != "" {
+				startFlag[k] = append(startFlag[k], v1)
+			}
 		}
-	}
-	for _, v := range strings.Split(c.String("run"), " ") {
-		if v != "" {
-			startFlag["run"] = append(startFlag["run"], v)
+
+		for _, v1 := range v {
+			if c.Bool(v1) {
+				startFlag[k] = append(startFlag[k], fmt.Sprintf("-%s", v1))
+				continue
+			}
+			if c.String(v1) != "" {
+				startFlag[k] = append(startFlag[k], fmt.Sprintf("-%s", v1))
+				startFlag[k] = append(startFlag[k], c.String(v1))
+			}
 		}
+
 	}
+
 	return startFlag
 }
 
