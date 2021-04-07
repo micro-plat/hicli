@@ -9,9 +9,19 @@ const TmplServiceHandler = `
 {{- $pks := .|pks -}}
 {{- $sort:=.Rows|sort -}}
 {{- $btns:=.BtnInfo -}}
+{{- $up:= 0 -}}
+{{- range $i,$c:=$rows|update}}{{if $c.Con|UP}}{{$up = 1}}{{end}}{{end}}
 package {{.PKG}}
 
 import (
+	{{- if eq $up 1}}
+	"fmt"
+	"io"
+	"os"
+	"path"
+	"time"
+	"path/filepath"
+	{{- end}}
 	{{- if or (gt ($rows|list|len) 0) (gt ($rows|create|len) 0) (gt ($rows|detail|len) 0) (gt ($rows|update|len) 0) (gt ($rows|delete|len) 0)}}
 	"net/http"
 	"github.com/micro-plat/hydra"
@@ -189,6 +199,53 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r
 	}
 }
 {{- end}}
+{{- end}}
+
+{{- if eq $up 1}}
+//UploadHandle 上传文件
+func (u *{{.Name|rmhd|varName}}Handler) UploadHandle(ctx hydra.IContext) (r interface{}) {
+
+	ctx.Log().Info("--------上传文件--------")
+
+	ctx.Log().Info("1. 读取文件内容")
+	fileName, err := ctx.Request().GetFileName("file")
+	if err != nil {
+		return errs.NewErrorf(http.StatusNotAcceptable, "读取文件错误:%+v", err)
+	}
+	uf, err := ctx.Request().GetFileBody("file")
+	if err != nil {
+		return errs.NewErrorf(http.StatusNotAcceptable, "读取文件错误:%+v", err)
+	}
+	defer uf.Close()
+
+	ctx.Log().Info("2. 构建文件名")
+	storeName := fmt.Sprintf("%s/%d%s", time.Now().Format("20060102"), hydra.C.UUID(), path.Ext(fileName))
+	filePath := filepath.Join("../upload", storeName)
+	if _, err = os.Stat(filepath.Dir(filePath)); err != nil {
+		if !os.IsNotExist(err) {
+			return errs.NewError(http.StatusInternalServerError, err)
+		}
+		if err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+			return errs.NewError(http.StatusInternalServerError, err)
+		}
+	}
+
+	nf, err := os.Create(filePath)
+	if err != nil {
+		return errs.NewError(http.StatusInternalServerError, err)
+	}
+	defer nf.Close()
+
+	ctx.Log().Info("3. 保存文件:", storeName)
+	if _, err = io.Copy(nf, uf); err != nil {
+		return err
+	}
+
+	ctx.Log().Info("4. 返回结果")
+	return map[string]interface{}{
+		"file_name": storeName,
+	}
+}
 {{- end}}
 
 {{- if gt ($rows|update|len) 0}}

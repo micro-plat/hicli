@@ -100,6 +100,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"TA":            getKWS("ta"),                                  //表单文本域
 		"DTIME":         getKWS("dtime"),                               //表单日期时间选择器
 		"DATE":          getKWS("date"),                                //表单日期选择器
+		"UP":            getKWS("up"),                                  //表单文本域
 		"dateType":      getDateType,                                   //日期字段对应的组件的日期类型
 		"dateFormat":    getDateFormat,                                 //日期字段对应的组件的日期格式
 		"dateFormatDef": getDateFormatDef,                              //日期字段对应的组件的日期默认值
