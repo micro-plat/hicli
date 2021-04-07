@@ -218,3 +218,22 @@ func (t *Table) DispostBtnTables() {
 	}
 
 }
+
+type DownloadInfo struct {
+	Title []string
+}
+
+func (t *Table) DispostDownloadTables() {
+	t.DownloadInfo = &DownloadInfo{
+		Title: make([]string, 0),
+	}
+	if t.ExtInfo == "" {
+		return
+	}
+
+	c := getBracketContent([]string{"el_download"})(t.ExtInfo)
+	if c == "" {
+		return
+	}
+	t.DownloadInfo.Title = strings.Split(c, ",")
+}

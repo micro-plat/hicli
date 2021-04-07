@@ -90,6 +90,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 			tb.SetAllTables(allTables)
 			tb.DisposeTabTables()
 			tb.DispostBtnTables()
+			tb.DispostDownloadTables()
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {

@@ -7,7 +7,6 @@ const TmplServiceHandler = `
 {{- $empty := "" -}}
 {{- $rows := .Rows -}}
 {{- $pks := .|pks -}}
-{{- $tabs := .TabTables -}}
 {{- $sort:=.Rows|sort -}}
 {{- $btns:=.BtnInfo -}}
 package {{.PKG}}

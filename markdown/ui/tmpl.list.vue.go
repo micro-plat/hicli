@@ -55,7 +55,12 @@ const TmplList = `
 				{{- if gt ($rows|create|len) 0}}
 				<el-form-item>
 					<el-button type="success" size="medium" @click="showAdd">添加</el-button>
-					{{if gt ($rows|export|len) 0}}<el-button type="success" @click="exportExcl" size="medium">导出excel</el-button>{{end}}
+					{{- if gt ($rows|export|len) 0}}
+					<el-button type="success" @click="exportExcl" size="medium">导出excel</el-button>
+					{{- end}}
+					{{- if gt ($tb.DownloadInfo.Title|len) 0}}
+					<el-button type="text" @click="download" style="font-size:14px">下载模版</el-button>
+					{{- end}}
 				</el-form-item>
 				{{end}}
 			</el-form>
@@ -380,6 +385,19 @@ export default {
 						{{- end}}
           });
         });
+    },
+		{{- end}}
+
+		{{- if gt ($tb.DownloadInfo.Title|len) 0}}
+		download() {
+      var data = [
+				[
+				{{- range $i,$c:=$tb.DownloadInfo.Title}}
+					"{{$c}}",
+				{{- end}}
+        ]
+      ];
+      this.ExportTemplate(data, "模板.xlsx")
     },
 		{{- end}}
 
