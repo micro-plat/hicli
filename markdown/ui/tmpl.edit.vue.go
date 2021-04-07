@@ -51,17 +51,17 @@ const TmplEditVue = `
 				<el-upload id="sbtn{{$i}}"
 					class="upload-demo"
 					ref="upload"
-					:with-credentials="options.withCredentials"
-					:accept="options.accept"
-					:headers="options.headers"
-					:action="options.target"
+					:with-credentials="options{{$i}}.withCredentials"
+					:accept="options{{$i}}.accept"
+					:headers="options{{$i}}.headers"
+					:action="options{{$i}}.target"
 					:limit="1"
-					:on-exceed="handleExceed"
-					:file-list="fileList"
-					:on-success="uploadSuccess"
-					:on-error="onError"
-					:before-upload="beforeUpload"
-					:on-remove="onRemove"
+					:on-exceed="handleExceed{{$i}}"
+					:file-list="fileList{{$i}}"
+					:on-success="uploadSuccess{{$i}}"
+					:on-error="onError{{$i}}"
+					:before-upload="beforeUpload{{$i}}"
+					:on-remove="onRemove{{$i}}"
 				>
 					<el-button size="small" type="primary">点击上传</el-button>
 					<div slot="tip" class="el-upload__tip" style="margin-top: 0px">建议尺寸格式，大小在2M以内</div>
@@ -100,9 +100,9 @@ export default {
 			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|ceCon) $tb) $c.Name)|lower}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
 			{{- else if $c.Con|UP }}
-			fileList: [],
-      nameList: [],
-      options: {
+			fileList{{$i}}: [],
+      nameList{{$i}}: [],
+      options{{$i}}: {
         accept: "image/jpg,image/jpeg,image/png,image/gif,image/bmp,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document", //上传文件类型
         target: this.$env.conf.api.host + '/{{$.Name|rmhd|rpath}}/upload', //上传地址
         withCredentials: true, //携带cookies
@@ -159,18 +159,18 @@ export default {
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}",pid)
 		},
 		{{- else if $c.Con|UP }}
-		handleExceed(files, fileList) {
+		handleExceed{{$i}}(files, fileList) {
       this.$message.warning("文件上传数量超出设置范围");
     },
-    uploadSuccess(response, file, fileList) {
+    uploadSuccess{{$i}}(response, file, fileList) {
 			let info = {
         original_name: file.name,
         store_name: response.file_name,
         uid: file.uid,
       }
-      this.nameList.push(info)
+      this.nameList{{$i}}.push(info)
     },
-    onError(err, file, fileList) {
+    onError{{$i}}(err, file, fileList) {
       this.$notify({
         title: "错误",
         message: "上传失败，请稍后再试",
@@ -179,7 +179,7 @@ export default {
         duration: 2000
       });
     },
-    beforeUpload(file) {
+    beforeUpload{{$i}}(file) {
       const isLt2M = file.size / 1024 / 1024 < 2 //这里做文件大小限制
       if (!isLt2M) {
         this.$message({
@@ -190,10 +190,10 @@ export default {
       }
       return isLt2M
     },
-    onRemove(file, fileList) {
-      this.nameList.forEach((item, idx, array) => {
+    onRemove{{$i}}(file, fileList) {
+      this.nameList{{$i}}.forEach((item, idx, array) => {
         if (array[idx] != undefined && item.uid == file.uid) {
-          this.nameList.splice(idx, 1)
+          this.nameList{{$i}}.splice(idx, 1)
           return
         }
       })
@@ -207,9 +207,9 @@ export default {
 			{{- else if or ($c.Con|SLM) ($c.Con|CB) }}
 			this.editData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
 			{{- else if $c.Con|UP }}
-			var list =[]
-			this.nameList.forEach((v, i) => {list.push(v.store_name)})
-			this.editData.{{$c.Name}} = list.join(",")
+			var list{{$i}} =[]
+			this.nameList{{$i}}.forEach((v, i) => {list{{$i}}.push(v.store_name)})
+			this.editData.{{$c.Name}} = list{{$i}}.join(",")
 			{{- end -}}
 			{{- end}}
 			this.$http.put("/{{.Name|rmhd|rpath}}", this.editData, {}, true, true)
