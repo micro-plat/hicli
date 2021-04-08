@@ -223,34 +223,28 @@ func getSeqs(tb *Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.Rows))
 
 	for _, v := range tb.Rows {
-		ok, seqName, start, increament := getIndex(v.Con, "seq")
-		if ok {
-			if seqName == "" {
-				seqName = fmt.Sprintf("seq_%s_id", rmhd(tb.Name))
-			}
-			if len(seqName) > 64 {
-				logs.Log.Errorf("自动生成或配置%s的序列名长度不正确(%s),请重新配置", v.Name, seqName)
-				return nil
-			}
-			if start == 0 {
-				start = 1
-			}
-			if increament == 0 {
-				increament = 1
-			}
-			row := map[string]interface{}{
-				"name":      v.Name,
-				"seqname":   seqName,
-				"desc":      v.Desc,
-				"type":      v.Type,
-				"len":       v.Len,
-				"increment": increament,
-				"min":       start,
-				"max":       99999999999,
-			}
-			columns = append(columns, row)
+		ok, seqName, start, increament := getCapturingGroup(v.Con, "seq")
+		if !ok {
+			continue
 		}
+		seqName = types.DecodeString(increament, "", fmt.Sprintf("seq_%s_id", rmhd(tb.Name)))
+		if len(seqName) > 64 {
+			logs.Log.Errorf("自动生成或配置%s的序列名长度不正确(%s),请重新配置", v.Name, seqName)
+			return nil
+		}
+		row := map[string]interface{}{
+			"name":      v.Name,
+			"seqname":   seqName,
+			"desc":      v.Desc,
+			"type":      v.Type,
+			"len":       v.Len,
+			"increment": types.DecodeInt(types.GetInt(increament, 0), 0, 1),
+			"min":       types.DecodeInt(types.GetInt(start, 0), 0, 1),
+			"max":       99999999999,
+		}
+		columns = append(columns, row)
 	}
+
 	return columns
 }
 
@@ -398,11 +392,11 @@ func sortByKw(kw string) func(rows TableColumn) []*Row {
 	return func(rows TableColumn) []*Row {
 		result := make(TableColumn, 0, len(rows))
 		for _, v := range rows {
-			ok, _, sort, _ := getIndex(v.Con, kw)
+			ok, _, sort, _ := getCapturingGroup(v.Con, kw)
 			if !ok {
 				continue
 			}
-			v.Sort = sort
+			v.Sort = types.GetInt(sort, 0)
 			result = append(result, v)
 		}
 		sort.Sort(result)
@@ -471,26 +465,26 @@ func getDBIndex(tp string) func(r *Table) string {
 	return func(r *Table) string { return "" }
 }
 
-// 类似 kw(字符串,数字,数字)
-func getIndex(input string, kw string) (bool, string, int, int) {
+// 类似 kw(内容,内容,内容)
+func getCapturingGroup(input string, kw string) (bool, string, string, string) {
 	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
 	for _, v := range cons[kw] {
 		reg := regexp.MustCompile(v)
 		if reg.Match(buff) {
 			value := reg.FindStringSubmatch(strings.ToLower(input))
 			if len(value) == 5 {
-				return true, value[2], types.GetInt(value[3], 0), types.GetInt(value[4], 0)
+				return true, value[2], value[3], value[4]
 			}
 			if len(value) == 4 {
-				return true, value[2], types.GetInt(value[3], 0), 0
+				return true, value[2], value[3], ""
 			}
 			if len(value) == 3 {
-				return true, value[2], 0, 0
+				return true, value[2], "", ""
 			}
-			return true, "", 0, 0
+			return true, "", "", ""
 		}
 	}
-	return false, "", 0, 0
+	return false, "", "", ""
 }
 
 func getRows(tp ...string) func(row []*Row) []*Row {

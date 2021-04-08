@@ -239,14 +239,12 @@ func (t *Table) GetIndexs() Indexs {
 	return t.Indexs
 }
 func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) {
-	ok, name, index, _ := getIndex(row.Con, tp)
+	ok, name, i, _ := getCapturingGroup(row.Con, tp)
 	if !ok {
 		return
 	}
-	if name == "" {
-		name = row.Name
-	}
-	index = types.DecodeInt(index, 0, ri)
+	name = types.DecodeString(name, "", row.Name)
+	index := types.DecodeInt(i, 0, ri)
 	if v, ok := indexs[name]; ok {
 		v.fields = append(v.fields, &Field{Name: row.Name, Index: index})
 		return
