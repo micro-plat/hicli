@@ -2,6 +2,7 @@ package tmpl
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	logs "github.com/lib4dev/cli/logger"
@@ -236,4 +237,22 @@ func (t *Table) DispostDownloadTables() {
 		return
 	}
 	t.DownloadInfo.Title = strings.Split(c, ",")
+}
+
+type SelectInfo struct {
+	URL string
+}
+
+func (t *Table) DispostSelectTables() {
+	if t.ExtInfo == "" {
+		return
+	}
+	t.SelectInfo = &SelectInfo{}
+	t.SelectInfo.URL = getSubConContent("el_select", "url")(t.ExtInfo)
+}
+
+func (a *SelectInfo) IsEmpty() bool {
+
+	return reflect.DeepEqual(a, &SelectInfo{})
+
 }

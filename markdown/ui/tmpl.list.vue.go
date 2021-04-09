@@ -61,6 +61,9 @@ const TmplList = `
 					{{- if gt ($tb.DownloadInfo.Title|len) 0}}
 					<el-button type="text" @click="download" style="font-size:14px">下载模版</el-button>
 					{{- end}}
+					{{- if not $tb.SelectInfo.IsEmpty }}
+					<el-button @click="toggleSelection()">批量操作</el-button>
+					{{- end}}
 				</el-form-item>
 				{{end}}
 			</el-form>
@@ -69,7 +72,9 @@ const TmplList = `
 
     <!-- list start-->
 		<el-scrollbar style="height:100%">
-			<el-table :data="dataList.items" stripe style="width: 100%" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}>
+			<el-table :data="dataList.items" stripe style="width: 100%" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
+			{{- if not $tb.SelectInfo.IsEmpty }}  @selection-change="handleSelectionChange" {{end}}>
+			  {{if not $tb.SelectInfo.IsEmpty }}<el-table-column type="selection" width="55"> </el-table-column>{{end}}
 				{{if gt $tb.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>{{end}}
 				{{- range $i,$c:=$rows|list}}
 				<el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
@@ -219,6 +224,9 @@ export default {
       {{- end}}
 			{{- if gt ($sort|len) 0}}
 			order: "{{range $i,$c:=$sort|sortSort}}t.{{$c.Name}} {{or ($c.Con|sortCon) "desc"}}{{if lt $i ($sort|maxIndex)}}, {{end}}{{end}}",
+			{{- end}}
+			{{- if not $tb.SelectInfo.IsEmpty }}
+			multipleSelection: [],
 			{{- end}}
 			dataList: {count: 0,items: []}, //表单数据对象,
 			maxHeight: 0
@@ -398,6 +406,22 @@ export default {
         ]
       ];
       this.ExportTemplate(data, "模板.xlsx")
+    },
+		{{- end}}
+
+		{{- if not $tb.SelectInfo.IsEmpty }}
+		toggleSelection() {
+      var data = []
+      this.multipleSelection.forEach(row => {
+        data.push(row.{{range $i,$c:=$pks}}{{$c}}{{end}})
+      });
+			this.$http.put("{{$tb.SelectInfo.URL}}", {data:data}, {}, true, true)
+			.then(res => {			
+				this.query()
+			})
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
     },
 		{{- end}}
 

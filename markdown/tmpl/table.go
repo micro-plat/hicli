@@ -33,6 +33,7 @@ type Table struct {
 	BtnInfo      []*BtnInfo
 	TempIndex    int
 	DownloadInfo *DownloadInfo
+	SelectInfo   *SelectInfo
 }
 
 //Row 行信息
