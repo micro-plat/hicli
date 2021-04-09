@@ -244,15 +244,55 @@ type SelectInfo struct {
 }
 
 func (t *Table) DispostSelectTables() {
-	if t.ExtInfo == "" {
+	key := "el_select"
+	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
 		return
 	}
 	t.SelectInfo = &SelectInfo{}
-	t.SelectInfo.URL = getSubConContent("el_select", "url")(t.ExtInfo)
+	t.SelectInfo.URL = getSubConContent(key, "url")(t.ExtInfo)
 }
 
 func (a *SelectInfo) IsEmpty() bool {
 
 	return reflect.DeepEqual(a, &SelectInfo{})
 
+}
+
+type ComponentsInfo struct {
+	Name string
+	Path string
+}
+
+func (t *Table) DispostComponentsInfoTables() {
+	key := "el_components"
+	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
+		return
+	}
+	c := getBracketContent([]string{key})(t.ExtInfo)
+	tabs := strings.Split(c, "|")
+	if len(tabs) == 0 {
+		return
+	}
+	t.ComponentsInfo = make([]*ComponentsInfo, 0)
+	for _, v := range tabs {
+		info := &ComponentsInfo{}
+		tab := strings.Split(v, ",")
+		if len(tab) != 2 {
+			logs.Log.Warn("列表页面components的选项配置不正确(name,path|name,path...)", key, t.ExtInfo)
+			continue
+		}
+
+		//name
+		info.Name = tab[0]
+		if info.Name == "" {
+			logs.Log.Warn("列表页面btn的name选项未配置:", key, t.ExtInfo)
+			continue
+		}
+		info.Path = tab[1]
+		if info.Path == "" {
+			logs.Log.Warn("列表页面btn的path选项未配置:", key, t.ExtInfo)
+			continue
+		}
+		t.ComponentsInfo = append(t.ComponentsInfo, info)
+	}
 }

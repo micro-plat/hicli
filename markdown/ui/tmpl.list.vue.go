@@ -121,6 +121,10 @@ const TmplList = `
 						<el-button type="text" size="mini" @click="del(scope.row)">删除</el-button>
 						{{- end}}
 
+						{{- range $i,$c:=$tb.ComponentsInfo}}
+						<el-button type="text" size="mini" @click="show{{$c.Name|upperName}}(scope.row)">form{{$i}}</el-button>
+						{{- end}}
+
 						{{- range $i,$c:= $btn }}
 							{{- if gt ($c.VIF|len) 0}}
 								{{- range $k,$v:= $c.VIF}}
@@ -162,6 +166,13 @@ const TmplList = `
 		<!-- edit Form end-->
 		{{- end}}
 
+		{{- range $i,$c:=$tb.ComponentsInfo}}
+
+		<!-- {{$c.Name|upperName}} Form -->
+		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
+		<!--{{$c.Name|upperName}} Form -->
+		{{- end}}
+
 		<!-- pagination start -->
 		<div class="page-pagination">
 		<el-pagination
@@ -187,6 +198,9 @@ import Add from "./{{.Name|rmhd|l2d}}.add"
 {{- if gt ($rows|update|len) 0}}
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
+{{- range $i,$c:=$tb.ComponentsInfo}}
+import {{$c.Name|upperName}} from "{{$c.Path}}"
+{{- end}}
 {{- range $i,$c:= $btn }}
 {{- if eq ($c.VIF|len) 0}}
 import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
@@ -198,7 +212,10 @@ export default {
 		Add,
 		{{- end}}
 		{{- if gt ($rows|update|len) 0}}
-		Edit
+		Edit,
+		{{- end}}
+		{{- range $i,$c:=$tb.ComponentsInfo}}
+		{{$c.Name|upperName}},
 		{{- end}}
 		{{- range $i,$c:= $btn }}
 		{{- if eq ($c.VIF|len) 0 -}},
@@ -330,7 +347,11 @@ export default {
       this.$refs.Edit.show();
 		},
 		{{- end}}
-		
+		{{- range $i,$c:=$tb.ComponentsInfo}}
+		show{{$c.Name|upperName}}(val) {
+      this.$refs.{{$c.Name|upperName}}.show();
+		},
+		{{- end}}
 		{{- range $i,$c:= $btn }}
 		{{- if eq ($c.VIF|len) 0}}
 	  show{{$c.Name}}(val) {

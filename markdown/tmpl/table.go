@@ -14,26 +14,27 @@ import (
 
 //Table 表名称
 type Table struct {
-	Name         string //表名
-	Desc         string //表描述
-	ExtInfo      string //扩展信息
-	PKG          string //包名称
-	Drop         bool   //创建表前是否先删除
-	DBType       string //数据库类型
-	DBLink       string //
-	Rows         TableColumn
-	RawRows      []*Row
-	Indexs       Indexs
-	BasePath     string   //生成项目基本路径
-	AllTables    []*Table //所有表
-	Exclude      bool     //排除生成sql
-	ELTableIndex int
-	TabTables    []*Table //详情切换的tab页对应表
-	TabInfo      *TabInfo
-	BtnInfo      []*BtnInfo
-	TempIndex    int
-	DownloadInfo *DownloadInfo
-	SelectInfo   *SelectInfo
+	Name           string //表名
+	Desc           string //表描述
+	ExtInfo        string //扩展信息
+	PKG            string //包名称
+	Drop           bool   //创建表前是否先删除
+	DBType         string //数据库类型
+	DBLink         string //
+	Rows           TableColumn
+	RawRows        []*Row
+	Indexs         Indexs
+	BasePath       string   //生成项目基本路径
+	AllTables      []*Table //所有表
+	Exclude        bool     //排除生成sql
+	ELTableIndex   int
+	TabTables      []*Table //详情切换的tab页对应表
+	TabInfo        *TabInfo
+	BtnInfo        []*BtnInfo
+	TempIndex      int
+	DownloadInfo   *DownloadInfo
+	SelectInfo     *SelectInfo
+	ComponentsInfo []*ComponentsInfo
 }
 
 //Row 行信息
