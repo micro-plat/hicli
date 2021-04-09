@@ -148,7 +148,7 @@ var cons = map[string][]string{
 	"sort":    {"\\bsort(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
 	"order":   {"\\border(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
 	"seq":     {"\\bseq(\\(([\\w]+)[,]?([\\d]?)[,]?([\\d]?)\\)|\\b)"},
-	"replace": {"\brepalce(\\(([\\d]+),([\\d]+)[,]?([^\\s]+)\\))"},
+	"replace": {"\\breplace(\\(([\\d]+),([\\d]+)[,]?([\\s\\S]+)\\))"},
 }
 
 var IsNull = map[string]string{

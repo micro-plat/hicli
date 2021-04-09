@@ -41,7 +41,12 @@ values
 const Get{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} = {###}
 select 
 {{- range $i,$c:=$detailrows}}
-	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
+	{{- if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($detailrows|maxIndex)}},{{end}}
 {{- end}}
 from {{.Name}} t
 where
@@ -57,7 +62,12 @@ where
 const Get{{.Name|rmhd|upperName}}Detail= {###}
 select 
 {{- range $i,$c:=$detailrows}}
-	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
+	{{- if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($detailrows|maxIndex)}},{{end}}
 {{- end}}
 from {{.Name}} t
 where
@@ -93,7 +103,12 @@ where
 const Get{{.Name|rmhd|upperName}}List = {###}
 select 
 {{- range $i,$c:=$listrows}}
-	t.{{$c.Name}}{{if lt $i ($listrows|maxIndex)}},{{end}}
+	{{- if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($detailrows|maxIndex)}},{{end}}
 {{- end}} 
 from {{.Name}} t
 where
@@ -139,7 +154,12 @@ where
 const Get{{.Name|rmhd|upperName}}DetailList = {###}
 select 
 {{- range $i,$c:=$listrows}}
-	t.{{$c.Name}}{{if lt $i ($listrows|maxIndex)}},{{end}}
+	{{- if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($detailrows|maxIndex)}},{{end}}
 {{- end}} 
 from {{.Name}} t
 where

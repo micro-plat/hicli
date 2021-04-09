@@ -56,6 +56,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"fIsDI":     getKWS("di"),      //字段是否为字典ID
 		"fIsDN":     getKWS("dn"),      //字段是否为字典Name
 		"fIsDT":     getKWS("dt"),      //字段是否为字典Type
+		"fIsDC":     getKWS("dc"),      //字段是否为字典column
 
 		//数据库，sql，后端modules相关处理函数
 		"shortName": shortName,                                          //获取特殊字段前的字符串
@@ -78,6 +79,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"isInt64":   isType("int64"),                                    //是否是int64
 		"isInt":     isType("int"),                                      //是否是int
 		"isString":  isType("string"),                                   //是否是string
+		"replace":   replace(tp),
 
 		//前后端约束处理函数
 		"query":    getRows("q"),                                      //查询字段
@@ -468,8 +470,13 @@ func getDBIndex(tp string) func(r *Table) string {
 // 类似 kw(内容,内容,内容)
 func getCapturingGroup(input string, kw string) (bool, string, string, string) {
 	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
-	for _, v := range cons[kw] {
-		reg := regexp.MustCompile(v)
+	cks, ok := cons[strings.ToLower(kw)]
+	if !ok {
+		cks = cons["*"]
+	}
+	for _, v := range cks {
+		nck := types.DecodeString(strings.Contains(v, "%s"), true, fmt.Sprintf(v, kw), v)
+		reg := regexp.MustCompile(nck)
 		if reg.Match(buff) {
 			value := reg.FindStringSubmatch(strings.ToLower(input))
 			if len(value) == 5 {
@@ -544,6 +551,25 @@ func replaceUnderline(new string) func(s string) string {
 			return ""
 		}
 		return strings.Replace(strings.ToLower(s), "_", new, -1)
+	}
+}
+
+func replace(tp string) func(row *Row) string {
+	return func(row *Row) string {
+		ok, start, end, s := getCapturingGroup(row.Con, "replace")
+		if !ok {
+			return ""
+		}
+		str := types.DecodeString(s, "", "****") //默认替换成’*‘
+		switch tp {
+		case MYSQL:
+			format := "concat(left(t.%s,%d),'%s',right(t.%s,%d))"
+			return fmt.Sprintf(format, row.Name, types.GetInt(start, 0), str, row.Name, types.GetInt(end, 0))
+		case ORACLE:
+			format := "substr(t.%s,0,%d)|| '%s' || substr(t.%s,-%d,%d)"
+			return fmt.Sprintf(format, row.Name, types.GetInt(start, 0), str, row.Name, types.GetInt(end, 0), types.GetInt(end, 0))
+		}
+		return ""
 	}
 }
 
