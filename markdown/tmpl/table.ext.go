@@ -236,7 +236,7 @@ func (t *Table) DispostDownloadTables() {
 	if c == "" {
 		return
 	}
-	t.DownloadInfo.Title = strings.Split(c, ",")
+	t.DownloadInfo.Title = strings.Split(c, "|")
 }
 
 type SelectInfo struct {
