@@ -102,25 +102,18 @@ var def2oracle = []map[string]string{
 }
 
 var any2code = map[string]string{
-	"^date$":                      "time.Time",
-	"^datetime$":                  "time.Time",
-	"^timestamp$":                 "time.Time",
-	"^decimal$":                   "types.Decimal",
-	"^float$":                     "types.Decimal",
-	"^int$":                       "int",
-	"^number\\([1-2]{1}\\)$":      "int",
-	"^number\\([3-9]{1}\\)$":      "int",
-	"^number\\(10\\)$":            "int",
-	"^number\\(1[1-9]{1}\\)$":     "int64",
-	"^number\\(2[0-9]{1}\\)$":     "int64",
-	"^number\\((\\d+),(\\d+)\\)$": "types.Decimal",
-	"^varchar\\(\\d+\\)$":         "string",
-	"^varchar2\\(\\d+\\)$":        "string",
-	"^string$":                    "string",
-	"^text$":                      "string",
-	"^longtext$":                  "string",
-	"^clob$":                      "string",
-	//mysql ?
+	"^number\\(([1-9]|10)\\)$":            "int",
+	"^number\\((1[1-9]|2[0-9])\\)$":       "int64",
+	"^number\\(\\d+,\\d+\\)$":             "types.Decimal",
+	"^(varchar2|varchar|nchar|nvarchar)$": "string",
+	"^string$":                            "string",
+	"^(bigint|int8)$":                     "int64",
+	"^(binary|bit|blob|boolean|bool|char|character( varying)?)$":                "string",
+	"^(date|datetime|timestamp|time)$":                                          "time.Time",
+	"^(decimal|double( precision)?|float(4|8)?|real)$":                          "types.Decimal",
+	"^(dec|fixed|numeric|year|int(eger|[1-4])?|(medium|middle|small|tiny)int)$": "int",
+	"^long(blob|text| varbinary| varchar)?$":                                    "string",
+	"^(clob|text|medium(blob|text)|text|tinyblob|tinytext|varbinary)$":          "string",
 }
 
 var keywordSubMatch = `\b%s\(([\w\s-:#,.|/\p{Han}]+)\)`
