@@ -228,7 +228,7 @@ func getSeqs(tb *Table) []map[string]interface{} {
 		if !ok {
 			continue
 		}
-		seqName = types.DecodeString(increament, "", fmt.Sprintf("seq_%s_id", rmhd(tb.Name)))
+		seqName = types.DecodeString(seqName, "", fmt.Sprintf("seq_%s_id", rmhd(tb.Name)))
 		if len(seqName) > 64 {
 			logs.Log.Errorf("自动生成或配置%s的序列名长度不正确(%s),请重新配置", v.Name, seqName)
 			return nil
@@ -538,12 +538,6 @@ func isType(t string) func(input string) bool {
 	}
 }
 
-func stringsEqual(s string) func(s1 string) bool {
-	return func(s1 string) bool {
-		return strings.EqualFold(s, s1)
-	}
-}
-
 func replaceUnderline(new string) func(s string) string {
 	return func(s string) string {
 		if s == "" {
@@ -630,7 +624,7 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 }
 
 func getImportPath(s []*SnippetConf) map[string]*SnippetConf {
-	r := make(map[string]*SnippetConf, 0)
+	r := make(map[string]*SnippetConf)
 	t := make(map[string]string)
 
 	for _, v := range s {
@@ -732,7 +726,7 @@ func getDicParentName(tp string, keys ...string) func(con string, t *Table) stri
 		if parentName == "" {
 			//查找组件约束的级联
 			c := getBracketContent(keys)(con)
-			if strings.Index(c, "#") < 0 { //该字段组件约束没有级联
+			if !strings.Contains(c, "#") { //该字段组件约束没有级联
 				return ""
 			}
 			for _, v := range strings.Split(c, ",") {
@@ -770,7 +764,7 @@ func getSubConContent(tp, kw string) func(con string) string {
 				logs.Log.Warn("约束格式不正确：", con, tp, kw)
 				continue
 			}
-			subConMap[v[0:sub]] = v[sub+1 : len(v)]
+			subConMap[v[0:sub]] = v[sub+1:]
 		}
 		if v, ok := subConMap[kw]; ok {
 			return v

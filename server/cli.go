@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-
 	"github.com/lib4dev/cli/cmds"
 	"github.com/urfave/cli"
 )
@@ -22,7 +20,7 @@ func init() {
 						cli.StringFlag{Name: "registry,r", EnvVar: "registry", Usage: `-注册中心地址。格式：proto://host。如：zk://ip1,ip2  或 fs://../`},
 						cli.StringFlag{Name: "plat,p", Usage: "-平台名称"},
 						cli.StringFlag{Name: "system,s", Usage: "-系统名称,默认为当前应用程序名称"},
-						cli.StringFlag{Name: "server-types,S", Usage: fmt.Sprintf("-服务类型，有api,web,rpc,cron,mqc,ws。多个以“-”分割")},
+						cli.StringFlag{Name: "server-types,S", Usage: "-服务类型，有api,web,rpc,cron,mqc,ws。多个以“-”分割"},
 						cli.StringFlag{Name: "cluster,c", Usage: "-集群名称，默认值为：prod"},
 						cli.BoolFlag{Name: "debug,d", Usage: `-调试模式，打印更详细的系统运行日志，避免将详细的错误信息返回给调用方`},
 						cli.StringFlag{Name: "trace,t", Usage: `-性能分析。支持:cpu,mem,block,mutex,web`},

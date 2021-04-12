@@ -64,10 +64,7 @@ func (t TableColumn) Len() int {
 
 //从低到高
 func (t TableColumn) Less(i, j int) bool {
-	if t[i].Sort < t[j].Sort {
-		return true
-	}
-	return false
+	return t[i].Sort < t[j].Sort
 }
 
 func (t TableColumn) Swap(i, j int) {
@@ -206,7 +203,6 @@ func (t *Table) SortRows() {
 		}
 	}
 	sort.Sort(t.Rows)
-	return
 }
 
 //FilterRowByKW 过滤行信息

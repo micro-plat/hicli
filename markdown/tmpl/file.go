@@ -33,10 +33,7 @@ func GetSEQFilePath(outpath string, gofile bool) string {
 //PathExists 文件是否存在
 func PathExists(path string) bool {
 	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
+	return !os.IsNotExist(err)
 }
 
 //Create 创建文件，文件夹 存在时写入则覆盖

@@ -48,7 +48,7 @@ func newServer(c *cli.Context, path, watchpath string) (*server, error) {
 		notifyChan: make(chan int, 1),
 		closeChan:  make(chan int, 1),
 		errChan:    make(chan error, 1),
-		watchers:   make(map[string]string, 0),
+		watchers:   make(map[string]string),
 		ticker:     time.NewTicker(time.Millisecond * 500),
 		startFlag:  getStartFlag(c),
 	}, nil
@@ -122,8 +122,6 @@ func (s *server) start() {
 
 	//程序启动
 	s.session.Command(s.serverName, s.startFlag["run"]...).Run()
-
-	return
 }
 
 func (s *server) pause() {
@@ -177,7 +175,7 @@ func (s *server) watch() {
 func (s *server) watchChildren(path string) {
 	//监控子节点变化
 	ch, err := s.fs.WatchChildren(path)
-	if err != nil {
+	if err != nil && !s.fs.done {
 		s.fs.Close()
 		s.errChan <- err
 		return
@@ -206,7 +204,7 @@ func (s *server) watchChildren(path string) {
 				s.errChan <- fmt.Errorf("监控项目文件发生错误：%+v", cldWatcher.GetError())
 				return
 			}
-			logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------")
+			logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------", cldWatcher.GetPath())
 			if !s.isExclude(cldWatcher.GetPath()) {
 				s.hasNotify = true
 			}

@@ -192,11 +192,7 @@ func (u *{{.Name|rmhd|varName}}Handler) UploadHandle(ctx hydra.IContext) (r inte
 	ctx.Log().Info("--------上传文件--------")
 
 	ctx.Log().Info("1. 读取文件内容")
-	fileName, err := ctx.Request().GetFileName("file")
-	if err != nil {
-		return errs.NewErrorf(http.StatusNotAcceptable, "读取文件错误:%+v", err)
-	}
-	uf, err := ctx.Request().GetFileBody("file")
+	fileName, uf, _, err := ctx.Request().GetFile("file")
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotAcceptable, "读取文件错误:%+v", err)
 	}

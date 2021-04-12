@@ -25,7 +25,7 @@ func GetHicliHomePath() string {
 
 	// cross compile support
 	var home string
-	if "windows" == runtime.GOOS {
+	if runtime.GOOS == "windows" {
 		home, err = homeWindows()
 	} else {
 		home, err = homeUnix()
@@ -171,8 +171,5 @@ func GetProjectBasePath(projectPath string) string {
 
 func PathExists(path string) bool {
 	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
+	return !os.IsNotExist(err)
 }

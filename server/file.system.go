@@ -12,9 +12,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-var fileMode = os.FileMode(0664)
-var dirMode = os.FileMode(0755)
-
 type fsChildrenWatcher struct {
 	watcher  chan ChildrenWatcher
 	event    chan fsnotify.Event
@@ -40,9 +37,8 @@ func NewFileSystem(rootDir string) (*fs, error) {
 	}
 
 	rootDir = strings.TrimRight(rootDir, "/")
-	if strings.HasPrefix(rootDir, "./") {
-		rootDir = rootDir[2:]
-	}
+	rootDir = strings.TrimPrefix(rootDir, "./")
+
 	registryfs := &fs{
 		rootDir:             rootDir,
 		watcher:             w,
@@ -132,7 +128,7 @@ func (l *fs) WatchChildren(path string) (data chan ChildrenWatcher, err error) {
 	realPath := l.replaceColon(l.formatPath(path))
 	_, err = os.Stat(realPath)
 	if os.IsNotExist(err) {
-		err = fmt.Errorf("Watch path:%s 不存在", path)
+		err = fmt.Errorf("watch path:%s 不存在", realPath)
 		return
 	}
 
@@ -156,31 +152,29 @@ func (l *fs) WatchChildren(path string) (data chan ChildrenWatcher, err error) {
 		go func(evtw *fsChildrenWatcher) {
 			ticker := time.NewTicker(time.Second * 2)
 			for {
-				select {
-				case <-ticker.C:
-					path := ""
-					var op fsnotify.Op
-				INFOR:
-					for {
-						select {
-						case p := <-evtw.syncChan:
-							path = p.Name
-							op = p.Op
-						default:
-							break INFOR
-						}
+				<-ticker.C
+				path := ""
+				var op fsnotify.Op
+			INFOR:
+				for {
+					select {
+					case p := <-evtw.syncChan:
+						path = p.Name
+						op = p.Op
+					default:
+						break INFOR
 					}
-					if len(path) > 0 {
-						vals, version, err := l.GetChildren(rpath)
-						ett := &valuesEntity{
-							path:    path,
-							OP:      op,
-							values:  vals,
-							version: version,
-							Err:     err,
-						}
-						evtw.watcher <- ett
+				}
+				if len(path) > 0 {
+					vals, version, err := l.GetChildren(rpath)
+					ett := &valuesEntity{
+						path:    path,
+						OP:      op,
+						values:  vals,
+						version: version,
+						Err:     err,
 					}
+					evtw.watcher <- ett
 				}
 			}
 		}(v)
@@ -215,28 +209,12 @@ func (l *fs) Close() error {
 	return nil
 }
 
-type valueEntity struct {
-	Value   []byte
-	version int32
-	path    string
-	Err     error
-}
 type valuesEntity struct {
 	values  []string
 	version int32
 	path    string
 	Err     error
 	OP      fsnotify.Op
-}
-
-func (v *valueEntity) GetPath() string {
-	return v.path
-}
-func (v *valueEntity) GetValue() ([]byte, int32) {
-	return v.Value, v.version
-}
-func (v *valueEntity) GetError() error {
-	return v.Err
 }
 
 func (v *valuesEntity) GetValue() ([]string, int32) {
