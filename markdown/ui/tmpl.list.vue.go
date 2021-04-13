@@ -1,12 +1,15 @@
 package ui
 
-const TmplList1 = `
+const TmplList = `
 {{- $len := 32 -}}
 {{- $rows := .Rows -}}
+{{- $desc := .Desc -}}
+{{- $name := .Name -}}
 {{- $pks := .|pks -}}
 {{- $tb :=. -}}
 {{- $sort:=.Rows|sort -}}
 {{- $choose:= false -}}
+{{- $btn:=.BtnInfo -}}
 <template>
 	<div class="panel panel-default">
     <!-- query start -->
@@ -52,6 +55,15 @@ const TmplList1 = `
 				{{- if gt ($rows|create|len) 0}}
 				<el-form-item>
 					<el-button type="success" size="medium" @click="showAdd">添加</el-button>
+					{{- if gt ($rows|export|len) 0}}
+					<el-button type="success" @click="exportExcl" size="medium">导出excel</el-button>
+					{{- end}}
+					{{- if gt ($tb.DownloadInfo.Title|len) 0}}
+					<el-button type="text" @click="download" style="font-size:14px">下载模版</el-button>
+					{{- end}}
+					{{- if not $tb.SelectInfo.IsEmpty }}
+					<el-button @click="toggleSelection()">批量操作</el-button>
+					{{- end}}
 				</el-form-item>
 				{{end}}
 			</el-form>
@@ -60,7 +72,9 @@ const TmplList1 = `
 
     <!-- list start-->
 		<el-scrollbar style="height:100%">
-			<el-table :data="dataList.items" stripe style="width: 100%" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}>
+			<el-table :data="dataList.items" stripe style="width: 100%" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
+			{{- if not $tb.SelectInfo.IsEmpty }}  @selection-change="handleSelectionChange" {{end}}>
+			  {{if not $tb.SelectInfo.IsEmpty }}<el-table-column type="selection" width="55"> </el-table-column>{{end}}
 				{{if gt $tb.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>{{end}}
 				{{- range $i,$c:=$rows|list}}
 				<el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
@@ -106,11 +120,39 @@ const TmplList1 = `
 						{{- if gt ($rows|delete|len) 0}}
 						<el-button type="text" size="mini" @click="del(scope.row)">删除</el-button>
 						{{- end}}
+
+						{{- range $i,$c:=$tb.ComponentsInfo}}
+						<el-button type="text" size="mini" @click="show{{$c.Name|upperName}}(scope.row)">form{{$i}}</el-button>
+						{{- end}}
+
+						{{- range $i,$c:= $btn }}
+							{{- if gt ($c.VIF|len) 0}}
+								{{- range $k,$v:= $c.VIF}}
+									{{- if eq $k 0}}
+						<el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+									{{- else if lt $k ($c.VIF|maxIndex) }}		
+						<el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+									{{- else}}
+						<el-button v-else type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+									{{- end}}
+								{{- end}}
+							{{- else}}	
+						<el-button type="text" size="small" @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+							{{- end }}
+						{{- end}}
 					</template>
 				</el-table-column>
 			</el-table>
 		</el-scrollbar>
 		<!-- list end-->
+
+		{{- range $i,$c:= $btn }}
+		{{- if eq ($c.VIF|len) 0}}
+		<!-- {{$c.Name|upperName}} Form -->
+		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
+		<!--{{$c.Name|upperName}} Form -->
+		{{- end}}
+		{{- end}}
 
 		{{if gt ($rows|create|len) 0 -}}
 		<!-- Add Form -->
@@ -122,6 +164,13 @@ const TmplList1 = `
 		<!-- edit Form start-->
 		<Edit ref="Edit" :refresh="query"></Edit>
 		<!-- edit Form end-->
+		{{- end}}
+
+		{{- range $i,$c:=$tb.ComponentsInfo}}
+
+		<!-- {{$c.Name|upperName}} Form -->
+		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
+		<!--{{$c.Name|upperName}} Form -->
 		{{- end}}
 
 		<!-- pagination start -->
@@ -149,13 +198,29 @@ import Add from "./{{.Name|rmhd|l2d}}.add"
 {{- if gt ($rows|update|len) 0}}
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
+{{- range $i,$c:=$tb.ComponentsInfo}}
+import {{$c.Name|upperName}} from "{{$c.Path}}"
+{{- end}}
+{{- range $i,$c:= $btn }}
+{{- if eq ($c.VIF|len) 0}}
+import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
+{{- end}}
+{{- end}}
 export default {
   components: {
 		{{- if gt ($rows|create|len) 0}}
 		Add,
 		{{- end}}
 		{{- if gt ($rows|update|len) 0}}
-		Edit
+		Edit,
+		{{- end}}
+		{{- range $i,$c:=$tb.ComponentsInfo}}
+		{{$c.Name|upperName}},
+		{{- end}}
+		{{- range $i,$c:= $btn }}
+		{{- if eq ($c.VIF|len) 0 -}},
+		{{$c.Name|upperName}}
+		{{- end}}
 		{{- end}}
   },
   data () {
@@ -176,6 +241,9 @@ export default {
       {{- end}}
 			{{- if gt ($sort|len) 0}}
 			order: "{{range $i,$c:=$sort|sortSort}}t.{{$c.Name}} {{or ($c.Con|sortCon) "desc"}}{{if lt $i ($sort|maxIndex)}}, {{end}}{{end}}",
+			{{- end}}
+			{{- if not $tb.SelectInfo.IsEmpty }}
+			multipleSelection: [],
 			{{- end}}
 			dataList: {count: 0,items: []}, //表单数据对象,
 			maxHeight: 0
@@ -279,20 +347,113 @@ export default {
       this.$refs.Edit.show();
 		},
 		{{- end}}
+		{{- range $i,$c:=$tb.ComponentsInfo}}
+		show{{$c.Name|upperName}}(val) {
+      this.$refs.{{$c.Name|upperName}}.show();
+		},
+		{{- end}}
+		{{- range $i,$c:= $btn }}
+		{{- if eq ($c.VIF|len) 0}}
+	  show{{$c.Name}}(val) {
+      this.$refs.{{$c.Name|upperName}}.editData = val
+      this.$refs.{{$c.Name|upperName}}.show();
+		},
+		{{- end}}
+		{{- end}}
+
+		{{- range $i,$c:= $btn }}
+		{{- if gt ($c.VIF|len) 0}}
+		{{$c.Name}}(val){
+			var data = {
+				{{- range $i,$c:=$c.Rows}}
+				{{$c.Name}} : ""
+				{{- end}}
+			}
+			{{- if $c.Confirm}}
+      this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
+					.then(res => {
+						this.dialogFormVisible = false;
+						this.query()
+					})
+			{{- if $c.Confirm}}
+				});
+			{{- end}}
+		},
+		{{- end}}
+		{{- end}}
+
+		{{- if gt ($rows|export|len) 0}}
+		exportExcl() {
+			this.queryData.pi = this.paging.pi
+			this.queryData.ps = this.paging.ps
+			{{- range $i,$c:=$rows|query -}}
+			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
+			this.queryData.{{$c.Name}} = this.$utility.dateFormat(this.{{$c.Name|lowerName}},"{{dateFormat $c.Con ($c.Con|qfCon)}}")
+			{{- else if ($c.Con|CB) }}
+			this.queryData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
+			{{- end -}}
+      {{- end}}
+			{{- if gt ($sort|len) 0}}
+			this.queryData.order_by = this.order
+			{{- end}}
+      this.$http.post("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.queryData))
+        .then(res => {
+          var header = [
+					{{- range $i,$c:=$rows|export}}
+					{ Key: "{{$c.Name}}",	Txt: "{{$c.Desc}}" },
+					{{- end}}
+          ];
+          this.BuildExcel("{{$desc}}.xlsx", [header], res.items || [], {
+						{{- range $i,$c:=$rows|list}}
+						{{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+						{{$c.Name}}: this.$enum.get("{{(or (dicName $c.Con ($c.Con|leCon) $tb) $c.Name)|lower}}"),
+						{{- end}}
+						{{- end}}
+          });
+        });
+    },
+		{{- end}}
+
+		{{- if gt ($tb.DownloadInfo.Title|len) 0}}
+		download() {
+      var data = [
+				[
+				{{- range $i,$c:=$tb.DownloadInfo.Title}}
+					"{{$c}}",
+				{{- end}}
+        ]
+      ];
+      this.ExportTemplate(data, "模板.xlsx")
+    },
+		{{- end}}
+
+		{{- if not $tb.SelectInfo.IsEmpty }}
+		toggleSelection() {
+      var data = []
+      this.multipleSelection.forEach(row => {
+        data.push(row.{{range $i,$c:=$pks}}{{$c}}{{end}})
+      });
+			this.$http.put("{{$tb.SelectInfo.URL}}", {data:data}, {}, true, true)
+			.then(res => {			
+				this.query()
+			})
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+		{{- end}}
+
 		{{- if gt ($rows|delete|len) 0}}
     del(val){
 			this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {confirmButtonText: "确定",  cancelButtonText: "取消", type: "warning"})
 			.then(() => {
 				this.$http.del("/{{.Name|rmhd|rpath}}",val, {}, true, true)
-				.then(res => {			
-					this.dialogFormVisible = false;
-					this.query()
-				})
-      }).catch(() => {
-        this.$message({
-          type: "info",
-          message: "已取消删除"
-        });          
+					.then(res => {
+						this.query()
+					})
       });
 		}
 		{{- end}}

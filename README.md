@@ -118,6 +118,7 @@ hicli app service md文档路径 [输出文件路径] -table [指定表名] --ex
     SORT：前后端联合排序；默认降序； SORT[(asc|desc,字段排序顺序)]，越小越先排序；不可与ORDER同时使用
     DI: 字典编号，数据表作为字典数据时的id字段
     DN: 字典名称，数据表作为字典数据时的name字段
+    DC: 字典列，数据表作为字典数据时的查询字段
     SL: 前端页面下拉框,默认使用dds字典表枚举,指定表名的SL[(表名)]
     SLM: 前端页面可多选表单下拉框,默认使用dds字典表枚举,指定表名的SL[(表名)]
     CB: 前端页面复选框,默认使用dds字典表枚举,指定表名的CB[(表名)]
@@ -128,6 +129,7 @@ hicli app service md文档路径 [输出文件路径] -table [指定表名] --ex
     DTIME: 前端页面日期时间选择器
     FIXED: 前端页面列表表单固定列
     AFTER: 前端列表字段在指定字段后面，AFTER(字段名)
+    REPLACE: 查询替换字符串，replace(开始位置,倒数结束位置,[替换字符])，替换字符默认为*
 
 关键字C,R,U,Q,L约定子约束
     f:前端字段展示过滤器参数，示例:L(f:过滤器参数)
@@ -141,5 +143,7 @@ hicli app service md文档路径 [输出文件路径] -table [指定表名] --ex
     el_btn:生成页面的按钮操作,多个按钮,以el_btn,el_btn1,el_btn2...顺序配置，最多为10个
         状态扭转:el_btn(name:方法名,desc:1-禁用|2-启用,confirm:确定要进行此操作吗,key:)
         关联表数据及数据更新:el_btn(name:方法名,desc:按钮名称,confirm:确定要进行此操作吗,table:关联表:字段1/字段2|关联表2,key:btn_key)
-	
+    el_download:导出excel模板，el_download(标题1|标题2....)
+    el_select:列表多选批量操作,el_select(url:...)
+    el_components:引入模板,el_components(名称,文件路径|名称2,文件路径2...)
 ```

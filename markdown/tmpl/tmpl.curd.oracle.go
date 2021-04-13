@@ -44,7 +44,14 @@ values(
 const Get{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} = {###}
 select 
 {{- range $i,$c:=$detailrows}}
-	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
+	{{- if $c.Type|codeType|isTime }}
+	to_char(t.{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')	{{$c.Name}}
+	{{- else if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($detailrows|maxIndex)}},{{end}}	
 {{- end}} 
 from {{.Name}}{{.DBLink}} t
 where
@@ -61,7 +68,14 @@ where
 const Get{{.Name|rmhd|upperName}}Detail= {###}
 select 
 {{- range $i,$c:=$detailrows}}
-	t.{{$c.Name}}{{if lt $i ($detailrows|maxIndex)}},{{end}}
+	{{- if $c.Type|codeType|isTime }}
+	to_char(t.{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')	{{$c.Name}}
+	{{- else if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($detailrows|maxIndex)}},{{end}}
 {{- end}}
 from {{.Name}} t
 where
@@ -101,8 +115,14 @@ from (select L.*
 		from (
 			select 
 			{{- range $i,$c:=$listrows}}
-			{{if $c.Type|codeType|isTime }}to_char(t.{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')	{{$c.Name}}{{else -}}
-				t.{{$c.Name}}{{end}}{{if lt $i ($listrows|maxIndex)}},{{end}}
+			{{- if $c.Type|codeType|isTime }}
+				to_char(t.{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')	{{$c.Name}}
+			{{- else if and ($c.Type|codeType|isString) ($c|replace) }}
+				{{$c|replace}} {{$c.Name}}
+			{{- else}}
+				t.{{$c.Name}}
+			{{- end}}
+			{{- if lt $i ($listrows|maxIndex)}},{{end}}
 			{{- end}} 
 			from {{.Name}}{{.DBLink}} t
 			where
@@ -152,7 +172,14 @@ from (select L.*
 		from (
 select 
 {{- range $i,$c:=$listrows}}
-	t.{{$c.Name}}{{if lt $i ($listrows|maxIndex)}},{{end}}
+	{{- if $c.Type|codeType|isTime }}
+	to_char(t.{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')	{{$c.Name}}
+	{{- else if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($listrows|maxIndex)}},{{end}}	
 {{- end}} 
 from {{.Name}} t
 where

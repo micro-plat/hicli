@@ -2,7 +2,6 @@ package tmpl
 
 import (
 	"encoding/json"
-	"fmt"
 	"path"
 
 	"github.com/micro-plat/hicli/markdown/utils"
@@ -36,7 +35,7 @@ func (t *SnippetConf) SaveConf(confPath string) error {
 	}
 
 	//读取配置
-	conf := make(map[string]*SnippetConf, 0)
+	conf := make(map[string]*SnippetConf)
 	err := readConf(confPath, &conf)
 	if err != nil {
 		return err
@@ -52,7 +51,7 @@ func (t *SnippetConf) SaveConf(confPath string) error {
 //GetSnippetConf 获取配置
 func GetSnippetConf(path string) ([]*SnippetConf, error) {
 
-	conf := make(map[string]*SnippetConf, 0)
+	conf := make(map[string]*SnippetConf)
 	err := readConf(path, &conf)
 	if err != nil {
 		return nil, err
@@ -94,7 +93,7 @@ func NewFieldConf(t *Table) *FieldConf {
 
 //GetFieldConf .
 func GetFieldConf(path string) (map[string]*FieldItem, error) {
-	conf := make(map[string]*FieldItem, 0)
+	conf := make(map[string]*FieldItem)
 	err := readConf(path, &conf)
 	return conf, err
 }
@@ -105,7 +104,7 @@ func (t *FieldConf) SaveConf(confPath string) error {
 	}
 
 	//读取配置
-	conf := make(map[string]*FieldItem, 0)
+	conf := make(map[string]*FieldItem)
 	err := readConf(confPath, &conf)
 	if err != nil {
 		return err
@@ -159,7 +158,7 @@ func GetFieldConfPath(root string) string {
 	if projectPath == "" {
 		return ""
 	}
-	return path.Join(projectPath, fmt.Sprintf(".hicli/server_filed.json"))
+	return path.Join(projectPath, ".hicli/server_filed.json")
 }
 
 func GetWebConfPath(root string) string {
@@ -168,7 +167,7 @@ func GetWebConfPath(root string) string {
 	if webPath == "" {
 		return ""
 	}
-	return path.Join(webPath, fmt.Sprintf(".hicli/web.json"))
+	return path.Join(webPath, ".hicli/web.json")
 }
 
 func GetGoConfPath(root string) string {
@@ -176,5 +175,5 @@ func GetGoConfPath(root string) string {
 	if projectPath == "" {
 		return ""
 	}
-	return path.Join(projectPath, fmt.Sprintf(".hicli/server.json"))
+	return path.Join(projectPath, ".hicli/server.json")
 }

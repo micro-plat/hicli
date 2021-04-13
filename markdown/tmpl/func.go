@@ -56,6 +56,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"fIsDI":     getKWS("di"),      //字段是否为字典ID
 		"fIsDN":     getKWS("dn"),      //字段是否为字典Name
 		"fIsDT":     getKWS("dt"),      //字段是否为字典Type
+		"fIsDC":     getKWS("dc"),      //字段是否为字典column
 
 		//数据库，sql，后端modules相关处理函数
 		"shortName": shortName,                                          //获取特殊字段前的字符串
@@ -78,6 +79,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"isInt64":   isType("int64"),                                    //是否是int64
 		"isInt":     isType("int"),                                      //是否是int
 		"isString":  isType("string"),                                   //是否是string
+		"replace":   replace(tp),
 
 		//前后端约束处理函数
 		"query":    getRows("q"),                                      //查询字段
@@ -86,6 +88,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"create":   getRows("c"),                                      //创建字段
 		"delete":   getRows("d"),                                      //删除时判定字段
 		"update":   getRows("u"),                                      //更新字段
+		"export":   getRows("e"),                                      //导出字段
 		"delCon":   getBracketContent([]string{"d"}),                  //删除字段约束
 		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
 		"sort":     getRows("sort"),                                   //查询字段
@@ -99,6 +102,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"TA":            getKWS("ta"),                                  //表单文本域
 		"DTIME":         getKWS("dtime"),                               //表单日期时间选择器
 		"DATE":          getKWS("date"),                                //表单日期选择器
+		"UP":            getKWS("up"),                                  //表单文本域
 		"dateType":      getDateType,                                   //日期字段对应的组件的日期类型
 		"dateFormat":    getDateFormat,                                 //日期字段对应的组件的日期格式
 		"dateFormatDef": getDateFormatDef,                              //日期字段对应的组件的日期默认值
@@ -122,7 +126,6 @@ func getfuncs(tp string) map[string]interface{} {
 		"cDicPName":     getDicParentName("c", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
 		"uDicCName":     getDicChildrenName("u", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
 		"uDicPName":     getDicParentName("u", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
-
 	}
 }
 
@@ -221,34 +224,28 @@ func getSeqs(tb *Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.Rows))
 
 	for _, v := range tb.Rows {
-		ok, seqName, start, increament := getIndex(v.Con, "seq")
-		if ok {
-			if seqName == "" {
-				seqName = fmt.Sprintf("seq_%s_id", rmhd(tb.Name))
-			}
-			if len(seqName) > 64 {
-				logs.Log.Errorf("自动生成或配置%s的序列名长度不正确(%s),请重新配置", v.Name, seqName)
-				return nil
-			}
-			if start == 0 {
-				start = 1
-			}
-			if increament == 0 {
-				increament = 1
-			}
-			row := map[string]interface{}{
-				"name":      v.Name,
-				"seqname":   seqName,
-				"desc":      v.Desc,
-				"type":      v.Type,
-				"len":       v.Len,
-				"increment": increament,
-				"min":       start,
-				"max":       99999999999,
-			}
-			columns = append(columns, row)
+		ok, seqName, start, increament := getCapturingGroup(v.Con, "seq")
+		if !ok {
+			continue
 		}
+		seqName = types.DecodeString(seqName, "", fmt.Sprintf("seq_%s_id", rmhd(tb.Name)))
+		if len(seqName) > 64 {
+			logs.Log.Errorf("自动生成或配置%s的序列名长度不正确(%s),请重新配置", v.Name, seqName)
+			return nil
+		}
+		row := map[string]interface{}{
+			"name":      v.Name,
+			"seqname":   seqName,
+			"desc":      v.Desc,
+			"type":      v.Type,
+			"len":       v.Len,
+			"increment": types.DecodeInt(types.GetInt(increament, 0), 0, 1),
+			"min":       types.DecodeInt(types.GetInt(start, 0), 0, 1),
+			"max":       99999999999,
+		}
+		columns = append(columns, row)
 	}
+
 	return columns
 }
 
@@ -396,11 +393,11 @@ func sortByKw(kw string) func(rows TableColumn) []*Row {
 	return func(rows TableColumn) []*Row {
 		result := make(TableColumn, 0, len(rows))
 		for _, v := range rows {
-			ok, _, sort, _ := getIndex(v.Con, kw)
+			ok, _, sort, _ := getCapturingGroup(v.Con, kw)
 			if !ok {
 				continue
 			}
-			v.Sort = sort
+			v.Sort = types.GetInt(sort, 0)
 			result = append(result, v)
 		}
 		sort.Sort(result)
@@ -469,26 +466,31 @@ func getDBIndex(tp string) func(r *Table) string {
 	return func(r *Table) string { return "" }
 }
 
-// 类似 kw(字符串,数字,数字)
-func getIndex(input string, kw string) (bool, string, int, int) {
+// 类似 kw(内容,内容,内容)
+func getCapturingGroup(input string, kw string) (bool, string, string, string) {
 	buff := []byte(strings.Trim(strings.ToLower(input), "'"))
-	for _, v := range cons[kw] {
-		reg := regexp.MustCompile(v)
+	cks, ok := cons[strings.ToLower(kw)]
+	if !ok {
+		cks = cons["*"]
+	}
+	for _, v := range cks {
+		nck := types.DecodeString(strings.Contains(v, "%s"), true, fmt.Sprintf(v, kw), v)
+		reg := regexp.MustCompile(nck)
 		if reg.Match(buff) {
 			value := reg.FindStringSubmatch(strings.ToLower(input))
 			if len(value) == 5 {
-				return true, value[2], types.GetInt(value[3], 0), types.GetInt(value[4], 0)
+				return true, value[2], value[3], value[4]
 			}
 			if len(value) == 4 {
-				return true, value[2], types.GetInt(value[3], 0), 0
+				return true, value[2], value[3], ""
 			}
 			if len(value) == 3 {
-				return true, value[2], 0, 0
+				return true, value[2], "", ""
 			}
-			return true, "", 0, 0
+			return true, "", "", ""
 		}
 	}
-	return false, "", 0, 0
+	return false, "", "", ""
 }
 
 func getRows(tp ...string) func(row []*Row) []*Row {
@@ -536,18 +538,31 @@ func isType(t string) func(input string) bool {
 	}
 }
 
-func stringsEqual(s string) func(s1 string) bool {
-	return func(s1 string) bool {
-		return strings.EqualFold(s, s1)
-	}
-}
-
 func replaceUnderline(new string) func(s string) string {
 	return func(s string) string {
 		if s == "" {
 			return ""
 		}
 		return strings.Replace(strings.ToLower(s), "_", new, -1)
+	}
+}
+
+func replace(tp string) func(row *Row) string {
+	return func(row *Row) string {
+		ok, start, end, s := getCapturingGroup(row.Con, "replace")
+		if !ok {
+			return ""
+		}
+		str := types.DecodeString(s, "", "****") //默认替换成’*‘
+		switch tp {
+		case MYSQL:
+			format := "concat(left(t.%s,%d),'%s',right(t.%s,%d))"
+			return fmt.Sprintf(format, row.Name, types.GetInt(start, 0), str, row.Name, types.GetInt(end, 0))
+		case ORACLE:
+			format := "substr(t.%s,0,%d)|| '%s' || substr(t.%s,-%d,%d)"
+			return fmt.Sprintf(format, row.Name, types.GetInt(start, 0), str, row.Name, types.GetInt(end, 0), types.GetInt(end, 0))
+		}
+		return ""
 	}
 }
 
@@ -609,7 +624,7 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 }
 
 func getImportPath(s []*SnippetConf) map[string]*SnippetConf {
-	r := make(map[string]*SnippetConf, 0)
+	r := make(map[string]*SnippetConf)
 	t := make(map[string]string)
 
 	for _, v := range s {
@@ -711,7 +726,7 @@ func getDicParentName(tp string, keys ...string) func(con string, t *Table) stri
 		if parentName == "" {
 			//查找组件约束的级联
 			c := getBracketContent(keys)(con)
-			if strings.Index(c, "#") < 0 { //该字段组件约束没有级联
+			if !strings.Contains(c, "#") { //该字段组件约束没有级联
 				return ""
 			}
 			for _, v := range strings.Split(c, ",") {
@@ -749,7 +764,7 @@ func getSubConContent(tp, kw string) func(con string) string {
 				logs.Log.Warn("约束格式不正确：", con, tp, kw)
 				continue
 			}
-			subConMap[v[0:sub]] = v[sub+1 : len(v)]
+			subConMap[v[0:sub]] = v[sub+1:]
 		}
 		if v, ok := subConMap[kw]; ok {
 			return v

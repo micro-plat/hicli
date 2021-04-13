@@ -46,6 +46,27 @@ const TmplEditVue = `
 			<el-form-item prop="{{$c.Name}}" label="{{$c.Desc|shortName}}:">
 					<el-date-picker size="medium" class="input-cos"  v-model="editData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ueCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ueCon)}}"  placeholder="选择日期"></el-date-picker>
 			</el-form-item>
+			{{- else if $c.Con|UP }}
+			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
+				<el-upload id="sbtn{{$i}}"
+					class="upload-demo"
+					ref="upload"
+					:with-credentials="options{{$i}}.withCredentials"
+					:accept="options{{$i}}.accept"
+					:headers="options{{$i}}.headers"
+					:action="options{{$i}}.target"
+					:limit="1"
+					:on-exceed="handleExceed{{$i}}"
+					:file-list="fileList{{$i}}"
+					:on-success="uploadSuccess{{$i}}"
+					:on-error="onError{{$i}}"
+					:before-upload="beforeUpload{{$i}}"
+					:on-remove="onRemove{{$i}}"
+				>
+					<el-button size="small" type="primary">点击上传</el-button>
+					<div slot="tip" class="el-upload__tip" style="margin-top: 0px">建议尺寸格式，大小在2M以内</div>
+				</el-upload>
+			</el-form-item>
       {{- else -}}
       <el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
 				<el-input size="medium" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
@@ -78,6 +99,15 @@ export default {
 			{{- else if $c.Con|CB }}
 			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|ceCon) $tb) $c.Name)|lower}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
+			{{- else if $c.Con|UP }}
+			fileList{{$i}}: [],
+      nameList{{$i}}: [],
+      options{{$i}}: {
+        accept: "image/jpg,image/jpeg,image/png,image/gif,image/bmp,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document", //上传文件类型
+        target: this.$env.conf.api.host + '/{{$.Name|rmhd|rpath}}/upload', //上传地址
+        withCredentials: true, //携带cookies
+        headers: { "authorization": window.localStorage.getItem("authorization") },//根据后端配置在cookie还是header
+      },
 			{{- end}}
       {{- end}}
 			rules: {                    //数据验证规则
@@ -128,6 +158,46 @@ export default {
 			this.editData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}",pid)
 		},
+		{{- else if $c.Con|UP }}
+		handleExceed{{$i}}(files, fileList) {
+      this.$message.warning("文件上传数量超出设置范围");
+    },
+    uploadSuccess{{$i}}(response, file, fileList) {
+			let info = {
+        original_name: file.name,
+        store_name: response.file_name,
+        uid: file.uid,
+      }
+      this.nameList{{$i}}.push(info)
+    },
+    onError{{$i}}(err, file, fileList) {
+      this.$notify({
+        title: "错误",
+        message: "上传失败，请稍后再试",
+        type: "error",
+        offset: 50,
+        duration: 2000
+      });
+    },
+    beforeUpload{{$i}}(file) {
+      const isLt2M = file.size / 1024 / 1024 < 2 //这里做文件大小限制
+      if (!isLt2M) {
+        this.$message({
+          message: '上传文件大小不能超过 2MB!',
+          type: 'warning'
+        });
+        return false
+      }
+      return isLt2M
+    },
+    onRemove{{$i}}(file, fileList) {
+      this.nameList{{$i}}.forEach((item, idx, array) => {
+        if (array[idx] != undefined && item.uid == file.uid) {
+          this.nameList{{$i}}.splice(idx, 1)
+          return
+        }
+      })
+    },
 		{{- end}}
 		{{- end }}
 		edit() {
@@ -136,6 +206,10 @@ export default {
 			this.editData.{{$c.Name}} = this.$utility.dateFormat(this.editData.{{$c.Name}},"{{dateFormat $c.Con ($c.Con|ueCon)}}")
 			{{- else if or ($c.Con|SLM) ($c.Con|CB) }}
 			this.editData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
+			{{- else if $c.Con|UP }}
+			var list{{$i}} =[]
+			this.nameList{{$i}}.forEach((v, i) => {list{{$i}}.push(v.store_name)})
+			this.editData.{{$c.Name}} = list{{$i}}.join(",")
 			{{- end -}}
 			{{- end}}
 			this.$http.put("/{{.Name|rmhd|rpath}}", this.editData, {}, true, true)
@@ -150,4 +224,14 @@ export default {
 
 <style scoped>
 </style>
+
+{{- range $i,$c:=$rows|update -}}
+{{- if $c.Con|UP }}
+<style>
+#sbtn{{$i}} > div > input {
+  display: none !important;
+}
+</style>
+{{- end}}
+{{- end}}
 `

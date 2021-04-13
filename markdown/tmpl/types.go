@@ -21,6 +21,7 @@ var tp2mysql = map[string]string{
 	"^clob$":                      "longtext",
 }
 
+//参考资料 http://www.sqlines.com/mysql-to-oracle  https://docs.oracle.com/cd/E12151_01/doc.150/e12155/oracle_mysql_compared.htm#BABGACIF
 var tp2oracle = map[string]string{
 	"bigint":            "number(19)",
 	"binary":            "raw",
@@ -102,54 +103,46 @@ var def2oracle = []map[string]string{
 }
 
 var any2code = map[string]string{
-	"^date$":                      "time.Time",
-	"^datetime$":                  "time.Time",
-	"^timestamp$":                 "time.Time",
-	"^decimal$":                   "types.Decimal",
-	"^float$":                     "types.Decimal",
-	"^int$":                       "int",
-	"^number\\([1-2]{1}\\)$":      "int",
-	"^number\\([3-9]{1}\\)$":      "int",
-	"^number\\(10\\)$":            "int",
-	"^number\\(1[1-9]{1}\\)$":     "int64",
-	"^number\\(2[0-9]{1}\\)$":     "int64",
-	"^number\\((\\d+),(\\d+)\\)$": "types.Decimal",
-	"^varchar\\(\\d+\\)$":         "string",
-	"^varchar2\\(\\d+\\)$":        "string",
-	"^string$":                    "string",
-	"^text$":                      "string",
-	"^longtext$":                  "string",
-	"^clob$":                      "string",
-	//mysql ?
+	"^number\\(([1-9]|10)\\)$":            "int",
+	"^number\\((1[1-9]|2[0-9])\\)$":       "int64",
+	"^number\\(\\d+,\\d+\\)$":             "types.Decimal",
+	"^(varchar2|varchar|nchar|nvarchar)$": "string",
+	"^string$":                            "string",
+	"^(bigint|int8)$":                     "int64",
+	"^(binary|bit|blob|boolean|bool|char|character( varying)?)$":                "string",
+	"^(date|datetime|timestamp|time)$":                                          "time.Time",
+	"^(decimal|double( precision)?|float(4|8)?|real)$":                          "types.Decimal",
+	"^(dec|fixed|numeric|year|int(eger|[1-4])?|(medium|middle|small|tiny)int)$": "int",
+	"^long(blob|text| varbinary| varchar)?$":                                    "string",
+	"^(clob|text|medium(blob|text)|text|tinyblob|tinytext|varbinary)$":          "string",
 }
 
-var keywordSubMatch = `\b%s\(([\w\s-:#,|/\p{Han}]+)\)`
+var keywordSubMatch = `\b%s\(([\w\s-:#,.|/\p{Han}]+)\)`
 
 var keywordMatch = []string{"^\\w*%s\\w*$", ",\\w*%s\\w*,", "^\\w*%s\\w*,", ",\\w*%s\\w*$"}
 
 var cons = map[string][]string{
-	"pk": {"\\bpk\\b"},
-	//"seq":   {"\\bseq\\b"},
-	"di":    {"\\bdi\\b"},
-	"dn":    {"\\bdn\\b"},
-	"sl":    {"\\bsl(\\([\\w,]+\\)|\\b)"},
-	"slm":   {"\\bslm(\\([\\w,]+\\)|\\b)"},
-	"rd":    {"\\brd(\\([\\w,]+\\)|\\b)"},
-	"cb":    {"\\bcb(\\([\\w,]+\\)|\\b)"},
-	"ta":    {"\\bta(\\([\\w,]+\\)|\\b)"},
-	"cc":    {"\\bcc(\\(\\w+\\)|\\b)"},
-	"idx":   {"\\bidx(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
-	"unq":   {"\\bunq(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
-	"d":     {"\\bd(\\([0-9]*\\)|\\b)"},
-	"c":     {"\\bc(\\([\\w,:#]+\\)|\\b)"},
-	"u":     {"\\bu(\\([\\w,:#]+\\)|\\b)"},
-	"r":     {"\\br(\\([\\w,:#]+\\)|\\b)"},
-	"l":     {"\\bl(\\([\\w,:#]+\\)|\\b)"},
-	"q":     {"\\bq(\\([\\w,:#]+\\)|\\b)"},
-	"sort":  {"\\bsort(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
-	"order": {"\\border(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
-	"*":     {"\\b%s\\b"},
-	"seq":   {"\\bseq(\\(([\\w]+)[,]?([\\d]?)[,]?([\\d]?)\\)|\\b)"},
+	"*":       {"\\b%s\\b"},
+	"sl":      {"\\bsl(\\([\\w,]+\\)|\\b)"},
+	"slm":     {"\\bslm(\\([\\w,]+\\)|\\b)"},
+	"rd":      {"\\brd(\\([\\w,]+\\)|\\b)"},
+	"cb":      {"\\bcb(\\([\\w,]+\\)|\\b)"},
+	"ta":      {"\\bta(\\([\\w,]+\\)|\\b)"},
+	"up":      {"\\bup(\\([\\w,]+\\)|\\b)"},
+	"cc":      {"\\bcc(\\(\\w+\\)|\\b)"},
+	"idx":     {"\\bidx(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
+	"unq":     {"\\bunq(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
+	"d":       {"\\bd(\\([0-9]*\\)|\\b)"},
+	"c":       {"\\bc(\\([\\w,:#]+\\)|\\b)"},
+	"u":       {"\\bu(\\([\\w,:#]+\\)|\\b)"},
+	"r":       {"\\br(\\([\\w,:#]+\\)|\\b)"},
+	"l":       {"\\bl(\\([\\w,:#]+\\)|\\b)"},
+	"q":       {"\\bq(\\([\\w,:#]+\\)|\\b)"},
+	"e":       {"\\be(\\([\\w,:#]+\\)|\\b)"},
+	"sort":    {"\\bsort(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
+	"order":   {"\\border(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
+	"seq":     {"\\bseq(\\(([\\w]+)[,]?([\\d]?)[,]?([\\d]?)\\)|\\b)"},
+	"replace": {"\\breplace(\\(([\\d]+),([\\d]+)[,]?([\\s\\S]+)\\))"},
 }
 
 var IsNull = map[string]string{

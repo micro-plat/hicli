@@ -14,24 +14,27 @@ import (
 
 //Table 表名称
 type Table struct {
-	Name         string //表名
-	Desc         string //表描述
-	ExtInfo      string //扩展信息
-	PKG          string //包名称
-	Drop         bool   //创建表前是否先删除
-	DBType       string //数据库类型
-	DBLink       string //
-	Rows         TableColumn
-	RawRows      []*Row
-	Indexs       Indexs
-	BasePath     string   //生成项目基本路径
-	AllTables    []*Table //所有表
-	Exclude      bool     //排除生成sql
-	ELTableIndex int
-	TabTables    []*Table //详情切换的tab页对应表
-	TabInfo      *TabInfo
-	BtnInfo      []*BtnInfo
-	TempIndex    int
+	Name           string //表名
+	Desc           string //表描述
+	ExtInfo        string //扩展信息
+	PKG            string //包名称
+	Drop           bool   //创建表前是否先删除
+	DBType         string //数据库类型
+	DBLink         string //
+	Rows           TableColumn
+	RawRows        []*Row
+	Indexs         Indexs
+	BasePath       string   //生成项目基本路径
+	AllTables      []*Table //所有表
+	Exclude        bool     //排除生成sql
+	ELTableIndex   int
+	TabTables      []*Table //详情切换的tab页对应表
+	TabInfo        *TabInfo
+	BtnInfo        []*BtnInfo
+	TempIndex      int
+	DownloadInfo   *DownloadInfo
+	SelectInfo     *SelectInfo
+	ComponentsInfo []*ComponentsInfo
 }
 
 //Row 行信息
@@ -61,10 +64,7 @@ func (t TableColumn) Len() int {
 
 //从低到高
 func (t TableColumn) Less(i, j int) bool {
-	if t[i].Sort < t[j].Sort {
-		return true
-	}
-	return false
+	return t[i].Sort < t[j].Sort
 }
 
 func (t TableColumn) Swap(i, j int) {
@@ -203,7 +203,6 @@ func (t *Table) SortRows() {
 		}
 	}
 	sort.Sort(t.Rows)
-	return
 }
 
 //FilterRowByKW 过滤行信息
@@ -238,14 +237,12 @@ func (t *Table) GetIndexs() Indexs {
 	return t.Indexs
 }
 func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) {
-	ok, name, index, _ := getIndex(row.Con, tp)
+	ok, name, i, _ := getCapturingGroup(row.Con, tp)
 	if !ok {
 		return
 	}
-	if name == "" {
-		name = row.Name
-	}
-	index = types.DecodeInt(index, 0, ri)
+	name = types.DecodeString(name, "", row.Name)
+	index := types.DecodeInt(i, 0, ri)
 	if v, ok := indexs[name]; ok {
 		v.fields = append(v.fields, &Field{Name: row.Name, Index: index})
 		return
