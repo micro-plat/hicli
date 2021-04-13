@@ -21,6 +21,7 @@ var tp2mysql = map[string]string{
 	"^clob$":                      "longtext",
 }
 
+//参考资料 http://www.sqlines.com/mysql-to-oracle  https://docs.oracle.com/cd/E12151_01/doc.150/e12155/oracle_mysql_compared.htm#BABGACIF
 var tp2oracle = map[string]string{
 	"bigint":            "number(19)",
 	"binary":            "raw",
