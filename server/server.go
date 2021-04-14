@@ -204,7 +204,7 @@ func (s *server) watchChildren(path string) {
 				s.errChan <- fmt.Errorf("监控项目文件发生错误：%+v", cldWatcher.GetError())
 				return
 			}
-			logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------", cldWatcher.GetPath())
+			logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------")
 			if !s.isExclude(cldWatcher.GetPath()) {
 				s.hasNotify = true
 			}

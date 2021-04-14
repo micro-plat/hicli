@@ -253,9 +253,7 @@ func (t *Table) DispostSelectTables() {
 }
 
 func (a *SelectInfo) IsEmpty() bool {
-
-	return reflect.DeepEqual(a, &SelectInfo{})
-
+	return a == nil || reflect.DeepEqual(a, &SelectInfo{})
 }
 
 type ComponentsInfo struct {
