@@ -53,7 +53,7 @@ hicli -v
 ```
 hicli app create hello-world
 ```
-![](./app_create.bmp)  
+![](./img/app_create.bmp)  
 如需sso集成配置，你可以通过运行以下命令进行添加：  
 ```
 hicli app create hello-world -sso
@@ -65,7 +65,7 @@ hicli app create hello-world -sso
 ```
 hicli ui create web
 ```
-![](./web_create.bmp)  
+![](./img/web_create.bmp)  
 
 #### 创建数据字典
 使用```hicli dic create```命令创建数据库对应的数据字典
@@ -81,7 +81,7 @@ hicli dic create  -db connect_str -cover -f
 > mysql格式：mysql:root:pwd@tcp(192.168.0.36:3306)/scheme  
 
 生成的数据字典结构  
-![](./md.datadic.bmp)  
+![](./img/md.datadic.bmp)  
 生成的数据字典部分内容 
 ``` 
 ###  短信发送通道[sms_send_provider]
@@ -108,7 +108,7 @@ hicli db create docs/dic.md [outpath] -t "" -d -s -v -g
 --cover, -v              -文件已存在时自动覆盖
 ```
 生成的sql文件  
-![](./md.sql.bmp)  
+![](./img/md.sql.bmp)  
 生成的sql部分内容  
 ```
 CREATE TABLE  tsk_system_seq (
@@ -147,7 +147,7 @@ CREATE TABLE  tsk_system_seq (
 > hicli ui page ../docs/db.oracle.md src/pages/ -t oms_down_channel -f -cover  
 ```
 生成页面文件：  
-![](./page_create.bmp)  
+![](./img/page_create.bmp)  
 同时，在```/src/router/index.js```生成路由：
 ```
 {
@@ -193,7 +193,7 @@ CREATE TABLE  tsk_system_seq (
 ]
 ```
 ```npm run serve```启动前端服务，效果如图：
-![](./channel.bmp)  
+![](./img/channel.bmp)  
 
 #### 创建服务层
 使用```hicli app service```创建服务层接口
@@ -223,7 +223,7 @@ CREATE TABLE  tsk_system_seq (
 > hicli app service ../docs/db.oracle.md -t oms_down_channel -f -v
 ```
 生成服务层文件：  
-![](./service_create.bmp)  
+![](./img/service_create.bmp)  
 同时，在```init.go```生成服务接口的注册内容
 ```
 hydra.OnReady(func() {
@@ -231,7 +231,7 @@ hydra.OnReady(func() {
 })
 ```
 启动hydra服务，前端页面即可查询数据：  
-![](./channel2.bmp)  
+![](./img/channel2.bmp)  
 
 #### 创建枚举
 
@@ -261,7 +261,7 @@ hydra.OnReady(func() {
 > hicli app enums ../docs/db.oracle.md -t oms_down_channel -f -v -dds
 ```
 生成枚举接口文件：  
-![](./enums_create.bmp)  
+![](./img/enums_create.bmp)  
 在```services/system/system.enums.go```接口文件中生成的部分内容：
 ```
 var enumsMap = map[string]string{
