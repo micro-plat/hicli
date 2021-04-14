@@ -2,5 +2,5 @@ package app
 
 const tmplGoMod = `module {{.basePath}}
 
-go 1.15
+go 1.16
 `
