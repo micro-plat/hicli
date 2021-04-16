@@ -32,7 +32,7 @@ hicli是一个辅助进行快速开发基于hydra框架项目的工具，它不�
 
 #### 主要功能
 hicli的主要功能是，根据我们数据字典字段约束配置去生成代码，目前可生成的模块包括：  
-- 数据库建表SQL;
+- 数据库表结构SQL;
 - 基于hydra的后端项目基础文件（conf等）；
 - 基于hydra的后端服务层文件（services、modules等）；
 - 基于vue的前端项目基础文件（public、main.js等）；
@@ -67,40 +67,33 @@ hicli update
 | id     | number(20) |        |  否   |  PK   | 编号 |
 ```
 
-* 类型： 可指定oracle或mysql数据类型，hicli根据生成的数据库自动进行类型转换。
+* 类型：可指定oracle或mysql数据类型，hicli根据生成的数据库自动进行类型转换
 * 约束：可指定数据库主键，索引，前后端代码生成[规则](!)等
 
-数据字典可生成：
+数据字典可生成：  
 
-* 数据库SQL语句，表结构、索引、主键等SQL语句
-* 后端CURD，字典等服务层、SQL语句等代码
-* 前端列表、新增、修改、详情、自定义功能等
-
+* 数据库SQL语句，表结构、索引、主键等SQL语句；
+* 后端CURD，字典等服务层、SQL语句等代码；
+* 前端列表、新增、修改、详情、自定义功能等。
 
 数据字典可手动编写或根据数据库已有表反向生成：
-
 ```sh
 hicli dic create  -db 数据库连接串 -f ./
 ```
-
 
 #### 二、项目监控重启  
 `hicli server run`提供项目文件变动（添加、删除、修改）监控，当文件发生变化后，自动编译并重启服务。  
 
 在项目根目录下执行：
-
 ```sh
 hicli server run
 ```
 
-项目编译或运行时需指定其它参数时，可直接追加相应参数，如:
-
+项目编译或运行时需指定其它参数选项时，可直接追加相应参数选项，如:
 ```
 hicli server run --tags "dev prod" --plat hicli
 ```
-
 追加的参数将自动传入go install 或 [severName] run 命令
-
 
 
 ### 一、创建项目
@@ -128,82 +121,123 @@ hicli ui create web
 运行```hicli db create```命令，根据数据字典，创建数据库建表SQL
 
 ```markdown
-### 用户信息[mgs_user_info]
-| 字段名      | 类型         | 默认值  | 为空  | 约束  | 描述     |
-| ----------- | ------------ | :-----: | :---: | :---: | :------- |
-| id          | number(10)   |         |  否   |  SEQ,PK   | 编号     |
-| name        | varchar2(32) |         |  否   |  UNQ  | 名称     |
-| status      | number(1)    |         |  否   |       | 状态     |
-| create_time | datetime     | sysdate |  否   |       | 创建时间 |
+### 用户信息[system_user_info]
+| 字段名      | 类型        |      默认值       | 为空  |  约束  | 描述         |
+| ----------- | ----------- | :---------------: | :---: | :----: | :----------- |
+| id          | int(10)     |                   |  否   | SEQ,PK | 编号         |
+| name        | varchar(32) |                   |  否   |  UNQ   | 名称         |
+| gender      | int(1)      |                   |  否   |        | 性别 0男 1女 |
+| school_id   | int(10)     |                   |  否   |        | 学校         |
+| create_time | datetime    | CURRENT_TIMESTAMP |  否   |        | 创建时间     |
 
-
-### 职位信息[mgs]
-| 字段名      | 类型         | 默认值  | 为空  | 约束  | 描述     |
-| ----------- | ------------ | :-----: | :---: | :---: | :------- |
-| id          | number(10)   |         |  否   |  SEQ,PK   | 编号     |
-| name        | varchar2(32) |         |  否   |  UNQ  | 名称     |
-| status      | number(1)    |         |  否   |       | 状态     |
-| create_time | datetime     | sysdate |  否   |       | 创建时间 |
+### 学校信息[system_school_info]
+| 字段名      | 类型        | 默认值 | 为空  |  约束  | 描述     |
+| ----------- | ----------- | :----: | :---: | :----: | :------- |
+| id          | int(10)     |        |  否   | SEQ,PK | 编号     |
+| name        | varchar(32) |        |  否   |  UNQ   | 名称     |
+| province_no | varchar(8)  |        |  否   |        | 省份     |
+| city_no     | varchar(8)  |        |  否   |        | 城市     |
+| address     | text        |        |  是   |        | 扩展信息 |
 ```
-
+* PK：主键
+* SEQ：序列
+* UNQ：唯一索引
 
 生成数据库结构
 ```sh
-hicli db create docs/dic.md -t "" -d -s -v -g
+hicli db create docs/dic.md ./sql -t "" -d -s -v
 ```
 
-生成后的代码：
-
-文件`tsk_system_seq.sql`内容如下:
+生成后的文件内容如下：  
+序列表`seq_ids.sql`:
 ```sql
-CREATE TABLE  tsk_system_seq (
-    seq_id bigint(20)  not null AUTO_INCREMENT  comment '编号' ,
-    name varchar(32)  not null  comment '名称' ,
-    create_time datetime default CURRENT_TIMESTAMP not null  comment '创建时间' ,
-    PRIMARY KEY (seq_id),
-    KEY idx_create_time (create_time)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COMMENT='序列表';
+    DROP TABLE IF EXISTS seq_ids;
+    CREATE TABLE  seq_ids (
+    id bigint  not null auto_increment comment '编号' ,
+    name varchar(64)  not null  comment '名称' ,
+    create_time datetime default current_timestamp not null  comment '创建时间' ,	
+    primary key (id)
+    ) ENGINE=InnoDB auto_increment = 100 DEFAULT CHARSET=utf8 COMMENT='序列信息表'
 ```
-
+用户信息表`system_user_info.sql`:
+```sql
+	DROP TABLE IF EXISTS system_user_info;
+	CREATE TABLE IF NOT EXISTS system_user_info (
+		id int(10)  not null auto_increment comment '编号' ,
+		name varchar(32)  not null  comment '名称' ,
+		gender int(1)  not null  comment '性别 0男 1女' ,
+		school_id int(10)  not null  comment '学校' ,
+		create_time datetime default current_timestamp not null  comment '创建时间' 
+		,primary key (id)
+		,unique index name(name)
+	) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='用户信息'
+```
+学校信息表`system_school_info.sql`:
+```sql
+	DROP TABLE IF EXISTS system_school_info;
+	CREATE TABLE IF NOT EXISTS system_school_info (
+		id int(10)  not null auto_increment comment '编号' ,
+		name varchar(32)  not null  comment '名称' ,
+		province_no varchar(8)  not null  comment '省份' ,
+		city_no varchar(8)  not null  comment '城市' ,
+		address text    comment '扩展信息' 
+		,primary key (id)
+		,unique index name(name)
+	) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='学校信息'
+```
+#### 四、目录结构
+生成的目录结构大致如下：
 ```  
 示例
-├─webserver //基于hydra的后端项目
+examples
+├─webserver //项目
 |     ├─conf.go
 |     ├─go.mod
 |     ├─main.go
-├─web    //基于vue的前端项目
-|  ├─babel.config.js
-|  ├─package-lock.json
-|  ├─package.json
-|  ├─vue.config.js
-|  ├─src
-|  ├─public
-├─docs  //数据字典
+|     ├─web   //基于vue的前端项目
+|     |  ├─babel.config.js
+|     |  ├─package.json
+|     |  ├─vue.config.js
+|     |  ├─src 
+|     |  |  ├─App.vue
+|     |  |  ├─main.js
+|     |  |  ├─utility
+|     |  |  ├─router
+|     |  |  |   └index.js
+|     |  |  ├─pages
+|     |  |  |   ├─system
+|     |  |  |   |   └menus.vue
+|     |  ├─public
+|     |  |   ├─env.conf.json
+|     |  |   └index.html
+├─sql //数据库结构sql
+|  ├─seq_ids.sql
+|  ├─system_school_info.sql
+|  └system_user_info.sql
+├─docs //数据字典
 |  └dic.md
 ```
-
-
 
 # 二、生成功能代码
 
 ### 1. 生成枚举代码
-在数据字典的约束字段中增加DI,DN,DT,DX等标签
+在数据字典的约束字段中增加DI,DN,DT,DC等标签
 
-1. 准备数据字典
+ 准备数据字典
 ```markdown
-### 用户信息[mgs_user_info]
-| 字段名      | 类型         | 默认值  | 为空  | 约束  | 描述     |
-| ----------- | ------------ | :-----: | :---: | :---: | :------- |
-| id          | number(10)   |         |  否   |  SEQ,PK,DI   | 编号     |
-| name        | varchar2(32) |         |  否   |  UNQ,DN  | 名称     |
-| status      | number(1)    |         |  否   |       | 状态     |
-| create_time | datetime     | sysdate |  否   |       | 创建时间 |
+### 学校信息[system_school_info]
+| 字段名      | 类型        | 默认值 | 为空  |  约束  | 描述     |
+| ----------- | ----------- | :----: | :---: | :----: | :------- |
+| id          | int(10)     |        |  否   | SEQ,PK,DI | 编号     |
+| name        | varchar(32) |        |  否   |  UNQ,DN   | 名称     |
+| province_no | varchar(8)  |        |  否   |   DC     | 省份     |
+| city_no     | varchar(8)  |        |  否   |   DC   | 城市     |
+| address     | text        |        |  是   |        | 扩展信息 |
 ```
-DI
-DN
-DT
-DX
 
+* DI：数据表作为字典数据时的id字段
+* DN：数据表作为字典数据时的name字段
+* DC：数据表作为字典数据时的查询字段
 
 
 
