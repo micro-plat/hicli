@@ -12,6 +12,7 @@ import (
 func showEnitfy() func(c *cli.Context) (err error) {
 	return showCode("entity")
 }
+
 func showField() func(c *cli.Context) (err error) {
 	return showFiledCode("field")
 }
