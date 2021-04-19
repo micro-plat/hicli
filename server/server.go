@@ -180,17 +180,22 @@ func (s *server) close() (err error) {
 var defExcludePath = []string{"vendor", "node_modules", ".gitignore", ".hicli"}
 
 func (s *server) isExclude(path string) bool {
+	if path == s.path || filepath.Dir(path) == s.path {
+		return false
+	}
+
 	for _, v := range defExcludePath {
 		if strings.Contains(path, v) {
 			return true
 		}
 	}
+
 	return false
 }
 
 func (s *server) watch() {
 	filepath.WalkDir(s.path, func(path string, d ifs.DirEntry, err error) error {
-		if d.IsDir() && !s.isExclude(path) {
+		if !s.isExclude(path) && d.IsDir() {
 			if _, ok := s.watchers[path]; !ok {
 				s.watchers[path] = path
 				go s.watchChildren(path)
@@ -232,8 +237,8 @@ func (s *server) watchChildren(path string) {
 				s.errChan <- fmt.Errorf("监控项目文件发生错误：%+v", cldWatcher.GetError())
 				return
 			}
-			logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------")
 			if !s.isExclude(cldWatcher.GetPath()) {
+				logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------")
 				s.hasNotify = true
 			}
 		LOOP:
