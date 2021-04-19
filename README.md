@@ -1,5 +1,5 @@
 - [介绍](#介绍)
-     - [主要功能](#主要功能)
+      - [主要功能](#主要功能)
 - [安装](#安装)
 - [基础](#基础)
     - [一、数据字典](#一数据字典)
@@ -15,16 +15,16 @@
       - [2. 生成列表查询功能](#2-生成列表查询功能)
       - [3. 生成新增、修改功能](#3-生成新增修改功能)
       - [4. 生成详情页面](#4-生成详情页面)
-      - [5. 生成详情扩展数据页面](#5-生成详情扩展数据页面)
-      - [6. 生成导入导出功能](#6-生成导入导出功能)
+    - [5. 生成详情扩展数据页面](#5-生成详情扩展数据页面)
+    - [6. 生成导入导出功能](#6-生成导入导出功能)
 - [约束配置](#约束配置)
-     - [一、关键字约束配置](#一关键字约束配置)
-     - [二、页面展示约束配置](#二页面展示约束配置)
-     - [三、字典表约束配置](#三字典表约束配置)
+        - [一、关键字约束配置](#一关键字约束配置)
+        - [二、页面展示约束配置](#二页面展示约束配置)
+        - [三、字典表约束配置](#三字典表约束配置)
 - [项目管理](#项目管理)
-     - [一、克隆](#一克隆)
-     - [二、拉取](#二拉取)
-     - [三、撤销修改](#三撤销修改)  
+      - [一、克隆](#一克隆)
+      - [二、拉取](#二拉取)
+      - [三、撤销修改](#三撤销修改)
 
 # 介绍
 hicli是一个辅助进行快速开发基于hydra框架项目的工具，它不仅提供了服务的监控和重启功能，而且可以自动生成前后端代码，从而不必纠结于配置、项目搭建以及服务流程处理的问题，能够大大减少简单重复工作量。  
@@ -224,13 +224,13 @@ examples
  准备数据字典
 ```markdown
 ### 学校信息[system_school_info]
-| 字段名      | 类型        | 默认值 | 为空  |  约束  | 描述     |
-| ----------- | ----------- | :----: | :---: | :----: | :------- |
+| 字段名      | 类型        | 默认值 | 为空  |   约束    | 描述     |
+| ----------- | ----------- | :----: | :---: | :-------: | :------- |
 | id          | int(10)     |        |  否   | SEQ,PK,DI | 编号     |
 | name        | varchar(32) |        |  否   |  UNQ,DN   | 名称     |
-| province_no | varchar(8)  |        |  否   |   DC     | 省份     |
-| city_no     | varchar(8)  |        |  否   |   DC   | 城市     |
-| address     | text        |        |  是   |        | 扩展信息 |
+| province_no | varchar(8)  |        |  否   |    DC     | 省份     |
+| city_no     | varchar(8)  |        |  否   |    DC     | 城市     |
+| address     | text        |        |  是   |           | 扩展信息 |
 ```
 - DI：数据表作为字典数据时的id字段
 - DN：数据表作为字典数据时的name字段
@@ -262,13 +262,13 @@ hydra.S.Web("/system/enums", system.NewSystemEnumsHandler())
 准备数据字典
 ```markdown
 ### 用户信息[system_user_info]
-| 字段名      | 类型        |      默认值       | 为空  |  约束  | 描述         |
-| ----------- | ----------- | :---------------: | :---: | :----: | :----------- |
-| id          | int(10)     |                   |  否   | SEQ,PK,L | 编号         |
-| name        | varchar(32) |                   |  否   |  UNQ,L   | 名称         |
-| gender      | int(1)      |                   |  否   |     L,Q,SL   | 性别 0男 1女 |
-| school_id   | int(10)     |                   |  否   |     L,Q,SL(system_school_info)   | 学校         |
-| create_time | datetime    | CURRENT_TIMESTAMP |  否   |     L    | 创建时间     |
+| 字段名      | 类型        |      默认值       | 为空  |            约束            | 描述         |
+| ----------- | ----------- | :---------------: | :---: | :------------------------: | :----------- |
+| id          | int(10)     |                   |  否   |          SEQ,PK,L          | 编号         |
+| name        | varchar(32) |                   |  否   |           UNQ,L            | 名称         |
+| gender      | int(1)      |                   |  否   |           L,Q,SL           | 性别 0男 1女 |
+| school_id   | int(10)     |                   |  否   | L,Q,SL(system_school_info) | 学校         |
+| create_time | datetime    | CURRENT_TIMESTAMP |  否   |             L              | 创建时间     |
 ```
 L：列表展示的字段  
 Q：查询条件的字段  
@@ -330,13 +330,13 @@ hicli ui page ../../docs/dic.md src/pages/ -t system_user_info -f -cover
 准备数据字典
 ```markdown
 ### 用户信息[system_user_info]
-| 字段名      | 类型        |      默认值       | 为空  |  约束  | 描述         |
-| ----------- | ----------- | :---------------: | :---: | :----: | :----------- |
-| id          | int(10)     |                   |  否   | SEQ,PK,L | 编号         |
-| name        | varchar(32) |                   |  否   |  UNQ,L,C  | 名称         |
-| gender      | int(1)      |                   |  否   |     L,Q,SL,U   | 性别 0男 1女 |
-| school_id   | int(10)     |                   |  否   |     L,Q,C,U,SL(system_school_info)   | 学校         |
-| create_time | datetime    | CURRENT_TIMESTAMP |  否   |     L    | 创建时间     |
+| 字段名      | 类型        |      默认值       | 为空  |              约束              | 描述         |
+| ----------- | ----------- | :---------------: | :---: | :----------------------------: | :----------- |
+| id          | int(10)     |                   |  否   |            SEQ,PK,L            | 编号         |
+| name        | varchar(32) |                   |  否   |            UNQ,L,C             | 名称         |
+| gender      | int(1)      |                   |  否   |            L,Q,SL,U            | 性别 0男 1女 |
+| school_id   | int(10)     |                   |  否   | L,Q,C,U,SL(system_school_info) | 学校         |
+| create_time | datetime    | CURRENT_TIMESTAMP |  否   |               L                | 创建时间     |
 ```
 - C：创建的字段  
 - U：更新的字段
@@ -359,13 +359,13 @@ hicli ui page ../../docs/dic.md src/pages/ -t system_user_info -f -cover
 准备数据字典
 ```markdown
 ### 用户信息[system_user_info]
-| 字段名      | 类型        |      默认值       | 为空  |  约束  | 描述         |
-| ----------- | ----------- | :---------------: | :---: | :----: | :----------- |
-| id          | int(10)     |                   |  否   | SEQ,PK,L,R | 编号         |
-| name        | varchar(32) |                   |  否   |  UNQ,L,C,R  | 名称         |
-| gender      | int(1)      |                   |  否   |     L,Q,SL,R,U   | 性别 0男 1女 |
-| school_id   | int(10)     |                   |  否   |     L,Q,C,R,U,SL(system_school_info)   | 学校         |
-| create_time | datetime    | CURRENT_TIMESTAMP |  否   |     R,L    | 创建时间     |
+| 字段名      | 类型        |      默认值       | 为空  |               约束               | 描述         |
+| ----------- | ----------- | :---------------: | :---: | :------------------------------: | :----------- |
+| id          | int(10)     |                   |  否   |            SEQ,PK,L,R            | 编号         |
+| name        | varchar(32) |                   |  否   |            UNQ,L,C,R             | 名称         |
+| gender      | int(1)      |                   |  否   |            L,Q,SL,R,U            | 性别 0男 1女 |
+| school_id   | int(10)     |                   |  否   | L,Q,C,R,U,SL(system_school_info) | 学校         |
+| create_time | datetime    | CURRENT_TIMESTAMP |  否   |               R,L                | 创建时间     |
 ```
 - R：单条数据的查询字段  
 
@@ -387,22 +387,22 @@ hicli ui page ../../docs/dic.md src/pages/ -t system_user_info -f -cover
 准备数据字典
 ```markdown
 ### 用户信息[system_user_info]{el_tab(system_school_info,school_id/id)}
-| 字段名      | 类型        |      默认值       | 为空  |  约束  | 描述         |
-| ----------- | ----------- | :---------------: | :---: | :----: | :----------- |
-| id          | int(10)     |                   |  否   | SEQ,PK,L,R | 编号         |
-| name        | varchar(32) |                   |  否   |  UNQ,L,C,R  | 名称         |
-| gender      | int(1)      |                   |  否   |     L,Q,SL,R,U   | 性别 0男 1女 |
-| school_id   | int(10)     |                   |  否   |     L,Q,C,R,U,SL(system_school_info)   | 学校         |
-| create_time | datetime    | CURRENT_TIMESTAMP |  否   |     R,L    | 创建时间     |
+| 字段名      | 类型        |      默认值       | 为空  |               约束               | 描述         |
+| ----------- | ----------- | :---------------: | :---: | :------------------------------: | :----------- |
+| id          | int(10)     |                   |  否   |            SEQ,PK,L,R            | 编号         |
+| name        | varchar(32) |                   |  否   |            UNQ,L,C,R             | 名称         |
+| gender      | int(1)      |                   |  否   |            L,Q,SL,R,U            | 性别 0男 1女 |
+| school_id   | int(10)     |                   |  否   | L,Q,C,R,U,SL(system_school_info) | 学校         |
+| create_time | datetime    | CURRENT_TIMESTAMP |  否   |               R,L                | 创建时间     |
 
 ### 学校信息[system_school_info]
-| 字段名      | 类型        | 默认值 | 为空  |  约束  | 描述     |
-| ----------- | ----------- | :----: | :---: | :----: | :------- |
-| id          | int(10)     |        |  否   | SEQ,PK,DI,R | 编号     |
-| name        | varchar(32) |        |  否   |  UNQ,DN,R   | 名称     |
-| province_no | varchar(8)  |        |  否   |   DC,R(e:province)     | 省份     |
-| city_no     | varchar(8)  |        |  否   |   DC,R(e:#province)   | 城市     |
-| address     | text        |        |  是   |   R     | 扩展信息 |
+| 字段名      | 类型        | 默认值 | 为空  |       约束        | 描述     |
+| ----------- | ----------- | :----: | :---: | :---------------: | :------- |
+| id          | int(10)     |        |  否   |    SEQ,PK,DI,R    | 编号     |
+| name        | varchar(32) |        |  否   |     UNQ,DN,R      | 名称     |
+| province_no | varchar(8)  |        |  否   | DC,R(e:province)  | 省份     |
+| city_no     | varchar(8)  |        |  否   | DC,R(e:#province) | 城市     |
+| address     | text        |        |  是   |         R         | 扩展信息 |
 ```
 - R：单条数据的查询字段  
 - e: 页面功能的扩展约束，可指定表名，dds类型或者级联字段名
@@ -441,16 +441,18 @@ hicli根据数据字典的字段约束配置来生成文件，具体约束参考
 | U       | 修改数据时需要的字段                            |                                  -                                  |
 | D       | 删除，默认为更新字段状态值为1                   |                           D[(更新状态值)]                           |
 | Q       | 查询条件的字段                                  |                                  -                                  |
-| L       | 列表展示的字段                 |                                  -                                  |
+| L       | 列表展示的字段                                  |                                  -                                  |
 | ORDER   | (前端页面)列表里列出的字段;默认降序             |          ORDER[(asc&#124;desc,字段排序顺序)]，越小越先排序          |
 | SORT    | 前后端联合排序；默认降序； 不可与ORDER同时使用  |          SORT[(asc&#124;desc,字段排序顺序)]，越小越先排序           |
 | DI      | 数据表作为字典数据时的id字段                    |                                  -                                  |
 | DN      | 数据表作为字典数据时的name字段                  |                                  -                                  |
+| DC      | 数据表作为字典数据时的查询字段                  |                                  -                                  |
 | SL      | 前端页面下拉框,默认使用dds字典表枚举,可指定表名 |                      SL[(表名&#124;枚举类型)]                       |
 | SLM     | 前端页面可多选表单下拉框,默认使用dds字典表枚举  |                      SLM[(表名&#124;枚举类型)]                      |
 | CB      | 前端页面复选框,默认使用dds字典表枚举            |                      CB[(表名&#124;枚举类型)]                       |
 | RD      | 前端页面单选框,默认使用dds字典表枚举            |                      RD[(表名&#124;枚举类型)]                       |
 | TA      | 前端页面文本域                                  |                                  -                                  |
+| UP      | 文件上传                                  |                                  -                                  |
 | CC      | 前端页面状态颜色过滤器                          |                                  -                                  |
 | DATE    | 前端页面日期选择器                              |                                  -                                  |
 | DTIME   | 前端页面日期时间选择器                          |                                  -                                  |
