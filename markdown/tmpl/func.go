@@ -273,7 +273,7 @@ func dbType(tp string) callHanlder {
 	case ORACLE:
 		return func(input string) string {
 			for k, v := range tp2oracle {
-				if k == strings.ToLower(input) {
+				if strings.Contains(strings.ToLower(input), k) {
 					return v
 				}
 			}

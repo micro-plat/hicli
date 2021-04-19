@@ -16,7 +16,7 @@ import (
 func init() {
 	
 	//设置配置参数
-	hydra.Conf.Web("8089").Header(header.WithCrossDomain()).Static(static.WithAssetsPath("./static"))
+	hydra.Conf.Web("8089").Header(header.WithCrossDomain())
 	hydra.Conf.Vars().DB().MySQL("db", "root", "rTo0CesHi2018Qx", "192.168.0.36:3306", "sms_test", db.WithConnect(20, 10, 600))
   //hydra.Conf.Vars().DB().Oracle("db", "sso", "123456", "orcl136", db.WithConnect(20, 10, 600))
 	
