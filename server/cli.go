@@ -30,6 +30,7 @@ func init() {
 						cli.StringFlag{Name: "mod", Usage: "-go 安装和打包编译的mod"},
 						cli.StringFlag{Name: "run", Required: false, Usage: `-应用程序启动参数`},
 						cli.StringFlag{Name: "install", Required: false, Usage: `-go install参数`},
+						cli.StringFlag{Name: "exclude", Required: false, Usage: `-排除的监控目录`},
 						cli.BoolFlag{Name: "work,w", Required: false, Usage: `-以当前路径为工作目录`},
 					},
 				},
