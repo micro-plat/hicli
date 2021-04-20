@@ -207,6 +207,7 @@ import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
 {{- end}}
 {{- end}}
 export default {
+	name: "{{$name|rmhd|varName}}",
   components: {
 		{{- if gt ($rows|create|len) 0}}
 		Add,

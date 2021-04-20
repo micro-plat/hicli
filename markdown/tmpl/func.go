@@ -135,6 +135,10 @@ func getMod(x int, y int) int {
 
 //去掉首段名称
 func rmhd(input string) string {
+	if !trimPrefix {
+		return input
+	}
+
 	index := strings.Index(input, "_")
 	return input[index+1:]
 }
@@ -609,11 +613,13 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 		for _, tb := range tb.AllTables { //查看是否匹配表名
 			if tb.Name == tp {
 				if hasKW("di", "dn")(tb) && hasKW("dt")(tb) {
-					for _, v := range tb.Rows {
-						if getKWS("dt")(v.Con) {
-							return v.Name
-						}
-					}
+					logs.Log.Warn("约束%s指定表无法判断具体类型，需指定具体的枚举类型", con)
+					return ""
+					// for _, v := range tb.Rows {
+					// 	if getKWS("dt")(v.Con) {
+					// 		return v.Name
+					// 	}
+					// }
 				}
 				return strings.ToLower(rmhd(tb.Name))
 			}
