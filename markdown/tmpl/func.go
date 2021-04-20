@@ -88,7 +88,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"create":   getRows("c"),                                      //创建字段
 		"delete":   getRows("d"),                                      //删除时判定字段
 		"update":   getRows("u"),                                      //更新字段
-		"export":   getRows("e"),                                      //导出字段
+		"export":   getRows("ept"),                                    //导出字段
 		"delCon":   getBracketContent([]string{"d"}),                  //删除字段约束
 		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
 		"sort":     getRows("sort"),                                   //查询字段
