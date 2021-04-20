@@ -140,7 +140,7 @@ export default {
     },{{end}}
 		show() {
 			{{range $i,$c:=$pks}}var {{$c}} = this.editData.{{$c}}{{end}}
-			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
+			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}/getupdate", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
 			{{range $i,$c:=$pks}}this.editData.{{$c}} = {{$c}}{{end}}
 			{{- range $i,$c:=$rows|update -}}
 			{{if (uDicPName $c.Con $tb)  }}

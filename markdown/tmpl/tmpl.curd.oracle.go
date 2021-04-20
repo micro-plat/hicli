@@ -195,6 +195,27 @@ where L.rn > (@pi - 1) * @ps) TAB1{###}
 {{- end}}
 
 {{- if (gt ($updaterows|len) 0)}}
+//GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 查询{{.Desc}}单条数据
+const GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} = {###}
+select 
+{{- range $i,$c:=$updaterows}}
+	{{- if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($updaterows|maxIndex)}},{{end}}
+{{- end}}
+from {{.Name}} t
+where
+{{- if eq ($pks|len) 0}}
+1=1
+{{- else -}}
+{{- range $i,$c:=$pks}}
+	&{{$c}} 
+{{- end}}{{end}}{###}
+
+
 //Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 更新{{.Desc}}
 const Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} = {###}
 update {{.Name}}{{.DBLink}} 

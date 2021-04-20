@@ -245,6 +245,29 @@ func (u *{{.Name|rmhd|varName}}Handler) UploadHandle(ctx hydra.IContext) (r inte
 {{- end}}
 
 {{- if gt ($rows|update|len) 0}}
+//GetUpdateHandle 获取{{.Desc}}更新的数据
+func (u *{{.Name|rmhd|varName}}Handler) GetUpdateHandle(ctx hydra.IContext) (r interface{}) {
+
+	ctx.Log().Info("--------获取{{.Desc}}更新的数据--------")
+
+	ctx.Log().Info("1.参数校验")
+	if err := ctx.Request().CheckMap(getUpdate{{.Name|rmhd|varName}}CheckFields); err != nil {
+		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
+	}
+
+	ctx.Log().Info("2.执行操作")
+	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
+	if err != nil {
+		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
+	}
+	if items.Len() == 0 {
+		return errs.NewError(http.StatusNoContent, "未查询到数据")
+	}
+
+	ctx.Log().Info("3.返回结果")
+	return items.Get(0)
+}
+
 //PutHandle 更新{{.Desc}}数据
 func (u *{{.Name|rmhd|varName}}Handler) PutHandle(ctx hydra.IContext) (r interface{}) {
 
@@ -374,6 +397,10 @@ var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
 var update{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=.Rows|update}}{{if ne ($c|isNull) $empty}}field.Field{{$c.Name|varName}}:"required",{{end}}
 	{{end -}}
+}
+
+var getUpdate{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
+	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
 }
 {{- end}}
 
