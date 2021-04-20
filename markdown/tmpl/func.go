@@ -615,7 +615,7 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 						}
 					}
 				}
-				return rmhd(tb.Name)
+				return strings.ToLower(rmhd(tb.Name))
 			}
 		}
 

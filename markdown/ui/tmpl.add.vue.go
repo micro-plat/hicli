@@ -72,12 +72,12 @@ export default {
 			dialogAddVisible: false,
 			{{- range $i,$c:=$rows|create -}}
 			{{if or ($c.Con|SL) ($c.Con|RD) }}
-			{{$c.Name|lowerName}}:{{if (cDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|ceCon) $tb) $c.Name)|lower}}"){{end}},
+			{{$c.Name|lowerName}}:{{if (cDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|ceCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{- else if $c.Con|SLM }}
-			{{$c.Name|lowerName}}: this.$enum.get("{{(or (dicName $c.Con ($c.Con|ceCon) $tb) $c.Name)|lower}}"),
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|ceCon) $tb) ($c.Name|lower)}}"),
 			{{$c.Name|lowerName}}Array: [],
 			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}:{{if (cDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|ceCon) $tb) $c.Name)|lower}}"){{end}},
+			{{$c.Name|lowerName}}:{{if (cDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|ceCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
       {{- end}}
 			{{- end}}
