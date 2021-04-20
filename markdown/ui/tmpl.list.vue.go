@@ -231,9 +231,9 @@ export default {
       queryData:{},               //查询数据对象 
 			{{- range $i,$c:=$rows|query -}}
 			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tb) $c.Name)|lower}}"){{end}},
+			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tb) $c.Name)|lower}}"){{end}},
+			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
 			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
@@ -287,7 +287,7 @@ export default {
 		{{if (qDicPName $c.Con $tb)  }}
 		set{{$c.Name|upperName}}(pid){
 			this.queryData.{{$c.Name}} = ""
-			this.{{$c.Name|lowerName}}=this.$enum.get("{{(or (dicName $c.Con ($c.Con|qeCon) $tb) $c.Name)|lower}}",pid)
+			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}",pid)
 		},
 		{{- end}}
 		{{- end }}

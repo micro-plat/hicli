@@ -118,7 +118,7 @@ export default {
 		{{if (cDicPName $c.Con $tb)  }}
 		set{{$c.Name|upperName}}(pid){
 			this.addData.{{$c.Name}} = ""
-			this.{{$c.Name|lowerName}}=this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}",pid)
+			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}",pid)
 		},
 		{{- end}}
 		{{- end }}

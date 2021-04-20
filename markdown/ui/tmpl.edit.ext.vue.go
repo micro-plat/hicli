@@ -76,7 +76,7 @@ export default {
 			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $c.BelongTable) ($c.Name|lower)}}"),
 			{{$c.Name|lowerName}}Array: [],
 			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $c.BelongTable) }} []{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|ceCon) $c.BelongTable) ($c.Name|lower)}}"){{end}},
+			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $c.BelongTable) }} []{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $c.BelongTable) ($c.Name|lower)}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
       {{- end}}

@@ -97,7 +97,7 @@ export default {
 			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}"),
 			{{$c.Name|lowerName}}Array: [],
 			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|ceCon) $tb) ($c.Name|lower)}}"){{end}},
+			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
 			{{- else if $c.Con|UP }}
 			fileList{{$i}}: [],
