@@ -37,7 +37,7 @@ func (t *Table) DisposeTabTables() {
 
 	c := getBracketContent([]string{"el_tab"})(t.ExtInfo)
 	tabs := strings.Split(c, "|")
-	if len(tabs) == 0 {
+	if len(tabs) == 0 || c == "" {
 		return
 	}
 	for _, v := range tabs {
