@@ -12,6 +12,7 @@ import (
 
 	"github.com/codeskyblue/go-sh"
 	logs "github.com/lib4dev/cli/logger"
+	"github.com/micro-plat/hicli/markdown/utils"
 	"github.com/urfave/cli"
 
 	"github.com/fsnotify/fsnotify"
@@ -32,7 +33,13 @@ type server struct {
 	startFlag  map[string][]interface{}
 }
 
-func newServer(c *cli.Context, path, watchpath string) (*server, error) {
+func newServer(c *cli.Context) (*server, error) {
+	//path
+	path, watchpath, err := checkPath(c)
+	if err != nil {
+		return nil, err
+	}
+
 	session := sh.InteractiveSession()
 	session.SetDir(path)
 
@@ -57,6 +64,27 @@ func newServer(c *cli.Context, path, watchpath string) (*server, error) {
 var tags = map[string][]string{
 	"install": {"tags", "mod"},
 	"run":     {"fixed", "registry", "plat", "system", "server_types", "cluster", "trace", "tport", "mask", "debug"},
+}
+
+func checkPath(c *cli.Context) (projectPath, watchPath string, err error) {
+
+	//判断项目是否存在
+	projectPath = utils.GetProjectPath(c.Args().Get(0))
+	if !utils.PathExists(filepath.Join(projectPath, "main.go")) {
+		return "", "", fmt.Errorf("未指定的运行应用程序的项目路径:%s", projectPath)
+	}
+
+	//指定监控当前目录
+	watchPath = projectPath
+	if c.Bool("work") {
+		watchPath = utils.GetProjectPath("./")
+	}
+
+	if c.String("exclude") != "" {
+		defExcludePath = append(defExcludePath, strings.Split(c.String("exclude"), ",")...)
+	}
+
+	return
 }
 
 func getStartFlag(c *cli.Context) map[string][]interface{} {
@@ -152,17 +180,22 @@ func (s *server) close() (err error) {
 var defExcludePath = []string{"vendor", "node_modules", ".gitignore", ".hicli"}
 
 func (s *server) isExclude(path string) bool {
+	if path == s.path || filepath.Dir(path) == s.path {
+		return false
+	}
+
 	for _, v := range defExcludePath {
 		if strings.Contains(path, v) {
 			return true
 		}
 	}
+
 	return false
 }
 
 func (s *server) watch() {
 	filepath.WalkDir(s.path, func(path string, d ifs.DirEntry, err error) error {
-		if d.IsDir() && !s.isExclude(path) {
+		if !s.isExclude(path) && d.IsDir() {
 			if _, ok := s.watchers[path]; !ok {
 				s.watchers[path] = path
 				go s.watchChildren(path)
@@ -204,8 +237,8 @@ func (s *server) watchChildren(path string) {
 				s.errChan <- fmt.Errorf("监控项目文件发生错误：%+v", cldWatcher.GetError())
 				return
 			}
-			logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------")
 			if !s.isExclude(cldWatcher.GetPath()) {
+				logs.Log.Info("----------------------项目发生变化，应用程序重启----------------------")
 				s.hasNotify = true
 			}
 		LOOP:

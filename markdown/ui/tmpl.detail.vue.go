@@ -26,7 +26,7 @@ const TmplDetail = `
                     </el-col>
               {{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) ($c.Con|CB) ($c.Con|reCon)}}
                     <el-col :span="6">
-                      <div {{if ($c.Con|CC)}}:class="info.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{ info."}}{{$c.Name}} | fltrEnum("{{(or (dicName $c.Con ($c.Con|reCon) $tb) $c.Name)|lower}}") }}</div>
+                      <div {{if ($c.Con|CC)}}:class="info.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{ info."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|reCon) $tb) ($c.Name|lower)}}") }}</div>
                     </el-col>
               {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
                     <el-col :span="6">
@@ -82,7 +82,7 @@ const TmplDetail = `
                     </el-col>
               {{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) ($c.Con|CB) ($c.Con|reCon)}}
                     <el-col :span="6">
-                      <div {{if ($c.Con|CC)}}:class="{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEnum("{{(or (dicName $c.Con ($c.Con|reCon) $tab) $c.Name)|lower}}") }}</div>
+                      <div {{if ($c.Con|CC)}}:class="{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|reCon) $tb) ($c.Name|lower)}}") }}</div>
                     </el-col>
               {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
                     <el-col :span="6">
@@ -129,7 +129,7 @@ const TmplDetail = `
               <el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
               {{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
                 <template slot-scope="scope">
-                  <span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{(or (dicName $c.Con ($c.Con|leCon) $tab) $c.Name)|lower}}")}}</span>
+                  <span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|leCon) $tab) ($c.Name|lower)}}")}}</span>
                 </template>
               {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
                 <template slot-scope="scope">

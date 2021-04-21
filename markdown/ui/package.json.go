@@ -22,7 +22,8 @@ const packageJSON = `
 	  "vue": "^2.6.11",
 	  "vue-cookies": "^1.5.7",
 	  "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+		"xlsx": "^0.16.9"
 	},
 	"devDependencies": {
 	  "@vue/cli-plugin-babel": "^4.5.0",

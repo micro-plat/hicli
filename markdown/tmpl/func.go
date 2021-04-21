@@ -88,7 +88,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"create":   getRows("c"),                                      //创建字段
 		"delete":   getRows("d"),                                      //删除时判定字段
 		"update":   getRows("u"),                                      //更新字段
-		"export":   getRows("e"),                                      //导出字段
+		"export":   getRows("ept"),                                    //导出字段
 		"delCon":   getBracketContent([]string{"d"}),                  //删除字段约束
 		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
 		"sort":     getRows("sort"),                                   //查询字段
@@ -102,7 +102,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"TA":            getKWS("ta"),                                  //表单文本域
 		"DTIME":         getKWS("dtime"),                               //表单日期时间选择器
 		"DATE":          getKWS("date"),                                //表单日期选择器
-		"UP":            getKWS("up"),                                  //表单文本域
+		"UP":            getKWS("up"),                                  //文件上传
 		"dateType":      getDateType,                                   //日期字段对应的组件的日期类型
 		"dateFormat":    getDateFormat,                                 //日期字段对应的组件的日期格式
 		"dateFormatDef": getDateFormatDef,                              //日期字段对应的组件的日期默认值
@@ -135,6 +135,10 @@ func getMod(x int, y int) int {
 
 //去掉首段名称
 func rmhd(input string) string {
+	if !trimPrefix {
+		return input
+	}
+
 	index := strings.Index(input, "_")
 	return input[index+1:]
 }
@@ -273,7 +277,7 @@ func dbType(tp string) callHanlder {
 	case ORACLE:
 		return func(input string) string {
 			for k, v := range tp2oracle {
-				if k == strings.ToLower(input) {
+				if strings.Contains(strings.ToLower(input), k) {
 					return v
 				}
 			}
@@ -609,13 +613,15 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 		for _, tb := range tb.AllTables { //查看是否匹配表名
 			if tb.Name == tp {
 				if hasKW("di", "dn")(tb) && hasKW("dt")(tb) {
-					for _, v := range tb.Rows {
-						if getKWS("dt")(v.Con) {
-							return v.Name
-						}
-					}
+					logs.Log.Warn("约束%s指定表无法判断具体类型，需指定具体的枚举类型", con)
+					return ""
+					// for _, v := range tb.Rows {
+					// 	if getKWS("dt")(v.Con) {
+					// 		return v.Name
+					// 	}
+					// }
 				}
-				return rmhd(tb.Name)
+				return strings.ToLower(rmhd(tb.Name))
 			}
 		}
 

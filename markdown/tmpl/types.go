@@ -103,18 +103,18 @@ var def2oracle = []map[string]string{
 }
 
 var any2code = map[string]string{
-	"^number\\(([1-9]|10)\\)$":            "int",
-	"^number\\((1[1-9]|2[0-9])\\)$":       "int64",
-	"^number\\(\\d+,\\d+\\)$":             "types.Decimal",
-	"^(varchar2|varchar|nchar|nvarchar)$": "string",
-	"^string$":                            "string",
-	"^(bigint|int8)$":                     "int64",
-	"^(binary|bit|blob|boolean|bool|char|character( varying)?)$":                "string",
-	"^(date|datetime|timestamp|time)$":                                          "time.Time",
-	"^(decimal|double( precision)?|float(4|8)?|real)$":                          "types.Decimal",
-	"^(dec|fixed|numeric|year|int(eger|[1-4])?|(medium|middle|small|tiny)int)$": "int",
-	"^long(blob|text| varbinary| varchar)?$":                                    "string",
-	"^(clob|text|medium(blob|text)|text|tinyblob|tinytext|varbinary)$":          "string",
+	"^number\\(([1-9]|10)\\)$":                      "int",
+	"^number\\((1[1-9]|2[0-9])\\)$":                 "int64",
+	"^number\\(\\d+,\\d+\\)$":                       "types.Decimal",
+	"^(varchar2|varchar|nchar|nvarchar)\\(\\d+\\)$": "string",
+	"^string$":                  "string",
+	"^(bigint|int8)\\(\\d+\\)$": "int64",
+	"^(binary|bit|blob|boolean|bool|char|character( varying)?)$":                          "string",
+	"^(date|datetime|timestamp|time)$":                                                    "time.Time",
+	"^(decimal|double( precision)?|float(4|8)?|real)$":                                    "types.Decimal",
+	"^(dec|fixed|numeric|year|int(eger|[1-4])?|(medium|middle|small|tiny)int)\\(\\d+\\)$": "int",
+	"^long(blob|text| varbinary| varchar)?$":                                              "string",
+	"^(clob|text|medium(blob|text)|text|tinyblob|tinytext|varbinary)$":                    "string",
 }
 
 var keywordSubMatch = `\b%s\(([\w\s-:#,.|/\p{Han}]+)\)`
@@ -128,7 +128,6 @@ var cons = map[string][]string{
 	"rd":      {"\\brd(\\([\\w,]+\\)|\\b)"},
 	"cb":      {"\\bcb(\\([\\w,]+\\)|\\b)"},
 	"ta":      {"\\bta(\\([\\w,]+\\)|\\b)"},
-	"up":      {"\\bup(\\([\\w,]+\\)|\\b)"},
 	"cc":      {"\\bcc(\\(\\w+\\)|\\b)"},
 	"idx":     {"\\bidx(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
 	"unq":     {"\\bunq(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
@@ -138,7 +137,7 @@ var cons = map[string][]string{
 	"r":       {"\\br(\\([\\w,:#]+\\)|\\b)"},
 	"l":       {"\\bl(\\([\\w,:#]+\\)|\\b)"},
 	"q":       {"\\bq(\\([\\w,:#]+\\)|\\b)"},
-	"e":       {"\\be(\\([\\w,:#]+\\)|\\b)"},
+	"ept":     {"\\bept(\\([\\w,:#]+\\)|\\b)"},
 	"sort":    {"\\bsort(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
 	"order":   {"\\border(\\((asc|desc)[,]?([\\d]?)\\)|\\b)"},
 	"seq":     {"\\bseq(\\(([\\w]+)[,]?([\\d]?)[,]?([\\d]?)\\)|\\b)"},

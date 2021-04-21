@@ -8,7 +8,7 @@ const TmplEditVue = `
 {{- $pks := .|pks -}}
 {{- $choose:= false -}}
 <template>
-	<el-dialog title="编辑{{.Desc}}"{{if gt ($rows|len) 5}} width="65%" {{- else}} width="25%" {{- end}} @closed="closed" :visible.sync="dialogFormVisible">
+	<el-dialog title="编辑{{.Desc}}"{{if gt ($rows|update|len) 5}} width="65%" {{- else}} width="25%" {{- end}} @closed="closed" :visible.sync="dialogFormVisible">
 		<el-form :model="editData" {{if gt ($rows|update|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="editForm" label-width="110px">
     	{{- range $i,$c:=$rows|update}}
       {{if $c.Con|TA -}}
@@ -92,12 +92,12 @@ export default {
 			editData: {},                //编辑数据对象
       {{- range $i,$c:=$rows|update -}}
       {{if or ($c.Con|SL) ($c.Con|RD) }}
-      {{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}} this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}"){{end}},
+      {{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}} this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{- else if $c.Con|SLM }}
-			{{$c.Name|lowerName}}: this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}"),
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}"),
 			{{$c.Name|lowerName}}Array: [],
 			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{(or (dicName $c.Con ($c.Con|ceCon) $tb) $c.Name)|lower}}"){{end}},
+			{{$c.Name|lowerName}}:{{if (uDicPName $c.Con $tb) }} []{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
 			{{- else if $c.Con|UP }}
 			fileList{{$i}}: [],
@@ -140,11 +140,11 @@ export default {
     },{{end}}
 		show() {
 			{{range $i,$c:=$pks}}var {{$c}} = this.editData.{{$c}}{{end}}
-			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
+			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}/getupdate", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
 			{{range $i,$c:=$pks}}this.editData.{{$c}} = {{$c}}{{end}}
 			{{- range $i,$c:=$rows|update -}}
 			{{if (uDicPName $c.Con $tb)  }}
-			this.{{$c.Name|lowerName}} = this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}",this.editData.{{uDicPName $c.Con $tb}})
+			this.{{$c.Name|lowerName}} = this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}",this.editData.{{uDicPName $c.Con $tb}})
 			{{- end}}
 			{{- if or ($c.Con|SLM) ($c.Con|CB) }}
 			this.{{$c.Name|lowerName}}Array = this.editData.{{$c.Name}}.split(",")
@@ -156,7 +156,7 @@ export default {
 		{{if (uDicPName $c.Con $tb)  }}
 		set{{$c.Name|upperName}}(pid){
 			this.editData.{{$c.Name}} = ""
-			this.{{$c.Name|lowerName}}=this.$enum.get("{{(or (dicName $c.Con ($c.Con|ueCon) $tb) $c.Name)|lower}}",pid)
+			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}",pid)
 		},
 		{{- else if $c.Con|UP }}
 		handleExceed{{$i}}(files, fileList) {
