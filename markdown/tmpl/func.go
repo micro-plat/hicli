@@ -136,7 +136,7 @@ func getMod(x int, y int) int {
 //去掉首段名称
 func rmhd(input string) string {
 	if !trimPrefix {
-		return input
+		return strings.TrimPrefix(input, "_")
 	}
 
 	index := strings.Index(input, "_")
