@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/codeskyblue/go-sh"
@@ -110,18 +111,32 @@ func (r *Repository) Update() error {
 func (r *Repository) Pull(branch ...string) error {
 	session := sh.InteractiveSession()
 	session.SetDir(r.GetLocalPath())
-	session.Command("git", "branch")
+	session.Command("git", "branch", "-vv")
 	buff, err := session.Output()
 	if err != nil {
 		return err
 	}
 	for _, b := range branch {
-		if hasBranch(string(buff), b) {
-			logs.Log.Info(r.GetLocalPath(), ">", "git", "pull", "origin", b)
-			session.Command("git", "pull", "origin", b)
-		} else {
-			logs.Log.Info(r.GetLocalPath(), ">", "git", "fetch", "origin", b+":"+b)
-			session.Command("git", "fetch", "origin", b+":"+b)
+		exist, current, remote := getBranchInfo(string(buff), b)
+		if !exist {
+			logs.Log.Warnf("本地不存在%s分支", b)
+			continue
+		}
+		if remote == "" { //没有对应的远程分支
+			logs.Log.Warnf("%s没有设置对应的远程分支", b)
+			continue
+		}
+		if current { //处于当前分支
+			logs.Log.Infof("拉取%s分支：%s %s", b, r.GetLocalPath(), "> git pull")
+			session.Command("git", "pull")
+		} else { //不处于当前分支
+			if remote == b { //远程分支和本地分支同名
+				logs.Log.Infof("拉取%s分支：%s %s", b, r.GetLocalPath(), "> git pull origin "+b)
+				session.Command("git", "pull", "origin", b)
+			} else { //远程分支和本地分支不同名
+				logs.Log.Infof("拉取%s分支：%s %s", b, r.GetLocalPath(), "> git pull -f origin "+remote+":"+b)
+				session.Command("git", "pull", "-f", "origin", remote+":"+b)
+			}
 		}
 		if err := session.Run(); err != nil {
 			return err
@@ -151,4 +166,23 @@ func hasBranch(s string, b string) bool {
 		}
 	}
 	return false
+}
+
+// 是否存在分支  是否是当前分支  对应远程分支
+//s 传入为git branch -vv
+func getBranchInfo(s string, b string) (bool, bool, string) {
+	items := strings.Split(s, "\n")
+	remote := ""
+	for _, item := range items {
+		i := strings.TrimSpace(item)
+		if strings.Contains(i, b) {
+			rex := regexp.MustCompile(`origin\/([\w]+)`)
+			value := rex.FindStringSubmatch(i)
+			if len(value) == 2 {
+				return true, strings.HasPrefix(i, "* "), value[1]
+			}
+			return true, strings.HasPrefix(i, "* "), ""
+		}
+	}
+	return false, false, remote
 }
