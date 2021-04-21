@@ -55,17 +55,23 @@ const TmplList = `
 				{{- if gt ($rows|create|len) 0}}
 				<el-form-item>
 					<el-button type="success" size="medium" @click="showAdd">添加</el-button>
-					{{- if gt ($rows|export|len) 0}}
-					<el-button type="success" @click="exportExcl" size="medium">导出excel</el-button>
-					{{- end}}
-					{{- if gt ($tb.DownloadInfo.Title|len) 0}}
-					<el-button type="text" @click="download" style="font-size:14px">下载模版</el-button>
-					{{- end}}
-					{{- if not $tb.SelectInfo.IsEmpty }}
-					<el-button @click="toggleSelection()">批量操作</el-button>
-					{{- end}}
 				</el-form-item>
 				{{end}}
+				{{- if gt ($rows|export|len) 0}}
+				<el-form-item>
+					<el-button type="success" @click="exportExcl" size="medium">导出excel</el-button>
+				</el-form-item>
+				{{- end}}
+				{{- if gt ($tb.DownloadInfo.Title|len) 0}}
+				<el-form-item>
+					<el-button type="text" @click="download" style="font-size:14px">下载模版</el-button>
+				</el-form-item>
+				{{- end}}
+				{{- if not $tb.SelectInfo.IsEmpty }}
+				<el-form-item>
+					<el-button @click="toggleSelection()">批量操作</el-button>
+				</el-form-item>
+				{{- end}}
 			</el-form>
 		</div>
     <!-- query end -->
