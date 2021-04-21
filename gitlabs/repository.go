@@ -88,8 +88,15 @@ func (r *Repository) Reset(branch ...string) error {
 func (r *Repository) Update() error {
 	session := sh.InteractiveSession()
 	session.SetDir(r.GetLocalPath())
-	logs.Log.Info("hicli", "pull", r.FullPath)
-	session.Command("hicli", "pull", r.FullPath)
+
+	session.Command("git", "branch")
+	buff, err := session.Output()
+	if err != nil {
+		return err
+	}
+
+	logs.Log.Info("hicli", "pull", r.FullPath, "-b", getCurrentBranch(string(buff)))
+	session.Command("hicli", "pull", r.FullPath, "-b", getCurrentBranch(string(buff)))
 	if err := session.Run(); err != nil {
 		return err
 	}
@@ -185,4 +192,15 @@ func getBranchInfo(s string, b string) (bool, bool, string) {
 		}
 	}
 	return false, false, remote
+}
+
+func getCurrentBranch(s string) string {
+	items := strings.Split(s, "\n")
+	for _, item := range items {
+		i := strings.TrimSpace(item)
+		if strings.HasPrefix(i, "* ") {
+			return strings.TrimPrefix(i, "* ")
+		}
+	}
+	return ""
 }
