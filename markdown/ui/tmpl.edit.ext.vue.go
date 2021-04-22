@@ -57,8 +57,8 @@ const TmplEditExtVue = `
       {{end}}
     </el-form>
 		<div slot="footer" class="dialog-footer">
-			<el-button size="medium" @click="dialogFormVisible = false">取 消</el-button>
-			<el-button type="success" size="medium" @click="edit">确 定</el-button>
+			<el-button size="medium" @click="resetForm('editForm')">取 消</el-button>
+			<el-button type="success" size="medium" @click="edit('editForm')">确 定</el-button>
 		</div>
 	</el-dialog>
 </template>
@@ -104,6 +104,10 @@ export default {
 		closed() {
 			this.refresh()
 		},
+		resetForm(formName) {
+			this.dialogAddVisible = false;
+			this.$refs[formName].resetFields();
+		},
 		{{- if $choose}}
 		handleChooseTool() {
       this.$forceUpdate()
@@ -130,7 +134,7 @@ export default {
 		},
 		{{- end}}
 		{{- end }}
-		edit() {
+		edit(formName) {
 			{{- range $i,$c:=$rows -}}
 			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime)}}
 			this.editData.{{$c.Name}} = this.$utility.dateFormat(this.editData.{{$c.Name}},"{{dateFormat $c.Con ($c.Con|ueCon)}}")
@@ -138,18 +142,25 @@ export default {
 			this.editData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
 			{{- end -}}
 			{{- end}}
-			{{- if $btnInfo.Confirm}}
-      this.$confirm("{{$btnInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
-        .then(() => {
-			{{- end}}
-			this.$http.post("/{{.Name|rmhd|rpath}}/{{$btnInfo.Name}}", this.editData, {}, true, true)
-			.then(res => {			
-				this.dialogFormVisible = false;
-				this.refresh()
-			})
-			{{- if $btnInfo.Confirm}}
+			this.$refs[formName].validate((valid) => {
+				if (valid) {
+					{{- if $btnInfo.Confirm}}
+					this.$confirm("{{$btnInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+						.then(() => {
+					{{- end}}
+					this.$http.post("/{{.Name|rmhd|rpath}}/{{$btnInfo.Name}}", this.editData, {}, true, true)
+					.then(res => {			
+						this.dialogFormVisible = false;
+						this.refresh()
+					})
+					{{- if $btnInfo.Confirm}}
+					});
+					{{- end}}
+				} else {
+						console.log("error submit!!");
+						return false;
+				}
 			});
-		{{- end}}
 		},
 	}
 }
