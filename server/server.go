@@ -177,10 +177,10 @@ func (s *server) close() (err error) {
 	return err
 }
 
-var defExcludePath = []string{"vendor", "node_modules", ".gitignore", ".hicli"}
+var defExcludePath = []string{"vendor", "node_modules", ".gitignore", ".hicli", ".git"}
 
 func (s *server) isExclude(path string) bool {
-	if path == s.path || filepath.Dir(path) == s.path {
+	if path == s.path {
 		return false
 	}
 
