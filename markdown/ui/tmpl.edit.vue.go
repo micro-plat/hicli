@@ -78,8 +78,8 @@ const TmplEditVue = `
       {{end}}
     </el-form>
 		<div slot="footer" class="dialog-footer">
-			<el-button size="medium" @click="dialogFormVisible = false">取 消</el-button>
-			<el-button type="success" size="medium" @click="edit">确 定</el-button>
+			<el-button size="medium" @click="resetForm('editForm')">取 消</el-button>
+			<el-button type="success" size="medium" @click="edit('editForm')">确 定</el-button>
 		</div>
 	</el-dialog>
 </template>
@@ -133,6 +133,10 @@ export default {
 	methods: {
 		closed() {
 			this.refresh()
+		},
+		resetForm(formName) {
+			this.dialogAddVisible = false;
+			this.$refs[formName].resetFields();
 		},
 		{{- if $choose}}
 		handleChooseTool() {
@@ -200,7 +204,7 @@ export default {
     },
 		{{- end}}
 		{{- end }}
-		edit() {
+		edit(formName) {
 			{{- range $i,$c:=$rows|update -}}
 			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			this.editData.{{$c.Name}} = this.$utility.dateFormat(this.editData.{{$c.Name}},"{{dateFormat $c.Con ($c.Con|ueCon)}}")
@@ -212,11 +216,18 @@ export default {
 			this.editData.{{$c.Name}} = list{{$i}}.join(",")
 			{{- end -}}
 			{{- end}}
-			this.$http.put("/{{.Name|rmhd|rpath}}", this.editData, {}, true, true)
-			.then(res => {			
-				this.dialogFormVisible = false;
-				this.refresh()
-			})
+			this.$refs[formName].validate((valid) => {
+				if (valid) {
+					this.$http.put("/{{.Name|rmhd|rpath}}", this.editData, {}, true, true)
+					.then(res => {			
+						this.dialogFormVisible = false;
+						this.refresh()
+					})
+				} else {
+						console.log("error submit!!");
+						return false;
+				}
+			});
 		},
 	}
 }
