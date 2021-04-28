@@ -63,7 +63,7 @@ func newServer(c *cli.Context) (*server, error) {
 
 var tags = map[string][]string{
 	"install": {"tags", "mod"},
-	"run":     {"fixed", "registry", "plat", "system", "server_types", "cluster", "trace", "tport", "mask", "debug"},
+	"run":     {"registry", "plat", "system", "server_types", "cluster", "trace", "tport", "mask", "debug", "fixed"},
 }
 
 func checkPath(c *cli.Context) (projectPath, watchPath string, err error) {
@@ -110,6 +110,7 @@ func getStartFlag(c *cli.Context) map[string][]interface{} {
 		}
 
 	}
+	fmt.Println(startFlag)
 
 	return startFlag
 }
