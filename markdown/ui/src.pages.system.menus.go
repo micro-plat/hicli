@@ -66,8 +66,10 @@ export default {
     },
     //获取系统的相关数据
     getSystemInfo() {
+      let that = this
       this.$sys.getSystemInfo().then(res => {
         this.system = res;
+        document.title = that.$sys.getTitle(window.location.path)
       })
     },
     //用户可用的其他系统

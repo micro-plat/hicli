@@ -284,23 +284,24 @@ func dbType(tp string) callHanlder {
 			t := tps[0]
 			for k, v := range tp2oracle {
 				reg2 := regexp.MustCompile(k)
-				if reg2.Match([]byte(strings.ToLower(t))) {
-					oracleType := v
-					index := strings.Index(oracleType, "(")
-					if len(tps) == 2 {
-						if index >= 0 {
-							return fmt.Sprintf("%s(%s)", oracleType[:index], tps[1])
-						}
-						return fmt.Sprintf("%s(%s)", oracleType, tps[1])
-					}
-					if len(tps) == 3 {
-						if index >= 0 {
-							return fmt.Sprintf("%s(%s,%s)", oracleType[:index], tps[1], tps[2])
-						}
-						return fmt.Sprintf("%s(%s,%s)", oracleType, tps[1], tps[2])
-					}
-					return t
+				if !reg2.Match([]byte(strings.ToLower(t))) {
+					continue
 				}
+				oracleType := v
+				index := strings.Index(oracleType, "(")
+				if len(tps) == 2 {
+					if index >= 0 {
+						return fmt.Sprintf("%s(%s)", oracleType[:index], tps[1])
+					}
+					return fmt.Sprintf("%s(%s)", oracleType, tps[1])
+				}
+				if len(tps) == 3 {
+					if index >= 0 {
+						return fmt.Sprintf("%s(%s,%s)", oracleType[:index], tps[1], tps[2])
+					}
+					return fmt.Sprintf("%s(%s,%s)", oracleType, tps[1], tps[2])
+				}
+				return t
 			}
 			return input
 		}
