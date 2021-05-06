@@ -103,14 +103,12 @@ func getStartFlag(c *cli.Context) map[string][]interface{} {
 				startFlag[k] = append(startFlag[k], fmt.Sprintf("-%s", v1))
 				continue
 			}
-			if c.String(v1) != "" {
+			if c.String(v1) != "" && c.String(v1) != "false" {
 				startFlag[k] = append(startFlag[k], fmt.Sprintf("-%s", v1))
 				startFlag[k] = append(startFlag[k], c.String(v1))
 			}
 		}
-
 	}
-	fmt.Println(startFlag)
 
 	return startFlag
 }
