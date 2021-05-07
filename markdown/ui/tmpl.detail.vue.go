@@ -123,7 +123,7 @@ const TmplDetail = `
           </div>
         {{- else if (index $tab.TabInfo.TabTableList $name) }}
           <el-scrollbar style="height:100%" id="panel-body">
-            <el-table :data="{{$tab.Name|rmhd|varName}}List.items" stripe style="width: 100%" :height="maxHeight">
+            <el-table :data="{{$tab.Name|rmhd|varName}}List.items" size="small" stripe style="width: 100%" :height="maxHeight">
               {{if gt $tab.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod"></el-table-column>{{end}}
               {{- range $i,$c:=$tab.Rows|list}}
               <el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
