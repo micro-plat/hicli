@@ -157,7 +157,7 @@ select count(1)
 from {{.Name}} t
 where 
 {{- range $i,$c:=$deleterows}}
-	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
 {{- range $i,$c:=.TabInfo.TabListField}}
 &{{(or ($c) ($pks|firstStr))}}
@@ -184,10 +184,10 @@ select
 from {{.Name}} t
 where
 {{- range $i,$c:=$deleterows}}
-	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
 {{- range $i,$c:=.TabInfo.TabListField}}
-&{{(or ($c) ($pks|firstStr))}}
+&t.{{(or ($c) ($pks|firstStr))}}
 {{- end}}
 ) R 
 where rownum <= @pi * @ps) L
