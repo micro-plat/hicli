@@ -159,7 +159,7 @@ select
 	{{- else}}
 	t.{{$c.Name}}
 	{{- end}}
-	{{- if lt $i ($detailrows|maxIndex)}},{{end}}
+	{{- if lt $i ($listrows|maxIndex)}},{{end}}
 {{- end}} 
 from {{.Name}} t
 where
