@@ -15,12 +15,12 @@ const TmplList1 = `
 			{{- range $i,$c:=$rows|query}}
 				{{- if $c.Con|TA}}
 				<el-form-item>
-					<el-input size="medium" maxlength="{{$c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="queryData.{{$c.Name}}">
+					<el-input size="small" maxlength="{{$c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="queryData.{{$c.Name}}">
 					</el-input>
 				</el-form-item>
 				{{- else if or ($c.Con|SL) ($c.Con|SLM) }}
 				<el-form-item>
-					<el-select size="medium" v-model="queryData.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
+					<el-select size="small" v-model="queryData.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
 					{{- if (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}} 
 					{{- if (qDicCName $c.Name $tb) }} @change="set{{(qDicCName $c.Name $tb)|upperName}}(queryData.{{$c.Name}})" {{- end}}>
 						<el-option value="" label="全部"></el-option>
@@ -29,29 +29,29 @@ const TmplList1 = `
 				</el-form-item>
 				{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 				<el-form-item label="{{$c.Desc|shortName}}:">
-						<el-date-picker size="medium" class="input-cos" v-model="{{$c.Name|lowerName}}" type="{{dateType $c.Con ($c.Con|qfCon)}}" value-format="{{dateFormat $c.Con ($c.Con|qfCon)}}"  placeholder="选择日期"></el-date-picker>
+						<el-date-picker size="small" class="input-cos" v-model="{{$c.Name|lowerName}}" type="{{dateType $c.Con ($c.Con|qfCon)}}" value-format="{{dateFormat $c.Con ($c.Con|qfCon)}}"  placeholder="选择日期"></el-date-picker>
 				</el-form-item>
 				{{- else if $c.Con|CB }}
 				<el-form-item label="{{$c.Desc|shortName}}:">
-          <el-checkbox-group size="medium" v-model="{{$c.Name|lowerName}}Array">
+          <el-checkbox-group size="small" v-model="{{$c.Name|lowerName}}Array">
 						<el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
 				{{- else}}
 				<el-form-item>
-					<el-input clearable size="medium" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
+					<el-input clearable size="small" prefix-icon="el-icon-search" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
 					</el-input>
 				</el-form-item>
 				{{- end}}
 			{{end}}
 				{{- if gt ($rows|query|len) 0}}
 				<el-form-item>
-					<el-button  type="primary" @click="queryDatas" size="medium">查询</el-button>
+					<el-button  type="primary" @click="queryDatas" size="small">查询</el-button>
 				</el-form-item>
 				{{end}}
 				{{- if gt ($rows|create|len) 0}}
 				<el-form-item>
-					<el-button type="success" size="medium" @click="showAdd">添加</el-button>
+					<el-button type="success" size="small" @click="showAdd">添加</el-button>
 				</el-form-item>
 				{{end}}
 			</el-form>

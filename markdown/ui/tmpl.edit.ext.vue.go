@@ -13,18 +13,18 @@ const TmplEditExtVue = `
     	{{- range $i,$c:=$rows}}
       {{if $c.Con|TA -}}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input {{if $c.Disable}}:disabled="true"{{end}} size="medium" maxlength="{{or ($c.Con|cfCon) $c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="editData.{{$c.Name}}">
+				<el-input {{if $c.Disable}}:disabled="true"{{end}} size="small" maxlength="{{or ($c.Con|cfCon) $c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="editData.{{$c.Name}}">
         </el-input>
 			</el-form-item>
 			{{- else if $c.Con|RD }}
 			<el-form-item  label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-radio-group {{if $c.Disable}}:disabled="true"{{end}} size="medium" v-model="editData.{{$c.Name}}" style="margin-left:5px">
+				<el-radio-group {{if $c.Disable}}:disabled="true"{{end}} size="small" v-model="editData.{{$c.Name}}" style="margin-left:5px">
         	<el-radio v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :label="item.value">{{"{{item.name}}"}}</el-radio>
 				</el-radio-group>
 			</el-form-item>
 			{{- else if $c.Con|SL }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-select {{if $c.Disable}}:disabled="true"{{end}} size="medium" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
+				<el-select {{if $c.Disable}}:disabled="true"{{end}} size="small" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
 				 {{- if (uDicPName $c.Con $c.BelongTable) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
 				 {{- if (uDicCName $c.Name $c.BelongTable) }} @change="set{{(uDicCName $c.Name $c.BelongTable)|upperName}}(editData.{{$c.Name}})"	{{- end}}	>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
@@ -32,23 +32,23 @@ const TmplEditExtVue = `
 			</el-form-item>
 			{{- else if $c.Con|SLM }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-select {{if $c.Disable}}:disabled="true"{{end}} size="medium" placeholder="---请选择---" clearable filterable v-model="{{$c.Name|lowerName}}Array" multiple style="width: 100%;">
+				<el-select {{if $c.Disable}}:disabled="true"{{end}} size="small" placeholder="---请选择---" clearable filterable v-model="{{$c.Name|lowerName}}Array" multiple style="width: 100%;">
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name" ></el-option>
 				</el-select>
 			</el-form-item>
 			{{- else if $c.Con|CB }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}"> 
-				<el-checkbox-group {{if $c.Disable}}:disabled="true"{{end}} size="medium" v-model="{{$c.Name|lowerName}}Array">
+				<el-checkbox-group {{if $c.Disable}}:disabled="true"{{end}} size="small" v-model="{{$c.Name|lowerName}}Array">
 					<el-checkbox v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
 				</el-checkbox-group>
 			</el-form-item>
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			<el-form-item prop="{{$c.Name}}" label="{{$c.Desc|shortName}}:">
-					<el-date-picker {{if $c.Disable}}:disabled="true"{{end}} size="medium" class="input-cos"  v-model="editData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ueCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ueCon)}}"  placeholder="选择日期"></el-date-picker>
+					<el-date-picker {{if $c.Disable}}:disabled="true"{{end}} size="small" class="input-cos"  v-model="editData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ueCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ueCon)}}"  placeholder="选择日期"></el-date-picker>
 			</el-form-item>
       {{- else -}}
       <el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input {{if $c.Disable}}:disabled="true"{{end}} size="medium" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
+				<el-input {{if $c.Disable}}:disabled="true"{{end}} size="small" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
 				{{- if gt $c.DecimalLen 0}} oninput="if(isNaN(value)) { value = null } if(value.indexOf('.')>0){value=value.slice(0,value.indexOf('.')+{{$c.DecimalLen|add1}})}"{{end}}
 				clearable v-model="editData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
 				</el-input>
@@ -57,8 +57,8 @@ const TmplEditExtVue = `
       {{end}}
     </el-form>
 		<div slot="footer" class="dialog-footer">
-			<el-button size="medium" @click="resetForm('editForm')">取 消</el-button>
-			<el-button type="success" size="medium" @click="edit('editForm')">确 定</el-button>
+			<el-button size="small" @click="resetForm('editForm')">取 消</el-button>
+			<el-button type="success" size="small" @click="edit('editForm')">确 定</el-button>
 		</div>
 	</el-dialog>
 </template>
