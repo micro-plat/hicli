@@ -332,7 +332,6 @@ export default {
     },
     /**重置添加表单*/
     resetForm(formName) {
-      this.dialogAddVisible = false
       this.$refs[formName].resetFields();
 		},
 		{{- if gt ($rows|detail|len) 0}}

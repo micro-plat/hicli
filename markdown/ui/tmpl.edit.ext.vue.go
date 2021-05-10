@@ -105,7 +105,7 @@ export default {
 			this.refresh()
 		},
 		resetForm(formName) {
-			this.dialogAddVisible = false;
+			this.dialogFormVisible = false;
 			this.$refs[formName].resetFields();
 		},
 		{{- if $choose}}
