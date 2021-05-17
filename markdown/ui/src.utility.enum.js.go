@@ -82,7 +82,7 @@ Enum.prototype.getName = function (type, value, group) {
   }
 
   var enumMap = Enum.prototype.get(type, null, group)
-  var data = value.split(",")
+  var data = (value + "").split(",")
   var result = []
 
   for (var i = 0; i < data.length; i++){

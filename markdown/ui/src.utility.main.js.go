@@ -6,7 +6,6 @@ import { Env } from './env'
 import { Utility } from './utility'
 import { Sys } from './sys'
 import { Message } from './message'
-import {BuildExcel,ExportTemplate} from './export_upload'
 
 import packageData from '../../package.json'
 
@@ -25,8 +24,6 @@ export default {
         Vue.prototype.$env = new Env(getConf(Vue, path))    
         Vue.prototype.$sys = new Sys(Vue);
         Vue.prototype.$utility = new Utility();
-        Vue.prototype.BuildExcel = BuildExcel;
-        Vue.prototype.ExportTemplate = ExportTemplate;
 
         let that = Vue.prototype
 
@@ -38,17 +35,21 @@ export default {
         //处理接口返回403时自动跳转到指定的地址
         if(inject403Code){ //注入时可配置是否默认处理403
             that.$http.addStatusCodeHandle(res => {
-                var url = (res.headers || {}).location || ""; 
+                var header = res.headers || {}
+                var url = header.location || header["x-location"] || ""
+                if (!url && header.get){
+                    url = header.get("location") || header.get("x-location")
+                }
                 if(url){
-                    window.location = url + encodeURIComponent(document.URL);
+                    window.location = url+"?returnurl="+ encodeURIComponent( window.location.href)
                     return
                 }
-                
-                let conf = that.$env.conf
-                if (!conf.sso || !conf.sso.host || !conf.sso.ident){
-                    throw new Error("sso.host或sso.ident未配置");
+                //从系统配置中获取
+                var sys = that.$env.conf.system || {}
+                if (sys.login_url){
+                    window.location = sys.login_url
+                    return
                 }
-                window.location = conf.sso.host + "/" + conf.sso.ident + "/jump?returnurl=" + encodeURIComponent(document.URL);
                 return;
             }, 403);
 
@@ -84,7 +85,8 @@ function getConf(Vue, path){
     if(!packageData)
         return
     
-    path = packageData.scripts.serve ? "/env.conf.json" : "/static/env.conf.json"   
+    path = process.env.NODE_ENV === "development" ? "env.conf.json" : "env.conf.prod.json" 
+    path = (packageData.scripts.serve ? "/" : "/static/") + path
     return Vue.prototype.$http.xget(path) || {}
 }
 

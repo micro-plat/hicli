@@ -8,8 +8,8 @@ const TmplEditVue = `
 {{- $pks := .|pks -}}
 {{- $choose:= false -}}
 <template>
-	<el-dialog title="编辑{{.Desc}}"{{if gt ($rows|update|len) 5}} width="65%" {{- else}} width="25%" {{- end}} @closed="closed" :visible.sync="dialogFormVisible">
-		<el-form :model="editData" {{if gt ($rows|update|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="editForm" label-width="110px">
+	<el-dialog title="编辑{{.Desc}}"{{if gt ($rows|update|len) 5}} width="720px" {{- else}} width="500px" {{- end}} @closed="closed" :visible.sync="dialogFormVisible">
+		<el-form :model="editData" size="small" {{if gt ($rows|update|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="editForm" label-width="110px">
     	{{- range $i,$c:=$rows|update}}
       {{if $c.Con|TA -}}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">

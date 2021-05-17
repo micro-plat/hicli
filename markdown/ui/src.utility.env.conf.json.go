@@ -13,7 +13,6 @@ const srcPublicEnvConfJson = `
     },
     "api": {
         "host": "http://localhost:8089",
-        "confURL": "",
         "enumURL": "/system/enums/query"
     },
     "menus": [
@@ -50,21 +49,9 @@ const srcSSOPublicEnvConfJson = `
         "company": "四川千行你我科技股份有限公司",
         "code": "蜀ICP备20003360号"
     },
-    "system": {
-        "systemName": "xxx系统",
-        "themes": "bg-danger|bg-danger|bg-dark dark-danger",
-        "logo": ""
-    },
     "api": {
         "host": "http://localhost:8089",
-        "confURL": "",
         "enumURL": "/system/enums/query"
-    },
-    "sso": {
-        "ident": "sso_ident",
-        "host": "http://ssov4.100bm1.com:6687"
-    },
-    "menus": [],
-    "sysList": []
+    }
 }
 `

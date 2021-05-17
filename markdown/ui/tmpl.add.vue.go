@@ -8,8 +8,8 @@ const TmplCreateVue = `
 {{- $choose:= false -}}
 <template>
   <!-- Add Form -->
-  <el-dialog title="添加{{.Desc}}" {{- if gt ($rows|create|len) 5}} width="65%" {{else}} width="25%" {{- end}} :visible.sync="dialogAddVisible">
-    <el-form :model="addData" {{if gt ($rows|create|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="addForm" label-width="110px">
+  <el-dialog title="添加{{.Desc}}" {{- if gt ($rows|create|len) 5}} width="720px" {{else}} width="500px" {{- end}} :visible.sync="dialogAddVisible">
+    <el-form :model="addData" size="small" {{if gt ($rows|create|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="addForm" label-width="110px">
     	{{- range $i,$c:=$rows|create }}
       {{if $c.Con|TA -}}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">

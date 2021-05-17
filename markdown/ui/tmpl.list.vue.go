@@ -14,7 +14,7 @@ const TmplList = `
 	<div class="panel panel-default">
     <!-- query start -->
 		<div class="panel-body" id="panel-body">
-			<el-form ref="form" :inline="true" class="form-inline pull-left">
+			<el-form ref="form" size="small" :inline="true" class="form-inline pull-left">
 			{{- range $i,$c:=$rows|query}}
 				{{- if $c.Con|TA}}
 				<el-form-item>
@@ -135,15 +135,15 @@ const TmplList = `
 							{{- if gt ($c.VIF|len) 0}}
 								{{- range $k,$v:= $c.VIF}}
 									{{- if eq $k 0}}
-						<el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+						<el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
 									{{- else if lt $k ($c.VIF|maxIndex) }}		
-						<el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+						<el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
 									{{- else}}
-						<el-button v-else type="text" size="small" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+						<el-button v-else type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
 									{{- end}}
 								{{- end}}
 							{{- else}}	
-						<el-button type="text" size="small" @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 							{{- end }}
 						{{- end}}
 					</template>

@@ -241,6 +241,14 @@ Http.prototype.ajax = function (method, url, params, config, success, fail){
         },
         error : function(err){  //请求失败，包含具体的错误信息  
             showFailedNotify(fail, err)       
+            if (err.status) {
+                let handle = statusCodeHandles[err.status];
+                if (handle) {
+                    var hd = {headers:{}}
+                    hd.headers.get = err.getResponseHeader
+                    handle(hd);
+                }
+            }
         },
         complete(xhr){
             var token = xhr.getResponseHeader(authorizationKey);
