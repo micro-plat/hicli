@@ -14,11 +14,12 @@ import (
 
 //Tables markdown中的所有表信息
 type Tables struct {
-	PKG       string
-	RawTables []*Table
-	Tbs       []*Table
-	Drop      bool
-	SEQFile   bool
+	PKG        string
+	RawTables  []*Table
+	Tbs        []*Table
+	TableNames map[string]bool
+	Drop       bool
+	SEQFile    bool
 }
 
 //FilterByKW 过滤行信息
@@ -98,6 +99,28 @@ func Markdown2DB(fn string) (*Tables, error) {
 	return tableLine2Table(line2TableLine(lines))
 }
 
+//Markdown2DB 读取markdown文件并转换为MarkDownDB对象
+func Markdowns2DB(fns ...string) (*Tables, error) {
+	baseTable := &Tables{}
+	for _, fn := range fns {
+		newTable, err := Markdown2DB(fn)
+		if err != nil {
+			return nil, err
+		}
+		tempKeys := make(map[string]string, len(newTable.TableNames))
+		for key := range newTable.TableNames {
+			tempKeys[key] = key
+		}
+		for key := range baseTable.TableNames {
+			if _, ok := tempKeys[key]; ok {
+				return nil, fmt.Errorf("存在相同的表名：%s", key)
+			}
+		}
+		baseTable.Tbs = append(baseTable.Tbs, newTable.Tbs...)
+	}
+	return baseTable, nil
+}
+
 //readMarkdown 读取md文件
 func readMarkdown(name string) ([]*Line, error) {
 	f, err := os.Open(name)
@@ -151,7 +174,7 @@ func line2TableLine(lines []*Line) (tl TableLine) {
 
 //tableLine2Table 表数据行变为表
 func tableLine2Table(lines TableLine) (tables *Tables, err error) {
-	tables = &Tables{Tbs: make([]*Table, 0, 1)}
+	tables = &Tables{Tbs: make([]*Table, 0, 1), TableNames: make(map[string]bool)}
 	for _, tline := range lines.Lines {
 		//markdown表格的表名，标题，标题数据区分行，共三行
 		if len(tline) <= 3 {
@@ -181,6 +204,10 @@ func tableLine2Table(lines TableLine) (tables *Tables, err error) {
 			}
 		}
 		if tb != nil {
+			if _, ok := tables.TableNames[tb.Name]; ok {
+				return nil, fmt.Errorf("存在相同的表名：%s", tb.Name)
+			}
+			tables.TableNames[tb.Name] = true
 			tables.RawTables = append(tables.RawTables, tb)
 		}
 	}

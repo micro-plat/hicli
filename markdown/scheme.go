@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
 
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/hicli/markdown/tmpl"
@@ -25,101 +24,83 @@ func createScheme(c *cli.Context) (err error) {
 		return fmt.Errorf("未指定输出路径")
 	}
 
-	createfile := func(filepath, appendDir string) (err error) {
+	filePath := c.Args().First()
+	var tbs *tmpl.Tables
+	if strings.Contains(filePath, "*") {
+		files := getAllMatchMD(filePath)
 		//读取文件
-		tbs, err := tmpl.Markdown2DB(filepath)
+		tbs, err = tmpl.Markdowns2DB(files...)
 		if err != nil {
 			return err
 		}
-		//设置包名称
-		if c.Bool(gofile) {
-			tbs.SetPkg(c.Args().Get(1))
+	} else {
+		tbs, err = tmpl.Markdown2DB(filePath)
+		if err != nil {
+			return err
 		}
-		//是否删除表
-		tbs.DropTable(c.Bool("drop"))
-		//过滤数据表
-		tbs.FilterByKW(c.String("table"))
-		tbs.Exclude()
-		tbs.BuildSEQFile(c.Bool("seqfile"))
-
-		//循环创建表
-		outpath := c.Args().Get(1)
-		if appendDir != "" {
-			outpath += "/" + appendDir + ""
-		}
-		for _, tb := range tbs.Tbs {
-			//创建文件
-			path := tmpl.GetSchemePath(outpath, tb.Name, c.Bool(gofile))
-
-			//翻译文件
-			content, err := tmpl.Translate(tmpl.SQLTmpl, dbtp, tb)
-			if err != nil {
-				return err
-			}
-			fs, err := tmpl.Create(path, c.Bool("cover"))
-			if err != nil {
-				return err
-			}
-			logs.Log.Info("生成文件:", path)
-			if _, err := fs.Write([]byte(content)); err != nil {
-				return err
-			}
-		}
-		if tbs.SEQFile {
-			content, err := tmpl.Translate(tmpl.CreateSEQTable, dbtp, tbs)
-			if err != nil {
-				return err
-			}
-			path := tmpl.GetSEQFilePath(outpath, c.Bool(gofile))
-			fs, err := tmpl.Create(path, c.Bool("cover"))
-			if err != nil {
-				return err
-			}
-			logs.Log.Info("生成文件:", path)
-			fs.WriteString(content)
-			fs.Close()
-		}
-
-		//生成安装文件
-		if c.Bool(gofile) {
-			content, err := tmpl.Translate(tmpl.InstallTmpl, dbtp, tbs)
-			if err != nil {
-				return err
-			}
-			path := tmpl.GetInstallPath(outpath)
-			fs, err := tmpl.Create(path, c.Bool("cover"))
-			if err != nil {
-				return err
-			}
-			logs.Log.Info("生成文件:", path)
-			fs.WriteString(content)
-			fs.Close()
-		}
-		return nil
 	}
 
-	filePath := c.Args().First()
-	if !strings.Contains(filePath, "*") {
-		return createfile(filePath, "")
+	//设置包名称
+	if c.Bool(gofile) {
+		tbs.SetPkg(c.Args().Get(1))
+	}
+	//是否删除表
+	tbs.DropTable(c.Bool("drop"))
+	//过滤数据表
+	tbs.FilterByKW(c.String("table"))
+	tbs.Exclude()
+	tbs.BuildSEQFile(c.Bool("seqfile"))
+
+	//循环创建表
+	outpath := c.Args().Get(1)
+	for _, tb := range tbs.Tbs {
+		//创建文件
+		path := tmpl.GetSchemePath(outpath, tb.Name, c.Bool(gofile))
+
+		//翻译文件
+		content, err := tmpl.Translate(tmpl.SQLTmpl, dbtp, tb)
+		if err != nil {
+			return err
+		}
+		fs, err := tmpl.Create(path, c.Bool("cover"))
+		if err != nil {
+			return err
+		}
+		logs.Log.Info("生成文件:", path)
+		if _, err := fs.Write([]byte(content)); err != nil {
+			return err
+		}
+	}
+	if tbs.SEQFile {
+		content, err := tmpl.Translate(tmpl.CreateSEQTable, dbtp, tbs)
+		if err != nil {
+			return err
+		}
+		path := tmpl.GetSEQFilePath(outpath, c.Bool(gofile))
+		fs, err := tmpl.Create(path, c.Bool("cover"))
+		if err != nil {
+			return err
+		}
+		logs.Log.Info("生成文件:", path)
+		fs.WriteString(content)
+		fs.Close()
 	}
 
-	//找到符合的md文件
-
-	var wg sync.WaitGroup
-	files := getAllMatchMD(filePath)
-	for _, v := range files {
-		_, f := filepath.Split(v)
-		wg.Add(1)
-		go func(v, f string) {
-			defer wg.Done()
-			err := createfile(v, strings.TrimRight(f, ".md"))
-			if err != nil {
-				logs.Log.Errorf("[%s]发生错误：%+v", v, err)
-			}
-		}(v, f)
+	//生成安装文件
+	if c.Bool(gofile) {
+		content, err := tmpl.Translate(tmpl.InstallTmpl, dbtp, tbs)
+		if err != nil {
+			return err
+		}
+		path := tmpl.GetInstallPath(outpath)
+		fs, err := tmpl.Create(path, c.Bool("cover"))
+		if err != nil {
+			return err
+		}
+		logs.Log.Info("生成文件:", path)
+		fs.WriteString(content)
+		fs.Close()
 	}
-
-	wg.Wait()
 
 	return nil
 }
