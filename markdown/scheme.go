@@ -25,7 +25,7 @@ func createScheme(c *cli.Context) (err error) {
 		return fmt.Errorf("未指定输出路径")
 	}
 
-	createfile := func(filepath string) (err error) {
+	createfile := func(filepath, appendDir string) (err error) {
 		//读取文件
 		tbs, err := tmpl.Markdown2DB(filepath)
 		if err != nil {
@@ -43,9 +43,13 @@ func createScheme(c *cli.Context) (err error) {
 		tbs.BuildSEQFile(c.Bool("seqfile"))
 
 		//循环创建表
+		outpath := c.Args().Get(1)
+		if appendDir != "" {
+			outpath += "/" + appendDir + ""
+		}
 		for _, tb := range tbs.Tbs {
 			//创建文件
-			path := tmpl.GetSchemePath(c.Args().Get(1), tb.Name, c.Bool(gofile))
+			path := tmpl.GetSchemePath(outpath, tb.Name, c.Bool(gofile))
 
 			//翻译文件
 			content, err := tmpl.Translate(tmpl.SQLTmpl, dbtp, tb)
@@ -66,7 +70,7 @@ func createScheme(c *cli.Context) (err error) {
 			if err != nil {
 				return err
 			}
-			path := tmpl.GetSEQFilePath(c.Args().Get(1), c.Bool(gofile))
+			path := tmpl.GetSEQFilePath(outpath, c.Bool(gofile))
 			fs, err := tmpl.Create(path, c.Bool("cover"))
 			if err != nil {
 				return err
@@ -82,7 +86,7 @@ func createScheme(c *cli.Context) (err error) {
 			if err != nil {
 				return err
 			}
-			path := tmpl.GetInstallPath(c.Args().Get(1))
+			path := tmpl.GetInstallPath(outpath)
 			fs, err := tmpl.Create(path, c.Bool("cover"))
 			if err != nil {
 				return err
@@ -96,7 +100,7 @@ func createScheme(c *cli.Context) (err error) {
 
 	filePath := c.Args().First()
 	if !strings.Contains(filePath, "*") {
-		return createfile(filePath)
+		return createfile(filePath, "")
 	}
 
 	//找到符合的md文件
@@ -104,14 +108,15 @@ func createScheme(c *cli.Context) (err error) {
 	var wg sync.WaitGroup
 	files := getAllMatchMD(filePath)
 	for _, v := range files {
+		_, f := filepath.Split(v)
 		wg.Add(1)
-		go func(v string) {
+		go func(v, f string) {
 			defer wg.Done()
-			err := createfile(v)
+			err := createfile(v, strings.TrimRight(f, ".md"))
 			if err != nil {
 				logs.Log.Errorf("[%s]发生错误：%+v", v, err)
 			}
-		}(v)
+		}(v, f)
 	}
 
 	wg.Wait()
@@ -127,9 +132,13 @@ func getAllMatchMD(path string) (paths []string) {
 		return []string{path}
 	}
 	//查找匹配的文件
-	dir := filepath.Dir(path)
-	regexName := strings.Replace(strings.Replace(strings.TrimPrefix(path, dir+"/"), ".md", "\\.md", -1), "*", ".+", -1)
+	dir, f := filepath.Split(path)
+	fmt.Println("dir", dir, f)
+
+	regexName := strings.Replace(strings.Replace(f, ".md", "\\.md", -1), "*", ".+", -1)
 	reg := regexp.MustCompile(regexName)
+
+	fmt.Println("regexName：", regexName)
 	files, _ := ioutil.ReadDir(dir)
 	for _, f := range files {
 		fname := f.Name()
@@ -137,7 +146,7 @@ func getAllMatchMD(path string) (paths []string) {
 			continue
 		}
 		if reg.Match([]byte(fname)) {
-			paths = append(paths, fname)
+			paths = append(paths, filepath.Join(dir, fname))
 		}
 	}
 	return paths
