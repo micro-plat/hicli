@@ -119,7 +119,7 @@ func init() {
 		},
 		cli.Command{
 			Name:  "code",
-			Usage: "数据库结构文件",
+			Usage: "实体类文件",
 			Subcommands: cli.Commands{
 				{
 					Name:   "entity",
