@@ -28,6 +28,7 @@ func createScheme(c *cli.Context) (err error) {
 	var tbs *tmpl.Tables
 	if strings.Contains(filePath, "*") {
 		files := getAllMatchMD(filePath)
+		fmt.Println("files:", files)
 		//读取文件
 		tbs, err = tmpl.Markdowns2DB(files...)
 		if err != nil {
@@ -114,9 +115,8 @@ func getAllMatchMD(path string) (paths []string) {
 	}
 	//查找匹配的文件
 	dir, f := filepath.Split(path)
-	fmt.Println("dir", dir, f)
 
-	regexName := strings.Replace(strings.Replace(f, ".md", "\\.md", -1), "*", ".+", -1)
+	regexName := fmt.Sprintf("^%s$", strings.Replace(strings.Replace(f, ".md", "\\.md", -1), "*", "(.+)?", -1))
 	reg := regexp.MustCompile(regexName)
 
 	fmt.Println("regexName：", regexName)

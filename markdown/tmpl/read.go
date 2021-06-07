@@ -101,20 +101,19 @@ func Markdown2DB(fn string) (*Tables, error) {
 
 //Markdown2DB 读取markdown文件并转换为MarkDownDB对象
 func Markdowns2DB(fns ...string) (*Tables, error) {
-	baseTable := &Tables{}
+	baseTable := &Tables{
+		TableNames: make(map[string]bool),
+	}
 	for _, fn := range fns {
 		newTable, err := Markdown2DB(fn)
 		if err != nil {
 			return nil, err
 		}
-		tempKeys := make(map[string]string, len(newTable.TableNames))
 		for key := range newTable.TableNames {
-			tempKeys[key] = key
-		}
-		for key := range baseTable.TableNames {
-			if _, ok := tempKeys[key]; ok {
+			if _, ok := baseTable.TableNames[key]; ok {
 				return nil, fmt.Errorf("存在相同的表名：%s", key)
 			}
+			baseTable.TableNames[key] = true
 		}
 		baseTable.Tbs = append(baseTable.Tbs, newTable.Tbs...)
 	}
