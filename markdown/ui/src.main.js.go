@@ -16,7 +16,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
-import utility from './utility'
+import utility from 'qxnw-utility';
 Vue.use(utility,false);
 
 Vue.config.productionTip = false;
@@ -58,7 +58,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
-import utility from './utility'
+import utility from 'qxnw-utility';
 Vue.use(utility);
 
 Vue.config.productionTip = false;
