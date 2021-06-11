@@ -2,11 +2,6 @@ package markdown
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
 
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/hicli/markdown/tmpl"
@@ -26,19 +21,9 @@ func createScheme(c *cli.Context) (err error) {
 
 	filePath := c.Args().First()
 	var tbs *tmpl.Tables
-	if strings.Contains(filePath, "*") {
-		files := getAllMatchMD(filePath)
-		fmt.Println("files:", files)
-		//读取文件
-		tbs, err = tmpl.Markdowns2DB(files...)
-		if err != nil {
-			return err
-		}
-	} else {
-		tbs, err = tmpl.Markdown2DB(filePath)
-		if err != nil {
-			return err
-		}
+	tbs, err = tmpl.Markdowns2DB(filePath)
+	if err != nil {
+		return err
 	}
 
 	//设置包名称
@@ -104,31 +89,4 @@ func createScheme(c *cli.Context) (err error) {
 	}
 
 	return nil
-}
-
-func getAllMatchMD(path string) (paths []string) {
-
-	//路径是的具体文件
-	_, err := os.Stat(path)
-	if err == nil {
-		return []string{path}
-	}
-	//查找匹配的文件
-	dir, f := filepath.Split(path)
-
-	regexName := fmt.Sprintf("^%s$", strings.Replace(strings.Replace(f, ".md", "\\.md", -1), "*", "(.+)?", -1))
-	reg := regexp.MustCompile(regexName)
-
-	fmt.Println("regexName：", regexName)
-	files, _ := ioutil.ReadDir(dir)
-	for _, f := range files {
-		fname := f.Name()
-		if strings.HasPrefix(fname, ".") || f.IsDir() {
-			continue
-		}
-		if reg.Match([]byte(fname)) {
-			paths = append(paths, filepath.Join(dir, fname))
-		}
-	}
-	return paths
 }

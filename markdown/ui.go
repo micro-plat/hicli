@@ -80,7 +80,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 		root := c.Args().Get(1)
 		confPath := tmpl.GetWebConfPath(root)
 		//读取文件
-		tbs, err := tmpl.Markdown2DB(c.Args().First())
+		tbs, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
 		}
@@ -148,7 +148,7 @@ func createExt() func(c *cli.Context) (err error) {
 
 		root := c.Args().Get(1)
 		//读取文件
-		tbs, err := tmpl.Markdown2DB(c.Args().First())
+		tbs, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
 		}

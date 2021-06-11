@@ -63,7 +63,7 @@ func showSQL(sqlType string) func(c *cli.Context) (err error) {
 		projectPath := utils.GetProjectPath(root)
 
 		//读取文件
-		tb, err := tmpl.Markdown2DB(c.Args().First())
+		tb, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return err
 		}

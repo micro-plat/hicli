@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -100,7 +101,14 @@ func Markdown2DB(fn string) (*Tables, error) {
 }
 
 //Markdown2DB 读取markdown文件并转换为MarkDownDB对象
-func Markdowns2DB(fns ...string) (*Tables, error) {
+func Markdowns2DB(filePath string) (*Tables, error) {
+	if !strings.Contains(filePath, "*") {
+		return Markdown2DB(filePath)
+	}
+
+	fns := getAllMatchMD(filePath)
+	//读取文件
+	fmt.Println("files:", fns)
 	baseTable := &Tables{
 		TableNames: make(map[string]bool),
 	}
@@ -303,4 +311,31 @@ func getType(line *Line) (string, int, int, error) {
 		return t, types.GetInt(names[1]), 0, nil
 	}
 	return t, types.GetInt(names[1]), types.GetInt(names[2]), nil
+}
+
+func getAllMatchMD(path string) (paths []string) {
+
+	//路径是的具体文件
+	_, err := os.Stat(path)
+	if err == nil {
+		return []string{path}
+	}
+	//查找匹配的文件
+	dir, f := filepath.Split(path)
+
+	regexName := fmt.Sprintf("^%s$", strings.Replace(strings.Replace(f, ".md", "\\.md", -1), "*", "(.+)?", -1))
+	reg := regexp.MustCompile(regexName)
+
+	fmt.Println("regexName：", regexName, "dir:", dir)
+	files, _ := ioutil.ReadDir(dir)
+	for _, f := range files {
+		fname := f.Name()
+		if strings.HasPrefix(fname, ".") || f.IsDir() {
+			continue
+		}
+		if reg.Match([]byte(fname)) {
+			paths = append(paths, filepath.Join(dir, fname))
+		}
+	}
+	return paths
 }
