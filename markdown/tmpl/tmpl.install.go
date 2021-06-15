@@ -15,7 +15,7 @@ func init() {
 		{{range $i,$c:=.Tbs -}}
 		{{$c.Name}},
 		{{end -}}
-		{{if .SEQFile}}SEQ_IDS,{{end}}
+		{{if .SEQFile}}sys_sequence_info,{{end}}
 		)
 		return nil
 	}) 

@@ -58,7 +58,7 @@ func createScheme(c *cli.Context) (err error) {
 		}
 	}
 	if tbs.SEQFile {
-		content, err := tmpl.Translate(tmpl.CreateSEQTable, dbtp, tbs)
+		content, err := tmpl.Translate(tmpl.MarkdownCurdSeqInstallSQL, dbtp, tbs)
 		if err != nil {
 			return err
 		}

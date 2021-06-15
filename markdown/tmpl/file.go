@@ -25,9 +25,9 @@ func GetInstallPath(outpath string) string {
 //GetSEQFilePath 获取DB安装文件
 func GetSEQFilePath(outpath string, gofile bool) string {
 	if gofile {
-		return filepath.Join(outpath, "seq_ids.sql.go")
+		return filepath.Join(outpath, "seq.install.go")
 	}
-	return filepath.Join(outpath, "seq_ids.sql")
+	return filepath.Join(outpath, "seq.install.sql")
 }
 
 //PathExists 文件是否存在
