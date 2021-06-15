@@ -26,6 +26,7 @@ var tmptls = map[string]string{
 	"public/env.conf.json":      srcPublicEnvConfJson,
 	"public/env.conf.prod.json": srcSSOPublicEnvConfJson,
 	"public/env.conf.test.json": srcSSOPublicEnvConfJson,
+	"public/env.conf.fat.json":  srcSSOPublicEnvConfJson,
 	"public/index.html":         publicIndexHTML,
 	"package.json":              packageJSON,
 	"babel.config.js":           babelConfigJS,

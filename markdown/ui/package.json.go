@@ -10,6 +10,7 @@ const packageJSON = `
     "serve": "vue-cli-service serve --mode dev",
     "build": "vue-cli-service build --mode prod",
 		"test": "vue-cli-service build --mode test",
+		"fat": "vue-cli-service build --mode fat",
 		"lint": "vue-cli-service lint"
 	},
 	"dependencies": {
