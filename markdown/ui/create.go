@@ -9,10 +9,10 @@ import (
 )
 
 var tmptls = map[string]string{
-	"src/App.vue":                  srcAppVUE,
-	"src/main.js":                  srcMainJS,
-	"src/pages/system/menus.vue":   srcPagesSystemMenus,
-	"src/router/index.js":          srcRouterIndexJS,
+	"src/App.vue":                srcAppVUE,
+	"src/main.js":                srcMainJS,
+	"src/pages/system/menus.vue": srcPagesSystemMenus,
+	"src/router/index.js":        srcRouterIndexJS,
 	// "src/utility/sys.js":           srcUtilitySysJS,
 	// "src/utility/http.js":          srcUtilityHTTPJS,
 	// "src/utility/enum.js":          srcUtilityEnumJS,
@@ -23,12 +23,14 @@ var tmptls = map[string]string{
 	// "src/utility/message.js":       srcUtilityMessageJS,
 	// "src/utility/env.js":           srcUtilityEnvJS,
 	// "src/utility/package.json":     srcUtilityPackageJson,
-	"public/env.conf.json":         srcPublicEnvConfJson,
-	"public/index.html":            publicIndexHTML,
-	"package.json":                 packageJSON,
-	"babel.config.js":              babelConfigJS,
-	"vue.config.js":                vueConfigJS,
-	".gitignore":                   gitignore,
+	"public/env.conf.json":      srcPublicEnvConfJson,
+	"public/env.conf.prod.json": srcSSOPublicEnvConfJson,
+	"public/env.conf.test.json": srcSSOPublicEnvConfJson,
+	"public/index.html":         publicIndexHTML,
+	"package.json":              packageJSON,
+	"babel.config.js":           babelConfigJS,
+	"vue.config.js":             vueConfigJS,
+	".gitignore":                gitignore,
 }
 
 var ssoTmptls = map[string]string{

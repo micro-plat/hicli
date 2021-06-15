@@ -6,8 +6,10 @@ const packageJSON = `
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"serve": "vue-cli-service serve",
-		"build": "vue-cli-service build",
+    "dev": "vue-cli-service serve --mode dev",
+    "serve": "vue-cli-service serve --mode dev",
+    "build": "vue-cli-service build --mode prod",
+		"test": "vue-cli-service build --mode test",
 		"lint": "vue-cli-service lint"
 	},
 	"dependencies": {
