@@ -189,7 +189,7 @@ const TmplDetail = `
 export default {
   data(){
     return {
-      tabName: "{{.Name|rmhd|varName}}Detail",
+      {{if $panelbody}}tabName: "{{.Name|rmhd|varName}}Detail",{{end}}
       info: {},
       {{- range $index,$tab:=$tabs }}
       {{- if (index $tab.TabInfo.TabTable $name) }}
@@ -203,6 +203,13 @@ export default {
 			maxHeight: 0
     }
   },
+  {{- if not $panelbody}}
+  watch: {
+    "$route.fullPath"(val) {
+      this.init();
+    }
+  },
+  {{- end}}
   mounted() {
     {{if $panelbody}}
     this.$nextTick(()=>{
