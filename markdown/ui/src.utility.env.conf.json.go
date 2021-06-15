@@ -7,9 +7,8 @@ const srcPublicEnvConfJson = `
         "code": "蜀ICP备20003360号"
     },
     "system": {
-        "systemName": "xxx系统",
-        "themes": "bg-danger|bg-danger|bg-dark dark-danger",
-        "logo": ""
+        "name": "xxx系统",
+        "theme": "bg-danger|bg-danger|bg-dark dark-danger",
     },
     "api": {
         "host": "http://localhost:8089",
