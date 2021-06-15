@@ -189,7 +189,7 @@ const TmplDetail = `
 export default {
   data(){
     return {
-      {{if $panelbody}}tabName: "{{.Name|rmhd|varName}}Detail",{{end}}
+      tabName: "{{.Name|rmhd|varName}}Detail",
       info: {},
       {{- range $index,$tab:=$tabs }}
       {{- if (index $tab.TabInfo.TabTable $name) }}
