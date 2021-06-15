@@ -123,7 +123,7 @@ const TmplDetail = `
               </tbody>
             </table>
           </div>
-        {{- else if (index $tab.TabInfo.TabTableList $name) }}{{panelbody=true}}
+        {{- else if (index $tab.TabInfo.TabTableList $name) }}{{$panelbody = true}}
           <el-scrollbar style="height:100%" id="panel-body">
             <el-table :data="{{$tab.Name|rmhd|varName}}List.items" size="small" stripe style="width: 100%" :height="maxHeight">
               {{if gt $tab.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod"></el-table-column>{{end}}
