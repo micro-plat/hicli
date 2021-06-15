@@ -59,7 +59,7 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$pks}}
-	&{{$c}}
+	&t.{{$c}}
 {{- end}}
 {{- end}}{###}
 
@@ -80,7 +80,7 @@ select
 from {{.Name}} t
 where
 	{{- range $i,$c:=.TabInfo.TabField}}
-	&{{(or ($c) ($pks|firstStr))}}
+	&t.{{(or ($c) ($pks|firstStr))}}
 	{{- end}}
 {###}
 {{- end}}
@@ -212,7 +212,7 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$pks}}
-	&{{$c}} 
+	&t.{{$c}} 
 {{- end}}{{end}}{###}
 
 

@@ -54,7 +54,7 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$pks}}
-	&{{$c}} 
+	&t.{{$c}} 
 {{- end}}{{end}}{###}
 
 {{- if gt (.TabInfo.TabField|len) 0}}
@@ -72,7 +72,7 @@ select
 from {{.Name}} t
 where
 	{{- range $i,$c:=.TabInfo.TabField}}
-	&{{(or ($c) ($pks|firstStr))}}
+	&t.{{(or ($c) ($pks|firstStr))}}
 	{{- end}}
 {###}
 {{- end}}
@@ -147,7 +147,7 @@ where
 	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
 {{- range $i,$c:=.TabInfo.TabListField}}
-&{{(or ($c) ($pks|firstStr))}}
+&t.{{(or ($c) ($pks|firstStr))}}
 {{- end}}{###}
 
 //Get{{.Name|rmhd|upperName}}DetailList 查询{{.Desc}}列表数据
@@ -191,7 +191,7 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$pks}}
-	&{{$c}} 
+	&t.{{$c}} 
 {{- end}}{{end}}{###}
 
 //Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 更新{{.Desc}}
