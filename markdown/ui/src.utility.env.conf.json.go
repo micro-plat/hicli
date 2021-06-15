@@ -54,3 +54,18 @@ const srcSSOPublicEnvConfJson = `
     }
 }
 `
+
+const srcEnvProdConfJson = `
+NODE_ENV=production
+VUE_APP_JSON_FILE=env.conf.prod.json
+`
+
+const srcEnvTestConfJson = `
+NODE_ENV=production
+VUE_APP_JSON_FILE=env.conf.test.json
+`
+
+const srcEnvFatConfJson = `
+NODE_ENV=production
+VUE_APP_JSON_FILE=env.conf.fat.json
+`
