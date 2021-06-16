@@ -326,6 +326,9 @@ func getAllMatchMD(path string) (paths []string) {
 	regexName := fmt.Sprintf("^%s$", strings.Replace(strings.Replace(f, ".md", "\\.md", -1), "*", "(.+)?", -1))
 	reg := regexp.MustCompile(regexName)
 
+	if dir == "" {
+		dir = "./"
+	}
 	fmt.Println("regexName：", regexName, "dir:", dir)
 	files, _ := ioutil.ReadDir(dir)
 	for _, f := range files {
