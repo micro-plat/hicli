@@ -293,8 +293,12 @@ func (t *Table) DispostComponentsInfoTables() {
 			logs.Log.Warn("列表页面btn的path选项未配置:", key, t.ExtInfo)
 			continue
 		}
-		info.BtnName = tab[3]
-		info.Condition = tab[4]
+		if len(tab) > 2 {
+			info.BtnName = tab[2]
+		}
+		if len(tab) > 3 {
+			info.Condition = tab[3]
+		}
 		t.ComponentsInfo = append(t.ComponentsInfo, info)
 	}
 }
