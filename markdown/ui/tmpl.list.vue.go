@@ -128,7 +128,7 @@ const TmplList = `
 						{{- end}}
 
 						{{- range $i,$c:=$tb.ComponentsInfo}}
-						<el-button type="text" size="mini" @click="show{{$c.Name|upperName}}(scope.row)">form{{$i}}</el-button>
+						<el-button type="text" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
 						{{- end}}
 
 						{{- range $i,$c:= $btn }}

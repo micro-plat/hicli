@@ -257,8 +257,10 @@ func (a *SelectInfo) IsEmpty() bool {
 }
 
 type ComponentsInfo struct {
-	Name string
-	Path string
+	Name      string
+	Path      string
+	BtnName   string
+	Condition string
 }
 
 func (t *Table) DispostComponentsInfoTables() {
@@ -275,8 +277,8 @@ func (t *Table) DispostComponentsInfoTables() {
 	for _, v := range tabs {
 		info := &ComponentsInfo{}
 		tab := strings.Split(v, ",")
-		if len(tab) != 2 {
-			logs.Log.Warn("列表页面components的选项配置不正确(name,path|name,path...)", key, t.ExtInfo)
+		if len(tab) < 2 {
+			logs.Log.Warn("列表页面components的选项配置不正确(name,path,btn_name,condition|name,path...)", key, t.ExtInfo)
 			continue
 		}
 
@@ -291,6 +293,8 @@ func (t *Table) DispostComponentsInfoTables() {
 			logs.Log.Warn("列表页面btn的path选项未配置:", key, t.ExtInfo)
 			continue
 		}
+		info.BtnName = tab[3]
+		info.Condition = tab[4]
 		t.ComponentsInfo = append(t.ComponentsInfo, info)
 	}
 }
