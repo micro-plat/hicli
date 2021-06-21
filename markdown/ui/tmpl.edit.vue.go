@@ -46,7 +46,7 @@ const TmplEditVue = `
 			<el-form-item prop="{{$c.Name}}" label="{{$c.Desc|shortName}}:">
 					<el-date-picker size="small" class="input-cos"  v-model="editData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ueCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ueCon)}}"  placeholder="选择日期"></el-date-picker>
 			</el-form-item>
-			{{- else if $c.Con|U	P }}
+			{{- else if $c.Con|UP }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
 				<el-upload id="sbtn{{$i}}"
 					class="upload-demo"
