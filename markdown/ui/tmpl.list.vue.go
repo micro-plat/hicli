@@ -30,6 +30,30 @@ const TmplList = `
 						<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 					</el-select>
 				</el-form-item>
+				{{- else if ($c.Con|DRANGE) }}
+				<el-form-item label="创建时间:">
+          <el-date-picker
+            :clearable="false"
+            :picker-options="startTime"
+            v-model="timeDate.start_time"
+            type="date"
+            placeholder="选择开始日期"
+            style="width: 160px"
+            size="medium"
+          ></el-date-picker>
+        </el-form-item>
+
+        <el-form-item label="至">
+          <el-date-picker
+            :clearable="false"
+            :picker-options="endTime"
+            v-model="timeDate.end_time"
+            type="date"
+            placeholder="选择结束日期"
+            style="width: 160px"
+            size="medium"
+          ></el-date-picker>
+        </el-form-item>
 				{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 				<el-form-item label="{{$c.Desc|shortName}}:">
 						<el-date-picker size="small" class="input-cos" v-model="{{$c.Name|lowerName}}" type="{{dateType $c.Con ($c.Con|qfCon)}}" value-format="{{dateFormat $c.Con ($c.Con|qfCon)}}"  placeholder="选择日期"></el-date-picker>
@@ -106,7 +130,7 @@ const TmplList = `
 				</template>
 				{{- else if $c.Type|isTime }}
 				<template slot-scope="scope">
-					<div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd"}}") }}</div>
+					<div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
 				</template>
 				{{- else}}
 				<template slot-scope="scope">
@@ -243,7 +267,34 @@ export default {
 			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"){{end}},
 			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
-			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
+			{{- if ($c.Con|DRANGE)}}
+			timeDate: {
+        start_time: this.$utility.dateFormat(new Date(), "{{dateFormat $c.Con ($c.Con|qfCon)}}"),
+        end_time:  this.$utility.dateFormat(new Date(), "{{dateFormat $c.Con ($c.Con|qfCon)}}")
+      },
+      /* start  */
+      startTime: {
+        disabledDate: time => {
+          if (this.timeDate.end_time) {
+            return time.getTime() > new Date(this.timeDate.end_time).getTime();
+          } else {
+            return time.getTime() > Date.now();
+          }
+        }
+      },
+      endTime: {
+        disabledDate: time => {
+          if (this.timeDate.start_time) {
+            return (
+              time.getTime() > Date.now() ||
+              time.getTime() < new Date(this.timeDate.start_time).getTime()
+            );
+          } else {
+            return time.getTime() > Date.now();
+          }
+        }
+      },
+			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			{{$c.Name|lowerName}}: this.$utility.dateFormat(new Date(),"{{dateFormatDef $c.Con ($c.Con|qfCon)}}"),{{end}}
       {{- end}}
 			{{- if gt ($sort|len) 0}}
@@ -307,7 +358,10 @@ export default {
       this.queryData.pi = this.paging.pi
 			this.queryData.ps = this.paging.ps
 			{{- range $i,$c:=$rows|query -}}
-			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
+			{{- if ($c.Con|DRANGE)}}
+			this.queryData.start_time = this.$utility.dateFormat(this.timeDate.start_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+      this.queryData.end_time = this.$utility.dateFormat(this.timeDate.end_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			this.queryData.{{$c.Name}} = this.$utility.dateFormat(this.{{$c.Name|lowerName}},"{{dateFormat $c.Con ($c.Con|qfCon)}}")
 			{{- else if ($c.Con|CB) }}
 			this.queryData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()
@@ -396,7 +450,10 @@ export default {
 			this.queryData.pi = this.paging.pi
 			this.queryData.ps = this.paging.ps
 			{{- range $i,$c:=$rows|query -}}
-			{{- if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
+			{{- if ($c.Con|DRANGE)}}
+			this.queryData.start_time = this.$utility.dateFormat(this.timeDate.start_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+      this.queryData.end_time = this.$utility.dateFormat(this.timeDate.end_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			this.queryData.{{$c.Name}} = this.$utility.dateFormat(this.{{$c.Name|lowerName}},"{{dateFormat $c.Con ($c.Con|qfCon)}}")
 			{{- else if ($c.Con|CB) }}
 			this.queryData.{{$c.Name}} = this.{{$c.Name|lowerName}}Array.toString()

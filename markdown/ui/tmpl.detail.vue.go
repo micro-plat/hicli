@@ -48,7 +48,7 @@ const TmplDetail = `
                     </el-col>
               {{- else if $c.Type|isTime }}
                     <el-col :span="6">
-                      <div>{{"{{ info."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd"}}") }}</div>
+                      <div>{{"{{ info."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
                     </el-col>
               {{- else}}
                     <el-col :span="6">
@@ -104,7 +104,7 @@ const TmplDetail = `
                     </el-col>
               {{- else if $c.Type|isTime }}
                     <el-col :span="6">
-                      <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd"}}") }}</div>
+                      <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
                     </el-col>
               {{- else}}
                     <el-col :span="6">
@@ -151,7 +151,7 @@ const TmplDetail = `
               </template>
               {{- else if $c.Type|isTime }}
               <template slot-scope="scope">
-                <div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd"}}") }}</div>
+                <div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
               </template>
               {{- else}}
               <template slot-scope="scope">

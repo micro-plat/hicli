@@ -57,6 +57,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"fIsDN":     getKWS("dn"),      //字段是否为字典Name
 		"fIsDT":     getKWS("dt"),      //字段是否为字典Type
 		"fIsDC":     getKWS("dc"),      //字段是否为字典column
+		"fIsDPID":   getKWS("dpid"),    //字段是否为字典PID
 
 		//数据库，sql，后端modules相关处理函数
 		"shortName": shortName,                                          //获取特殊字段前的字符串
@@ -100,6 +101,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"CB":            getKWS("cb"),                                  //表单复选框
 		"RD":            getKWS("rd"),                                  //表单单选框
 		"TA":            getKWS("ta"),                                  //表单文本域
+		"DRANGE":        getKWS("drange"),                              //表单日期时间选择器
 		"DTIME":         getKWS("dtime"),                               //表单日期时间选择器
 		"DATE":          getKWS("date"),                                //表单日期选择器
 		"UP":            getKWS("up"),                                  //文件上传

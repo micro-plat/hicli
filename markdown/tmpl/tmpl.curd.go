@@ -91,8 +91,13 @@ where
 {{- end}}
 {{- range $i,$c:=$queryrows -}}
 {{if $c.Type|codeType|isTime }}
+	{{- if ($c.Con|DRANGE)}}
+	and t.{{$c.Name}} >= @start_time
+	and t.{{$c.Name}} < date_add(@end_time, interval 1 day)
+	{{- else}}
 	and t.{{$c.Name}} >= @{{$c.Name}} 
 	and t.{{$c.Name}} < date_add(@{{$c.Name}}, interval 1 day)
+	{{- end}}
 {{- else if and ($c.Type|codeType|isString) (gt $c.Len $length)}}
 	?t.{{$c.Name}}
 {{- else}}
@@ -120,8 +125,13 @@ where
 {{- end}}
 {{- range $i,$c:=$queryrows -}}
 {{if $c.Type|codeType|isTime }}
+{{- if ($c.Con|DRANGE)}}
+	and t.{{$c.Name}} >= @start_time
+	and t.{{$c.Name}} < date_add(@end_time, interval 1 day)
+	{{- else}}
 	and t.{{$c.Name}} >= @{{$c.Name}} 
 	and t.{{$c.Name}} < date_add(@{{$c.Name}}, interval 1 day)
+	{{- end}}
 {{- else if and ($c.Type|codeType|isString)  (gt $c.Len $length)}}
 	?t.{{$c.Name}}
 {{- else}}

@@ -97,8 +97,13 @@ where
 {{- else -}}
 {{- range $i,$c:=$queryrows -}}
 {{if $c.Type|codeType|isTime }}
+	{{- if ($c.Con|DRANGE)}}
+	and t.{{$c.Name}} >= to_date(@start_time,'yyyy-mm-dd hh24:mi:ss')
+  and t.{{$c.Name}} < to_date(@end_time,'yyyy-mm-dd hh24:mi:ss')+1
+	{{- else}}
 	and t.{{$c.Name}} >= to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')
   and t.{{$c.Name}} < to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')+1
+	{{- end}}
 {{- else if and ($c.Type|codeType|isString) (gt $c.Len $length)}}
   ?t.{{$c.Name}}
 {{- else}}
@@ -131,8 +136,13 @@ from (select L.*
 			{{- else -}}
 			{{- range $i,$c:=$queryrows -}} 
 			{{if $c.Type|codeType|isTime }}
+				{{- if ($c.Con|DRANGE)}}
+				and t.{{$c.Name}} >= to_date(@start_time,'yyyy-mm-dd hh24:mi:ss')
+				and t.{{$c.Name}} < to_date(@end_time,'yyyy-mm-dd hh24:mi:ss')+1
+				{{- else}}
 				and t.{{$c.Name}} >= to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')
 				and t.{{$c.Name}} < to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')+1
+				{{- end}}
 			{{- else if and ($c.Type|codeType|isString) (gt $c.Len $length)}}
 				?t.{{$c.Name}}
 			{{- else}}
