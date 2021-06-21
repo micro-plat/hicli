@@ -39,7 +39,7 @@ const TmplList = `
             type="date"
             placeholder="选择开始日期"
             style="width: 160px"
-            size="medium"
+            size="small"
           ></el-date-picker>
         </el-form-item>
 
@@ -51,7 +51,7 @@ const TmplList = `
             type="date"
             placeholder="选择结束日期"
             style="width: 160px"
-            size="medium"
+            size="small"
           ></el-date-picker>
         </el-form-item>
 				{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
