@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/lib4go/types"
@@ -94,6 +95,9 @@ func getfuncs(tp string) map[string]interface{} {
 		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
 		"sort":     getRows("sort"),                                   //查询字段
 		"sortSort": sortByKw("sort"),                                  //
+		"qgroup":   getChildrenGroup("q"),                             //导出字段
+		"cgroup":   getChildrenGroup("c"),                             //导出字段
+		"ugroup":   getChildrenGroup("u"),                             //导出字段
 
 		//前端约束处理函数
 		"SL":            getKWS("sl"),                                           //表单下拉框
@@ -128,6 +132,12 @@ func getfuncs(tp string) map[string]interface{} {
 		"cDicPName":     getCascadeParentName("c", "e", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
 		"uDicCName":     getCascadeChildrenName("u", "e", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
 		"uDicPName":     getCascadeParentName("u", "e", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
+		"qGroupCName":   getCascadeChildrenName("q", "g", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
+		"qGroupPName":   getCascadeParentName("q", "g", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
+		"cGroupCName":   getCascadeChildrenName("c", "g", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
+		"cGroupPName":   getCascadeParentName("c", "g", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
+		"uGroupCName":   getCascadeChildrenName("u", "g", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
+		"uGroupPName":   getCascadeParentName("u", "g", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
 	}
 }
 
@@ -778,6 +788,29 @@ func getCascadeParentName(tp, tkey string, keys ...string) func(con string, t *T
 		}
 
 		return ""
+	}
+}
+
+func getChildrenGroup(tp string) func(name string, t *Table) []*Row {
+	return func(name string, t *Table) []*Row {
+		r := []*Row{}
+		var wg sync.WaitGroup
+		var lock sync.Mutex
+		for _, v := range t.Rows {
+			wg.Add(1)
+			go func(tp string, v *Row, t *Table) {
+				defer wg.Done()
+				pname := getCascadeParentName(tp, "g", webEnumComponents...)(v.Con, t)
+				if pname == name {
+					lock.Lock()
+					defer lock.Unlock()
+					r = append(r, v)
+				}
+			}(tp, v, t)
+		}
+		wg.Wait()
+
+		return r
 	}
 }
 

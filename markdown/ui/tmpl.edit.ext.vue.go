@@ -25,8 +25,9 @@ const TmplEditExtVue = `
 			{{- else if $c.Con|SL }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
 				<el-select {{if $c.Disable}}:disabled="true"{{end}} size="small" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
-				 {{- if (uDicPName $c.Con $c.BelongTable) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
-				 {{- if (uDicCName $c.Name $c.BelongTable) }} @change="set{{(uDicCName $c.Name $c.BelongTable)|upperName}}(editData.{{$c.Name}})"	{{- end}}	>
+				 {{- if or (uDicPName $c.Con $c.BelongTable)  (uGroupPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
+				 {{- if (uDicCName $c.Name $c.BelongTable) }} @change="set{{(uDicCName $c.Name $c.BelongTable)|upperName}}(editData.{{$c.Name}})"	{{- end}}
+				 {{- if (uGroupCName $c.Name $c.BelongTable) }} @change="set{{$c.Name|upperName}}Group" {{- end}}	>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>
 			</el-form-item>
@@ -131,6 +132,18 @@ export default {
 		set{{$c.Name|upperName}}(pid){
 			this.editData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $c.BelongTable) ($c.Name)|lower)}}",pid)
+		},
+		{{- end}}
+		{{- if (uGroupCName $c.Name $tb) }}
+		set{{$c.Name|upperName}}Group(value){
+			var obj = this.{{$c.Name|lowerName}}.find((item) => {
+        return item.value === value
+      })
+			if (obj){
+				{{- range $i,$c1:=(ugroup $c.Name $tb)}}
+				this.editData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- end}}
+			}
 		},
 		{{- end}}
 		{{- end }}

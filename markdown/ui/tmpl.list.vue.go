@@ -24,8 +24,9 @@ const TmplList = `
 				{{- else if or ($c.Con|SL) ($c.Con|SLM) }}
 				<el-form-item>
 					<el-select size="small" v-model="queryData.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
-					{{- if (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}} 
-					{{- if (qDicCName $c.Name $tb) }} @change="set{{(qDicCName $c.Name $tb)|upperName}}(queryData.{{$c.Name}})" {{- end}}>
+					{{- if or (qDicPName $c.Con $tb) (qGroupPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}} 
+					{{- if (qDicCName $c.Name $tb) }} @change="set{{(qDicCName $c.Name $tb)|upperName}}(queryData.{{$c.Name}})" {{- end}}
+					{{- if (qGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" {{- end}}	>
 						<el-option value="" label="全部"></el-option>
 						<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 					</el-select>
@@ -346,6 +347,18 @@ export default {
 		set{{$c.Name|upperName}}(pid){
 			this.queryData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}",pid)
+		},
+		{{- end}}
+		{{- if (qGroupCName $c.Name $tb) }}
+		set{{$c.Name|upperName}}Group(value){
+			var obj = this.{{$c.Name|lowerName}}.find((item) => {
+        return item.value === value
+      })
+			if (obj){
+				{{- range $i,$c1:=(qgroup $c.Name $tb)}}
+				this.queryData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- end}}
+			}
 		},
 		{{- end}}
 		{{- end }}

@@ -25,8 +25,9 @@ const TmplEditVue = `
 			{{- else if $c.Con|SL }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
 				<el-select size="small" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
-				 {{- if (uDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
-				 {{- if (uDicCName $c.Name $tb) }} @change="set{{(uDicCName $c.Name $tb)|upperName}}(editData.{{$c.Name}})"	{{- end}}	>
+				 {{- if or (uDicPName $c.Con $tb) (uGroupPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
+				 {{- if (uDicCName $c.Name $tb) }} @change="set{{(uDicCName $c.Name $tb)|upperName}}(editData.{{$c.Name}})"	{{- end}}
+				 {{- if (uGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" {{- end}}	>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>
 			</el-form-item>
@@ -157,6 +158,18 @@ export default {
 			this.dialogFormVisible = true;
 		},
 		{{- range $i,$c:=$rows|update -}}
+		{{- if (uGroupCName $c.Name $tb) }}
+		set{{$c.Name|upperName}}Group(value){
+			var obj = this.{{$c.Name|lowerName}}.find((item) => {
+        return item.value === value
+      })
+			if (obj){
+				{{- range $i,$c1:=(ugroup $c.Name $tb)}}
+				this.editData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- end}}
+			}
+		},
+		{{- end}}
 		{{if (uDicPName $c.Con $tb)  }}
 		set{{$c.Name|upperName}}(pid){
 			this.editData.{{$c.Name}} = ""
