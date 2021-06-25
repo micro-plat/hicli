@@ -26,7 +26,8 @@ const TmplList = `
 					<el-select size="small" v-model="queryData.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
 					{{- if (qDicCName $c.Name $tb) }} @change="set{{(qDicCName $c.Name $tb)|upperName}}(queryData.{{$c.Name}})"
 					{{- else if (qGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
-					{{- else if or (qDicPName $c.Con $tb) (qGroupPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}}	>
+					{{- else if (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}
+					{{- else if (qGroupPName $c.Con $tb) }} disabled @change="handleChooseTool()"{{$choose = true}}{{- end}}	>
 						<el-option value="" label="全部"></el-option>
 						<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 					</el-select>
@@ -258,8 +259,6 @@ export default {
   data () {
 		return {
 			paging: {ps: 10, pi: 1,total:0,sizes:[5, 10, 20, 50]},
-			editData:{},                //编辑数据对象
-			addData:{},                 //添加数据对象 
       queryData:{},               //查询数据对象 
 			{{- range $i,$c:=$rows|query -}}
 			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
@@ -356,10 +355,10 @@ export default {
       })
 			if (obj){
 				{{- range $i,$c1:=(qgroup $c.Name $tb)}}
-				this.queryData.{{$c1.Name}} = obj.{{$c1.Name}}
-				{{- if (qDicCName $c1.Name $tb)  }}
+				{{- if (qDicCName $c1.Name $tb)}}
 				this.set{{(qDicCName $c1.Name $tb)|upperName}}(obj.{{$c1.Name}})
 				{{- end}}
+				this.queryData.{{$c1.Name}} = obj.{{$c1.Name}}
 				{{- end}}
 			}
 		},

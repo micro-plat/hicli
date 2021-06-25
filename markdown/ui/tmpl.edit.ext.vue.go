@@ -27,7 +27,8 @@ const TmplEditExtVue = `
 				<el-select {{if $c.Disable}}:disabled="true"{{end}} size="small" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
 				 {{- if (uDicCName $c.Name $c.BelongTable) }} @change="set{{(uDicCName $c.Name $c.BelongTable)|upperName}}(editData.{{$c.Name}})"
 				 {{- else if (uGroupCName $c.Name $c.BelongTable) }} @change="set{{$c.Name|upperName}}Group" 
-				 {{- else if or (uDicPName $c.Con $c.BelongTable) (uGroupPName $c.Con $c.BelongTable) }} @change="handleChooseTool()"{{$choose = true}}{{- end}}	>
+				 {{- else if (uDicPName $c.Con $c.BelongTable) }} @change="handleChooseTool()"{{$choose = true}}
+				 {{- else if (uGroupPName $c.Con $c.BelongTable) }} disabled @change="handleChooseTool()"{{$choose = true}}{{- end}}	>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>
 			</el-form-item>
@@ -141,10 +142,10 @@ export default {
       })
 			if (obj){
 				{{- range $i,$c1:=(ugroup $c.Name $c.BelongTable)}}
-				this.editData.{{$c1.Name}} = obj.{{$c1.Name}}
 				{{- if (uDicCName $c1.Name $c.BelongTable)  }}
 				this.set{{(uDicCName $c1.Name $c.BelongTable)|upperName}}(obj.{{$c1.Name}})
 				{{- end}}
+				this.editData.{{$c1.Name}} = obj.{{$c1.Name}}
 				{{- end}}
 			}
 		},
