@@ -27,7 +27,8 @@ const TmplCreateVue = `
 				<el-select size="small" style="width: 100%;"	v-model="addData.{{$c.Name}}"	clearable filterable class="input-cos" placeholder="---请选择---"
 				{{- if (cDicCName $c.Name $tb) }} @change="set{{(cDicCName $c.Name $tb)|upperName}}(addData.{{$c.Name}})"
 				{{- else if (cGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
-				{{- else if or (cDicPName $c.Con $tb) (cGroupPName $c.Con $tb)  }} {{- if (cGroupPName $c.Con $tb)}} disabled{{end}} @change="handleChooseTool()"{{$choose = true}}{{- end}}	>
+				{{- else if or (cDicPName $c.Con $tb) (cGroupPName $c.Con $tb)  }} @change="handleChooseTool()"{{$choose = true}}{{- end}}
+				{{- if (cGroupPName $c.Con $tb)}} disabled{{end}} >
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>
 			</el-form-item>
@@ -132,6 +133,8 @@ export default {
 				{{- if (cDicCName $c1.Name $tb)  }}
 				this.set{{(cDicCName $c1.Name $tb)|upperName}}(obj.{{$c1.Name}})
 				{{- end}}
+				{{- end}}
+				{{- range $i,$c1:=(cgroup $c.Name $tb)}}
 				this.addData.{{$c1.Name}} = obj.{{$c1.Name}}
 				{{- end}}
 			}
