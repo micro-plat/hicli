@@ -28,7 +28,7 @@ const TmplEditVue = `
 					{{- if (uDicCName $c.Name $tb) }} @change="set{{(uDicCName $c.Name $tb)|upperName}}(editData.{{$c.Name}})"
 					{{- else if (uGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
 					{{- else if }} @change="handleChooseTool()"{{$choose = true}}
-					{{- else if or  (uDicPName $c.Con $tb) (uGroupPName $c.Con $tb) }} {{-if (uGroupPName $c.Con $tb)}} disabled{{end}} @change="handleChooseTool()"{{$choose = true}}{{- end}}	>
+					{{- else if or  (uDicPName $c.Con $tb) (uGroupPName $c.Con $tb) }} {{- if (uGroupPName $c.Con $tb)}} disabled{{end}} @change="handleChooseTool()"{{$choose = true}}{{- end}}	>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>
 			</el-form-item>
