@@ -27,7 +27,6 @@ const TmplEditVue = `
 				<el-select size="small" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
 					{{- if (uDicCName $c.Name $tb) }} @change="set{{(uDicCName $c.Name $tb)|upperName}}(editData.{{$c.Name}})"
 					{{- else if (uGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
-					{{- else if }} @change="handleChooseTool()"{{$choose = true}}
 					{{- else if or  (uDicPName $c.Con $tb) (uGroupPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}}
 					{{- if (uGroupPName $c.Con $tb)}} disabled{{end}}	>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
