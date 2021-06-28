@@ -29,8 +29,8 @@ func newTableInfo() *TabInfo {
 	}
 }
 
-//DisposeTabTables 处理前端详情页
-func (t *Table) DisposeTabTables() {
+//DisposeELTab 处理前端详情页
+func (t *Table) DisposeELTab() {
 	if t.ExtInfo == "" {
 		return
 	}
@@ -112,7 +112,7 @@ func newBtnInfo() *BtnInfo {
 }
 
 //DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,table:adas/iqe,key:sa)}
-func (t *Table) DispostBtnTables() {
+func (t *Table) DispostELBtn() {
 	if t.ExtInfo == "" {
 		return
 	}
@@ -224,7 +224,7 @@ type DownloadInfo struct {
 	Title []string
 }
 
-func (t *Table) DispostDownloadTables() {
+func (t *Table) DispostELDownload() {
 	t.DownloadInfo = &DownloadInfo{
 		Title: make([]string, 0),
 	}
@@ -243,7 +243,7 @@ type SelectInfo struct {
 	URL string
 }
 
-func (t *Table) DispostSelectTables() {
+func (t *Table) DispostELSelect() {
 	key := "el_select"
 	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
 		return
@@ -256,14 +256,14 @@ func (a *SelectInfo) IsEmpty() bool {
 	return a == nil || reflect.DeepEqual(a, &SelectInfo{})
 }
 
-type ComponentsInfo struct {
+type ListComponents struct {
 	Name      string
 	Path      string
 	BtnName   string
 	Condition string
 }
 
-func (t *Table) DispostComponentsInfoTables() {
+func (t *Table) DispostELListComponents() {
 	key := "el_components"
 	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
 		return
@@ -273,9 +273,9 @@ func (t *Table) DispostComponentsInfoTables() {
 	if len(tabs) == 0 {
 		return
 	}
-	t.ComponentsInfo = make([]*ComponentsInfo, 0)
+	t.ListComponents = make([]*ListComponents, 0)
 	for _, v := range tabs {
-		info := &ComponentsInfo{}
+		info := &ListComponents{}
 		tab := strings.Split(v, ",")
 		if len(tab) < 2 {
 			logs.Log.Warn("列表页面components的选项配置不正确(name,path,btn_name,condition|name,path...)", key, t.ExtInfo)
@@ -299,6 +299,49 @@ func (t *Table) DispostComponentsInfoTables() {
 		if len(tab) > 3 {
 			info.Condition = tab[3]
 		}
-		t.ComponentsInfo = append(t.ComponentsInfo, info)
+		t.ListComponents = append(t.ListComponents, info)
+	}
+}
+
+type QueryComponents struct {
+	Name    string
+	Path    string
+	BtnName string
+}
+
+func (t *Table) DispostELQueryComponents() {
+	key := "el_query_components"
+	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
+		return
+	}
+	c := getBracketContent([]string{key})(t.ExtInfo)
+	tabs := strings.Split(c, "|")
+	if len(tabs) == 0 {
+		return
+	}
+	t.QueryComponents = make([]*QueryComponents, 0)
+	for _, v := range tabs {
+		info := &QueryComponents{}
+		tab := strings.Split(v, ",")
+		if len(tab) < 2 {
+			logs.Log.Warn("页面查询components的选项配置不正确(name,path,btn_name|name,path...)", key, t.ExtInfo)
+			continue
+		}
+
+		//name
+		info.Name = tab[0]
+		if info.Name == "" {
+			logs.Log.Warn("页面查询btn的name选项未配置:", key, t.ExtInfo)
+			continue
+		}
+		info.Path = tab[1]
+		if info.Path == "" {
+			logs.Log.Warn("页面查询btn的path选项未配置:", key, t.ExtInfo)
+			continue
+		}
+		if len(tab) > 2 {
+			info.BtnName = tab[2]
+		}
+		t.QueryComponents = append(t.QueryComponents, info)
 	}
 }

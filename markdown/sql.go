@@ -71,8 +71,8 @@ func showSQL(sqlType string) func(c *cli.Context) (err error) {
 		allTables := tb.Tbs
 		for _, tb := range tb.Tbs {
 			tb.SetAllTables(allTables)
-			tb.DisposeTabTables()
-			tb.DispostBtnTables()
+			tb.DisposeELTab()
+			tb.DispostELBtn()
 		}
 
 		//过滤数据表

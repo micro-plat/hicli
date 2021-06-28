@@ -88,11 +88,12 @@ func create(tp string) func(c *cli.Context) (err error) {
 		allTables := tbs.Tbs
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
-			tb.DisposeTabTables()
-			tb.DispostBtnTables()
-			tb.DispostDownloadTables()
-			tb.DispostSelectTables()
-			tb.DispostComponentsInfoTables()
+			tb.DisposeELTab()
+			tb.DispostELBtn()
+			tb.DispostELDownload()
+			tb.DispostELSelect()
+			tb.DispostELListComponents()
+			tb.DispostELQueryComponents()
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {
@@ -156,8 +157,8 @@ func createExt() func(c *cli.Context) (err error) {
 		allTables := tbs.Tbs
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
-			tb.DisposeTabTables()
-			tb.DispostBtnTables()
+			tb.DisposeELTab()
+			tb.DispostELBtn()
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {

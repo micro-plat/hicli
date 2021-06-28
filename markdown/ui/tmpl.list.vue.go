@@ -9,6 +9,7 @@ const TmplList = `
 {{- $tb :=. -}}
 {{- $sort:=.Rows|sort -}}
 {{- $choose:= false -}}
+{{- $drange:= false -}}
 {{- $btn:=.BtnInfo -}}
 <template>
 	<div class="panel panel-default">
@@ -32,7 +33,7 @@ const TmplList = `
 						<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 					</el-select>
 				</el-form-item>
-				{{- else if ($c.Con|DRANGE) }}
+				{{- else if ($c.Con|DRANGE) }}{{$drange = true}}
 				<el-form-item label="创建时间:">
           <el-date-picker
             :clearable="false"
@@ -67,12 +68,18 @@ const TmplList = `
           </el-checkbox-group>
         </el-form-item>
 				{{- else}}
-				<el-form-item>
-					<el-input clearable size="small" prefix-icon="el-icon-search" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
-					</el-input>
-				</el-form-item>
+				{{$c.IsInput = true}}
 				{{- end}}
 			{{end}}
+			{{- range $i,$c:=$rows|query}}
+			{{- if $c.IsInput}}
+			<el-form-item>
+				<el-input clearable size="small" prefix-icon="el-icon-search" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
+				</el-input>
+			</el-form-item>
+			{{- end}}
+			{{- end}}
+		{{end}}
 				{{- if gt ($rows|query|len) 0}}
 				<el-form-item>
 					<el-button  type="primary" @click="queryDatas" size="small">查询</el-button>
@@ -96,6 +103,11 @@ const TmplList = `
 				{{- if not $tb.SelectInfo.IsEmpty }}
 				<el-form-item>
 					<el-button size="small" @click="toggleSelection()">批量操作</el-button>
+				</el-form-item>
+				{{- end}}
+				{{- range $i,$c:=$tb.QueryComponents}}
+				<el-form-item>
+					<el-button type="text" size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
 				</el-form-item>
 				{{- end}}
 			</el-form>
@@ -153,7 +165,7 @@ const TmplList = `
 						<el-button type="text" size="mini" @click="del(scope.row)">删除</el-button>
 						{{- end}}
 
-						{{- range $i,$c:=$tb.ComponentsInfo}}
+						{{- range $i,$c:=$tb.ListComponents}}
 						<el-button type="text" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
 						{{- end}}
 
@@ -198,7 +210,14 @@ const TmplList = `
 		<!-- edit Form end-->
 		{{- end}}
 
-		{{- range $i,$c:=$tb.ComponentsInfo}}
+		{{- range $i,$c:=$tb.ListComponents}}
+
+		<!-- {{$c.Name|upperName}} Form -->
+		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
+		<!--{{$c.Name|upperName}} Form -->
+		{{- end}}
+
+		{{- range $i,$c:=$tb.QueryComponents}}
 
 		<!-- {{$c.Name|upperName}} Form -->
 		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
@@ -230,7 +249,10 @@ import Add from "./{{.Name|rmhd|l2d}}.add"
 {{- if gt ($rows|update|len) 0}}
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
-{{- range $i,$c:=$tb.ComponentsInfo}}
+{{- range $i,$c:=$tb.ListComponents}}
+import {{$c.Name|upperName}} from "{{$c.Path}}"
+{{- end}}
+{{- range $i,$c:=$tb.QueryComponents}}
 import {{$c.Name|upperName}} from "{{$c.Path}}"
 {{- end}}
 {{- range $i,$c:= $btn }}
@@ -247,7 +269,10 @@ export default {
 		{{- if gt ($rows|update|len) 0}}
 		Edit,
 		{{- end}}
-		{{- range $i,$c:=$tb.ComponentsInfo}}
+		{{- range $i,$c:=$tb.ListComponents}}
+		{{$c.Name|upperName}},
+		{{- end}}
+		{{- range $i,$c:=$tb.QueryComponents}}
 		{{$c.Name|upperName}},
 		{{- end}}
 		{{- range $i,$c:= $btn }}
@@ -318,6 +343,11 @@ export default {
 	methods:{
     /**初始化操作**/
     init(){
+			{{- if $drange}}
+			var now = new Date()
+      now.setMonth(now.getMonth() - 1)
+      this.start_time = this.DateConvert("yyyy-MM-dd", now)
+			{{- end}}
       this.query()
 		},
 		{{- if gt ($sort|len) 0}}
@@ -424,7 +454,12 @@ export default {
       this.$refs.Edit.show();
 		},
 		{{- end}}
-		{{- range $i,$c:=$tb.ComponentsInfo}}
+		{{- range $i,$c:=$tb.ListComponents}}
+		show{{$c.Name|upperName}}(val) {
+      this.$refs.{{$c.Name|upperName}}.show();
+		},
+		{{- end}}
+		{{- range $i,$c:=$tb.QueryComponents}}
 		show{{$c.Name|upperName}}(val) {
       this.$refs.{{$c.Name|upperName}}.show();
 		},
