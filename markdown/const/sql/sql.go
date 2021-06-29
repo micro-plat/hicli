@@ -96,3 +96,18 @@ LEFT JOIN (select t.column_name,
 WHERE a.table_name = @table_name
 ORDER BY a.column_id
 `
+
+const GetMysqlColumnInfo = `
+select
+c.table_name,
+GROUP_CONCAT(c.column_name) column_name
+from
+information_schema.columns c
+where
+c.table_schema = @schema
+group by 
+c.table_name
+order by c.table_name,c.ordinal_position
+`
+
+const ExportMysqlData = `SELECT #column_name value from #table_name t`

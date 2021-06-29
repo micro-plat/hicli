@@ -12,7 +12,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-//createScheme 生成数据库结构
+//createDataDic 生成数据库结构
 func createDataDic(c *cli.Context) (err error) {
 
 	str := strings.Split(c.String("dbstr"), ":")
