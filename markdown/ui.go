@@ -168,7 +168,7 @@ func createExt() func(c *cli.Context) (err error) {
 			tb.SortRows()
 
 			for k, v := range tb.BtnInfo {
-				if len(v.VIF) > 0 {
+				if !v.Show {
 					continue
 				}
 

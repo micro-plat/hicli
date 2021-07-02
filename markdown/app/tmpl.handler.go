@@ -310,7 +310,7 @@ func (u *{{$.Name|rmhd|varName}}Handler) {{$btn.Name|upperName}}Handle(ctx hydra
 	ctx.Log().Info("3.返回结果")
 	return "success"
 }
-{{- if eq ($btn.VIF|len) 0}}
+{{- if  $btn.Show }}
 //Get{{$btn.Name|upperName}}Handle 获取{{$.Desc}}单条数据
 func (u *{{$.Name|rmhd|varName}}Handler) Get{{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
 
@@ -416,7 +416,7 @@ var update{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string
 	{{range $i,$c:=$btn.Rows}}{{if not $c.Disable}}field.{{$c.Name|varName}}:"required",{{end}}{{end}}
 	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
 }
-{{- if eq ($btn.VIF|len) 0}}
+{{- if  $btn.Show }}
 var get{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
 }

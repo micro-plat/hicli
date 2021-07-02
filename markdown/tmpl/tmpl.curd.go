@@ -265,7 +265,7 @@ where
 {{- end}}
 {{- end}}{###}
 
-{{- if eq ($btn.VIF|len) 0}}
+{{- if $btn.Show }}
 //Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 查询单条数据{{$.Desc}}
 const Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
 select 

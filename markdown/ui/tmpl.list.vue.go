@@ -178,8 +178,10 @@ const TmplList = `
 						<el-button v-else type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
 									{{- end}}
 								{{- end}}
-							{{- else}}	
+							{{- else if $c.Show}}	
 						<el-button type="text" size="mini" @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						{{- else}}	
+						<el-button type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 							{{- end }}
 						{{- end}}
 					</template>
@@ -189,7 +191,7 @@ const TmplList = `
 		<!-- list end-->
 
 		{{- range $i,$c:= $btn }}
-		{{- if eq ($c.VIF|len) 0}}
+		{{- if $c.Show}}
 		<!-- {{$c.Name|upperName}} Form -->
 		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
 		<!--{{$c.Name|upperName}} Form -->
@@ -254,7 +256,7 @@ import {{$c.Name|upperName}} from "{{$c.Path}}"
 import {{$c.Name|upperName}} from "{{$c.Path}}"
 {{- end}}
 {{- range $i,$c:= $btn }}
-{{- if eq ($c.VIF|len) 0}}
+{{- if $c.Show}}
 import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
 {{- end}}
 {{- end}}
@@ -274,7 +276,7 @@ export default {
 		{{$c.Name|upperName}},
 		{{- end}}
 		{{- range $i,$c:= $btn }}
-		{{- if eq ($c.VIF|len) 0 -}},
+		{{- if $c.Show -}},
 		{{$c.Name|upperName}}
 		{{- end}}
 		{{- end}}
@@ -463,7 +465,7 @@ export default {
 		},
 		{{- end}}
 		{{- range $i,$c:= $btn }}
-		{{- if eq ($c.VIF|len) 0}}
+		{{- if $c.Show }}
 	  show{{$c.Name}}(val) {
       this.$refs.{{$c.Name|upperName}}.editData = val
       this.$refs.{{$c.Name|upperName}}.show();
@@ -472,11 +474,11 @@ export default {
 		{{- end}}
 
 		{{- range $i,$c:= $btn }}
-		{{- if gt ($c.VIF|len) 0}}
 		{{$c.Name}}(val){
+			{{- if not $c.Show }}
 			var data = {
 				{{- range $i,$c:=$c.Rows}}
-				{{$c.Name}} : ""
+				{{$c.Name}} :val.{{$c.Name}},
 				{{- end}}
 			}
 			{{- if $c.Confirm}}

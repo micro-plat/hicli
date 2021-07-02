@@ -98,6 +98,7 @@ type BtnInfo struct {
 	RelativeShelfFiled map[string]string
 	RelativeFiled      map[string]string
 	LastRowIndex       string
+	Show               bool
 }
 type VIF struct {
 	IfName string
@@ -191,6 +192,7 @@ func (t *Table) DispostELBtn() {
 					info.RelativeShelfFiled[tb.Name] = tabField[0]
 					info.RelativeFiled[tb.Name] = tabField[1]
 					info.Table = append(info.Table, tb)
+					info.Show = true
 				}
 			}
 		}
@@ -212,7 +214,6 @@ func (t *Table) DispostELBtn() {
 		}
 		if len(info.Rows) < 1 {
 			logs.Log.Warn("列表页面btn的更新的字段未配置")
-			continue
 		}
 
 		t.BtnInfo = append(t.BtnInfo, info)
