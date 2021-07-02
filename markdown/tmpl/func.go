@@ -138,7 +138,14 @@ func getfuncs(tp string) map[string]interface{} {
 		"cGroupPName":   getCascadeParentName("c", "g", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
 		"uGroupCName":   getCascadeChildrenName("u", "g", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
 		"uGroupPName":   getCascadeParentName("u", "g", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
+
+		"setIsInput": setIsInput,
 	}
+}
+
+func setIsInput(r *Row) string {
+	r.IsInput = true
+	return ""
 }
 
 func getMod(x int, y int) int {

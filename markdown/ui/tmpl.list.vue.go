@@ -67,19 +67,17 @@ const TmplList = `
 						<el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-				{{- else}}
-				{{$c.IsInput = true}}
+				{{- else}}{{$c|setIsInput}}
 				{{- end}}
 			{{end}}
 			{{- range $i,$c:=$rows|query}}
-			{{- if $c.IsInput}}
-			<el-form-item>
-				<el-input clearable size="small" prefix-icon="el-icon-search" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
-				</el-input>
-			</el-form-item>
+				{{- if $c.IsInput}}
+				<el-form-item>
+					<el-input clearable size="small" prefix-icon="el-icon-search" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
+					</el-input>
+				</el-form-item>
+				{{end}}
 			{{- end}}
-			{{- end}}
-		{{end}}
 				{{- if gt ($rows|query|len) 0}}
 				<el-form-item>
 					<el-button  type="primary" @click="queryDatas" size="small">查询</el-button>
