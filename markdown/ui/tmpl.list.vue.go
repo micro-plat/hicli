@@ -346,7 +346,7 @@ export default {
 			{{- if $drange}}
 			var now = new Date()
       now.setMonth(now.getMonth() - 1)
-      this.start_time = this.DateConvert("yyyy-MM-dd", now)
+      this.start_time = this.$utility.dateFormat(now, "yyyy-MM-dd")
 			{{- end}}
       this.query()
 		},
