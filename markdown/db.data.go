@@ -35,7 +35,7 @@ func exportDBData(c *cli.Context) (err error) {
 		if v == "" {
 			continue
 		}
-		list += "	" + fmt.Sprintf(`"%s",`, v) + "\n"
+		list += "	" + fmt.Sprintf("`%s`,", v) + "\n"
 	}
 
 	//循环创建表
