@@ -456,11 +456,13 @@ export default {
 		{{- end}}
 		{{- range $i,$c:=$tb.ListComponents}}
 		show{{$c.Name|upperName}}(val) {
+			this.$refs.{{$c.Name|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
       this.$refs.{{$c.Name|upperName}}.show();
 		},
 		{{- end}}
 		{{- range $i,$c:=$tb.QueryComponents}}
 		show{{$c.Name|upperName}}(val) {
+			this.$refs.{{$c.Name|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
       this.$refs.{{$c.Name|upperName}}.show();
 		},
 		{{- end}}
