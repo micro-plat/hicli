@@ -244,7 +244,7 @@ func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) 
 		return
 	}
 	name = types.DecodeString(name, "", row.Name)
-	index := types.DecodeInt(i, 0, ri)
+	index := types.DecodeInt(types.GetInt(i), 0, ri)
 	if v, ok := indexs[name]; ok {
 		v.fields = append(v.fields, &Field{Name: row.Name, Index: index})
 		return
