@@ -199,6 +199,13 @@ where
 {{- range $i,$c:=.TabInfo.TabListField}}
 &t.{{(or ($c) ($pks|firstStr))}}
 {{- end}}
+{{- if gt ($sort|len) 0}}
+order by #order_by
+{{- else if gt ($order|len) 0}}
+order by {{range $i,$c:=$order}}t.{{$c.Name}} {{or ($c.Con|orderCon) "desc"}}{{if lt $i ($order|maxIndex)}}, {{end}}{{end}}
+{{- else}}
+order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
+{{- end}}
 ) R 
 where rownum <= @pi * @ps) L
 where L.rn > (@pi - 1) * @ps) TAB1{###}
@@ -265,27 +272,6 @@ where
 {{end}}
 
 {{- range $i,$btn:=$btns }}
-//Update{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 更新数据
-const Update{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
-update {{$.Name}}{{$.DBLink}} 
-set
-{{- range $i,$c:=$btn.Rows}}
-{{- if not $c.Disable}}
-	{{- if $c.Type|codeType|isTime }}
-	{{$c.Name}}=to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')
-	{{- else}}
-	{{$c.Name}} = @{{$c.Name}}{{end}}{{if ne $c.Name $btn.LastRowIndex}},{{end}}
-{{- end}}
-{{- end}}
-where
-{{- if eq ($pks|len) 0}}
-	1=1
-{{- else -}}
-{{- range $i,$c:=$pks}}
-	&{{$c}}
-{{- end}}
-{{- end}}{###}
-
 {{- if $btn.Show }}
 //Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 查询单条数据{{$.Desc}}
 const Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}

@@ -275,25 +275,6 @@ func (u *{{.Name|rmhd|varName}}Handler) PutHandle(ctx hydra.IContext) (r interfa
 
 
 {{- range $i,$btn:=$btns }}
-//{{$btn.Name|upperName}}Handle 更新{{$.Desc}}数据
-func (u *{{$.Name|rmhd|varName}}Handler) {{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
-
-	ctx.Log().Info("--------更新{{$.Desc}}数据--------")
-
-	ctx.Log().Info("1.参数校验")
-	if err := ctx.Request().CheckMap(update{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields); err != nil {
-		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
-	}
-
-	ctx.Log().Info("2.执行操作")
-	_, err := hydra.C.DB().GetRegularDB().Execute(sql.Update{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
-	if err != nil {
-		return errs.NewErrorf(http.StatusNotExtended,"更新数据出错:%+v", err)
-	}
-
-	ctx.Log().Info("3.返回结果")
-	return "success"
-}
 {{- if  $btn.Show }}
 //Get{{$btn.Name|upperName}}Handle 获取{{$.Desc}}单条数据
 func (u *{{$.Name|rmhd|varName}}Handler) Get{{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
@@ -393,10 +374,6 @@ var delete{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 
 
 {{- range $i,$btn:=$btns }}
-var update{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=$btn.Rows}}{{if not $c.Disable}}field.{{$c.Name|varName}}:"required",{{end}}{{end}}
-	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
-}
 {{- if  $btn.Show }}
 var get{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
 	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}

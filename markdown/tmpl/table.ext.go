@@ -97,7 +97,6 @@ type BtnInfo struct {
 	Rows               []Row
 	RelativeShelfFiled map[string]string
 	RelativeFiled      map[string]string
-	LastRowIndex       string
 	Show               bool
 }
 type VIF struct {
@@ -201,7 +200,6 @@ func (t *Table) DispostELBtn() {
 		for _, v := range getRows(info.KeyWord)(t.Rows) {
 			v.BelongTable = t
 			info.Rows = append(info.Rows, *v)
-			info.LastRowIndex = v.Name
 		}
 
 		for k, v := range info.Table {

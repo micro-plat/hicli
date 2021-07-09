@@ -115,6 +115,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"CC":            getKWS("cc"),                                           //表单颜色样式
 		"FIXED":         getKWS("fixed"),                                        //表单固定列
 		"SORT":          getKWS("sort"),                                         //表单固定列
+		"fIsNofltr":     getKWS("nofltr"),                                       //前端字段不格式化
 		"lfCon":         getSubConContent("l", "f"),                             //列表展示字段的过滤器子约束l(f:xx)
 		"leCon":         getSubConContent("l", "e"),                             //列表展示字段的枚举子约束l(e:xx)
 		"qeCon":         getSubConContent("q", "e"),                             //查询字段的枚举子约束q(e:xx)

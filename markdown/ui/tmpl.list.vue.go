@@ -132,6 +132,10 @@ const TmplList = `
 						</el-tooltip>
 						<span v-else>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
 					</template>
+				{{- else if ($c.Con|fIsNofltr)}}
+				<template slot-scope="scope">
+					<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
+				</template>
 				{{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($pks|firstStr))}}
 				<template slot-scope="scope">
 					<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
