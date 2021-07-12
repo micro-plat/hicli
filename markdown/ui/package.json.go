@@ -20,7 +20,7 @@ const packageJSON = `
 		"bootstrap": "^4.1.3",
 		"element-ui": "^2.4.5",
 		"nav-menu": "^1.3.50",
-		"qxnw-utility": "^1.0.4",
+		"qxnw-utility": "^1.0.6",
 		"font-awesome": "^4.7.0",
 		"postcss-px-to-viewport": "^1.1.1",
 		"core-js": "^3.6.5",

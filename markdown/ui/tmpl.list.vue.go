@@ -50,7 +50,7 @@ const TmplList = `
         </el-form-item>
 				{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 				<el-form-item label="{{$c.Desc|shortName}}:">
-						<el-date-picker size="small" class="input-cos" v-model="{{$c.Name|lowerName}}" type="{{dateType $c.Con ($c.Con|qfCon)}}" value-format="{{dateFormat $c.Con ($c.Con|qfCon)}}"  placeholder="选择日期"></el-date-picker>
+					<el-date-picker size="small" class="input-cos" v-model="{{$c.Name|lowerName}}" type="{{dateType $c.Con ($c.Con|qfCon)}}" value-format="{{dateFormat $c.Con ($c.Con|qfCon)}}"  placeholder="选择日期"></el-date-picker>
 				</el-form-item>
 				{{- else if $c.Con|CB }}
 				<el-form-item label="{{$c.Desc|shortName}}:">
