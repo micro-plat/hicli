@@ -136,6 +136,9 @@ export default {
 				{{- end}}
 				{{- range $i,$c1:=(cgroup $c.Name $tb)}}
 				this.addData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- if  (cGroupCName $c1.Name $tb)}}
+				this.set{{$c1.Name|upperName}}Group(this.addData.{{$c1.Name}})
+				{{- end}}
 				{{- end}}
 			}
 		},

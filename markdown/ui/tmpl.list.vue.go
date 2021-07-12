@@ -35,27 +35,18 @@ const TmplList = `
 				</el-form-item>
 				{{- else if ($c.Con|DRANGE) }}{{$drange = true}}
 				<el-form-item label="创建时间:">
-          <el-date-picker
-            :clearable="false"
-            :picker-options="startTime"
-            v-model="timeDate.start_time"
-            type="date"
-            placeholder="选择开始日期"
-            style="width: 160px"
-            size="small"
-          ></el-date-picker>
-        </el-form-item>
-
-        <el-form-item label="至">
-          <el-date-picker
-            :clearable="false"
-            :picker-options="endTime"
-            v-model="timeDate.end_time"
-            type="date"
-            placeholder="选择结束日期"
-            style="width: 160px"
-            size="small"
-          ></el-date-picker>
+					<el-date-picker
+					v-model="times"
+					type="{{dateType $c.Con ($c.Con|qfCon)}}range"
+					:clearable="false"
+					:picker-options="pickerOptions"
+					range-separator="至"
+					start-placeholder="开始日期"
+					end-placeholder="结束日期"
+					align="right"
+					size="small"
+					>
+					</el-date-picker>
         </el-form-item>
 				{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 				<el-form-item label="{{$c.Desc|shortName}}:">
@@ -297,31 +288,33 @@ export default {
 			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
 			{{- if ($c.Con|DRANGE)}}
-			timeDate: {
-        start_time: this.$utility.dateFormat(new Date(), "{{dateFormat $c.Con ($c.Con|qfCon)}}"),
-        end_time:  this.$utility.dateFormat(new Date(), "{{dateFormat $c.Con ($c.Con|qfCon)}}")
-      },
-      /* start  */
-      startTime: {
-        disabledDate: time => {
-          if (this.timeDate.end_time) {
-            return time.getTime() > new Date(this.timeDate.end_time).getTime();
-          } else {
-            return time.getTime() > Date.now();
+      times: '',
+      pickerOptions: {
+        shortcuts: [{
+          text: '最近一周',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+            picker.$emit('pick', [start, end]);
           }
-        }
-      },
-      endTime: {
-        disabledDate: time => {
-          if (this.timeDate.start_time) {
-            return (
-              time.getTime() > Date.now() ||
-              time.getTime() < new Date(this.timeDate.start_time).getTime()
-            );
-          } else {
-            return time.getTime() > Date.now();
+        }, {
+          text: '最近一个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+            picker.$emit('pick', [start, end]);
           }
-        }
+        }, {
+          text: '最近三个月',
+          onClick(picker) {
+            const end = new Date();
+            const start = new Date();
+            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+            picker.$emit('pick', [start, end]);
+          }
+        }]
       },
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			{{$c.Name|lowerName}}: this.$utility.dateFormat(new Date(),"{{dateFormatDef $c.Con ($c.Con|qfCon)}}"),{{end}}
@@ -395,6 +388,9 @@ export default {
 				{{- end}}
 				{{- range $i,$c1:=(qgroup $c.Name $tb)}}
 				this.queryData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- if  (qGroupCName $c1.Name $tb)}}
+				this.set{{$c1.Name|upperName}}Group(this.queryData.{{$c1.Name}})
+				{{- end}}
 				{{- end}}
 			}
 		},
@@ -410,8 +406,8 @@ export default {
 			this.queryData.ps = this.paging.ps
 			{{- range $i,$c:=$rows|query -}}
 			{{- if ($c.Con|DRANGE)}}
-			this.queryData.start_time = this.$utility.dateFormat(this.timeDate.start_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
-      this.queryData.end_time = this.$utility.dateFormat(this.timeDate.end_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+			this.queryData.start_time = this.$utility.dateFormat(this.times[0],"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+      this.queryData.end_time = this.$utility.dateFormat(this.times[1],"{{dateFormat $c.Con ($c.Con|qfCon)}}");
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			this.queryData.{{$c.Name}} = this.$utility.dateFormat(this.{{$c.Name|lowerName}},"{{dateFormat $c.Con ($c.Con|qfCon)}}")
 			{{- else if ($c.Con|CB) }}
@@ -509,8 +505,8 @@ export default {
 			this.queryData.ps = this.paging.ps
 			{{- range $i,$c:=$rows|query -}}
 			{{- if ($c.Con|DRANGE)}}
-			this.queryData.start_time = this.$utility.dateFormat(this.timeDate.start_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
-      this.queryData.end_time = this.$utility.dateFormat(this.timeDate.end_time,"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+			this.queryData.start_time = this.$utility.dateFormat(this.times[0],"{{dateFormat $c.Con ($c.Con|qfCon)}}");
+      this.queryData.end_time = this.$utility.dateFormat(this.times[1],"{{dateFormat $c.Con ($c.Con|qfCon)}}");
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			this.queryData.{{$c.Name}} = this.$utility.dateFormat(this.{{$c.Name|lowerName}},"{{dateFormat $c.Con ($c.Con|qfCon)}}")
 			{{- else if ($c.Con|CB) }}

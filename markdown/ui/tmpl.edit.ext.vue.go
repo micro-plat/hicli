@@ -148,6 +148,9 @@ export default {
 				{{- end}}
 				{{- range $i,$c1:=(ugroup $c.Name $c.BelongTable)}}
 				this.editData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- if  (uGroupCName $c1.Name $tb)}}
+				this.set{{$c1.Name|upperName}}Group(this.editData.{{$c1.Name}})
+				{{- end}}
 				{{- end}}
 			}
 		},
