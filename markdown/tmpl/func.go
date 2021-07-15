@@ -705,6 +705,9 @@ func getDateFormat(con, subCon string) string {
 		if getKWS("dtime")(con) {
 			return "yyyy-MM-dd HH:mm:ss"
 		}
+		if getKWS("drange")(con) {
+			return "yyyy-MM-dd"
+		}
 		if getKWS("date")(con) {
 			return "yyyy-MM-dd"
 		}
