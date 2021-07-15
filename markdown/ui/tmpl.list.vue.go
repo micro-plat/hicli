@@ -343,8 +343,8 @@ export default {
     init(){
 			{{- if $drange}}
 			var now = new Date()
-      now.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-      this.times[0] = now
+			now.setTime(new Date().getTime() - 3600 * 1000 * 24 * 30)
+			this.times = [now, new Date()]
 			{{- end}}
       this.query()
 		},
