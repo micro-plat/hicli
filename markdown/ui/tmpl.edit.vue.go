@@ -179,7 +179,7 @@ export default {
 			}
 		},
 		{{- end}}
-		{{if (uDicPName $c.Con $tb)  }}
+		{{- if (uDicPName $c.Con $tb)  }}
 		set{{$c.Name|upperName}}(pid){
 			this.editData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}",pid)
@@ -241,7 +241,14 @@ export default {
 			this.$refs[formName].validate((valid) => {
 				if (valid) {
 					this.$http.put("/{{.Name|rmhd|rpath}}", this.editData, {}, true, true)
-					.then(res => {			
+					.then(res => {
+						{{- range $i,$c:=$rows}}
+						{{- if $c.Con|fIsDT}}
+						this.$enum.clear(this.editData.{{$c.Name}})
+						{{- else if and ($c.Con|fIsDI) (not ($tb|fHasDT))}}
+						this.$enum.clear("{{$.Name|rmhd|lower}}")
+						{{- end}}
+						{{- end}}
 						this.dialogFormVisible = false;
 						this.refresh()
 					})

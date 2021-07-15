@@ -157,6 +157,13 @@ export default {
 					this.$http.post("/{{.Name|rmhd|rpath}}", this.addData, {}, true, true)
 						.then(res => {
 							this.$refs[formName].resetFields()
+							{{- range $i,$c:=$rows}}
+							{{- if $c.Con|fIsDT}}
+							this.$enum.clear(this.addData.{{$c.Name}})
+							{{- else if and ($c.Con|fIsDI) (not ($tb|fHasDT))}}
+							this.$enum.clear("{{$.Name|rmhd|lower}}")
+							{{- end}}
+							{{- end}}
 							this.dialogAddVisible = false
 							this.refresh()
 						})
