@@ -8,8 +8,7 @@ const TmplDetail = `
 {{- $tabs := .TabTables -}}
 {{- $choose :=false -}}
 {{- $panelbody :=false -}}
-{{- $name:=.Name }}
-
+{{- $name:=.Name -}}
 <template>
   <div>
     <div>
