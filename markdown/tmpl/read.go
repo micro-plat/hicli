@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -14,11 +15,12 @@ import (
 
 //Tables markdown中的所有表信息
 type Tables struct {
-	PKG       string
-	RawTables []*Table
-	Tbs       []*Table
-	Drop      bool
-	SEQFile   bool
+	PKG        string
+	RawTables  []*Table
+	Tbs        []*Table
+	TableNames map[string]bool
+	Drop       bool
+	SEQFile    bool
 }
 
 //FilterByKW 过滤行信息
@@ -98,6 +100,34 @@ func Markdown2DB(fn string) (*Tables, error) {
 	return tableLine2Table(line2TableLine(lines))
 }
 
+//Markdown2DB 读取markdown文件并转换为MarkDownDB对象
+func Markdowns2DB(filePath string) (*Tables, error) {
+	if !strings.Contains(filePath, "*") {
+		return Markdown2DB(filePath)
+	}
+
+	fns := getAllMatchMD(filePath)
+	//读取文件
+	fmt.Println("files:", fns)
+	baseTable := &Tables{
+		TableNames: make(map[string]bool),
+	}
+	for _, fn := range fns {
+		newTable, err := Markdown2DB(fn)
+		if err != nil {
+			return nil, err
+		}
+		for key := range newTable.TableNames {
+			if _, ok := baseTable.TableNames[key]; ok {
+				return nil, fmt.Errorf("存在相同的表名：%s", key)
+			}
+			baseTable.TableNames[key] = true
+		}
+		baseTable.Tbs = append(baseTable.Tbs, newTable.Tbs...)
+	}
+	return baseTable, nil
+}
+
 //readMarkdown 读取md文件
 func readMarkdown(name string) ([]*Line, error) {
 	f, err := os.Open(name)
@@ -151,7 +181,7 @@ func line2TableLine(lines []*Line) (tl TableLine) {
 
 //tableLine2Table 表数据行变为表
 func tableLine2Table(lines TableLine) (tables *Tables, err error) {
-	tables = &Tables{Tbs: make([]*Table, 0, 1)}
+	tables = &Tables{Tbs: make([]*Table, 0, 1), TableNames: make(map[string]bool)}
 	for _, tline := range lines.Lines {
 		//markdown表格的表名，标题，标题数据区分行，共三行
 		if len(tline) <= 3 {
@@ -181,6 +211,10 @@ func tableLine2Table(lines TableLine) (tables *Tables, err error) {
 			}
 		}
 		if tb != nil {
+			if _, ok := tables.TableNames[tb.Name]; ok {
+				return nil, fmt.Errorf("存在相同的表名：%s", tb.Name)
+			}
+			tables.TableNames[tb.Name] = true
 			tables.RawTables = append(tables.RawTables, tb)
 		}
 	}
@@ -277,4 +311,34 @@ func getType(line *Line) (string, int, int, error) {
 		return t, types.GetInt(names[1]), 0, nil
 	}
 	return t, types.GetInt(names[1]), types.GetInt(names[2]), nil
+}
+
+func getAllMatchMD(path string) (paths []string) {
+
+	//路径是的具体文件
+	_, err := os.Stat(path)
+	if err == nil {
+		return []string{path}
+	}
+	//查找匹配的文件
+	dir, f := filepath.Split(path)
+
+	regexName := fmt.Sprintf("^%s$", strings.Replace(strings.Replace(f, ".md", "\\.md", -1), "*", "(.+)?", -1))
+	reg := regexp.MustCompile(regexName)
+
+	if dir == "" {
+		dir = "./"
+	}
+	fmt.Println("regexName：", regexName, "dir:", dir)
+	files, _ := ioutil.ReadDir(dir)
+	for _, f := range files {
+		fname := f.Name()
+		if strings.HasPrefix(fname, ".") || f.IsDir() {
+			continue
+		}
+		if reg.Match([]byte(fname)) {
+			paths = append(paths, filepath.Join(dir, fname))
+		}
+	}
+	return paths
 }

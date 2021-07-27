@@ -7,13 +7,11 @@ const srcPublicEnvConfJson = `
         "code": "蜀ICP备20003360号"
     },
     "system": {
-        "systemName": "xxx系统",
-        "themes": "bg-danger|bg-danger|bg-dark dark-danger",
-        "logo": ""
+        "name": "xxx系统",
+        "theme": "bg-danger|bg-danger|bg-dark dark-danger",
     },
     "api": {
         "host": "http://localhost:8089",
-        "confURL": "",
         "enumURL": "/system/enums/query"
     },
     "menus": [
@@ -50,21 +48,24 @@ const srcSSOPublicEnvConfJson = `
         "company": "四川千行你我科技股份有限公司",
         "code": "蜀ICP备20003360号"
     },
-    "system": {
-        "systemName": "xxx系统",
-        "themes": "bg-danger|bg-danger|bg-dark dark-danger",
-        "logo": ""
-    },
     "api": {
         "host": "http://localhost:8089",
-        "confURL": "",
         "enumURL": "/system/enums/query"
-    },
-    "sso": {
-        "ident": "sso_ident",
-        "host": "http://ssov4.100bm1.com:6687"
-    },
-    "menus": [],
-    "sysList": []
+    }
 }
+`
+
+const srcEnvProdConfJson = `
+NODE_ENV=production
+VUE_APP_JSON_FILE=env.conf.prod.json
+`
+
+const srcEnvTestConfJson = `
+NODE_ENV=production
+VUE_APP_JSON_FILE=env.conf.test.json
+`
+
+const srcEnvFatConfJson = `
+NODE_ENV=production
+VUE_APP_JSON_FILE=env.conf.fat.json
 `

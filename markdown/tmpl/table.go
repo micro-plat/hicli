@@ -14,27 +14,28 @@ import (
 
 //Table 表名称
 type Table struct {
-	Name           string //表名
-	Desc           string //表描述
-	ExtInfo        string //扩展信息
-	PKG            string //包名称
-	Drop           bool   //创建表前是否先删除
-	DBType         string //数据库类型
-	DBLink         string //
-	Rows           TableColumn
-	RawRows        []*Row
-	Indexs         Indexs
-	BasePath       string   //生成项目基本路径
-	AllTables      []*Table //所有表
-	Exclude        bool     //排除生成sql
-	ELTableIndex   int
-	TabTables      []*Table //详情切换的tab页对应表
-	TabInfo        *TabInfo
-	BtnInfo        []*BtnInfo
-	TempIndex      int
-	DownloadInfo   *DownloadInfo
-	SelectInfo     *SelectInfo
-	ComponentsInfo []*ComponentsInfo
+	Name            string //表名
+	Desc            string //表描述
+	ExtInfo         string //扩展信息
+	PKG             string //包名称
+	Drop            bool   //创建表前是否先删除
+	DBType          string //数据库类型
+	DBLink          string //
+	Rows            TableColumn
+	RawRows         []*Row
+	Indexs          Indexs
+	BasePath        string   //生成项目基本路径
+	AllTables       []*Table //所有表
+	Exclude         bool     //排除生成sql
+	ELTableIndex    int
+	TabTables       []*Table //详情切换的tab页对应表
+	TabInfo         *TabInfo
+	BtnInfo         []*BtnInfo
+	TempIndex       int
+	DownloadInfo    *DownloadInfo
+	SelectInfo      *SelectInfo
+	ListComponents  []*ListComponents
+	QueryComponents []*QueryComponents
 }
 
 //Row 行信息
@@ -53,6 +54,7 @@ type Row struct {
 	BelongTable  *Table
 	Disable      bool
 	SQLAliasName string //SQL别名
+	IsInput      bool
 }
 
 //TableColumn 表的列排序用
@@ -242,7 +244,7 @@ func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) 
 		return
 	}
 	name = types.DecodeString(name, "", row.Name)
-	index := types.DecodeInt(i, 0, ri)
+	index := types.DecodeInt(types.GetInt(i), 0, ri)
 	if v, ok := indexs[name]; ok {
 		v.fields = append(v.fields, &Field{Name: row.Name, Index: index})
 		return

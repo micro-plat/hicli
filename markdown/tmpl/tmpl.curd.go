@@ -54,7 +54,7 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$pks}}
-	&{{$c}} 
+	&t.{{$c}} 
 {{- end}}{{end}}{###}
 
 {{- if gt (.TabInfo.TabField|len) 0}}
@@ -72,7 +72,7 @@ select
 from {{.Name}} t
 where
 	{{- range $i,$c:=.TabInfo.TabField}}
-	&{{(or ($c) ($pks|firstStr))}}
+	&t.{{(or ($c) ($pks|firstStr))}}
 	{{- end}}
 {###}
 {{- end}}
@@ -87,12 +87,17 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$deleterows}}
-	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
 {{- range $i,$c:=$queryrows -}}
 {{if $c.Type|codeType|isTime }}
+	{{- if ($c.Con|DRANGE)}}
+	and t.{{$c.Name}} >= @start_time
+	and t.{{$c.Name}} < date_add(@end_time, interval 1 day)
+	{{- else}}
 	and t.{{$c.Name}} >= @{{$c.Name}} 
 	and t.{{$c.Name}} < date_add(@{{$c.Name}}, interval 1 day)
+	{{- end}}
 {{- else if and ($c.Type|codeType|isString) (gt $c.Len $length)}}
 	?t.{{$c.Name}}
 {{- else}}
@@ -116,12 +121,17 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$deleterows}}
-	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
 {{- range $i,$c:=$queryrows -}}
 {{if $c.Type|codeType|isTime }}
+{{- if ($c.Con|DRANGE)}}
+	and t.{{$c.Name}} >= @start_time
+	and t.{{$c.Name}} < date_add(@end_time, interval 1 day)
+	{{- else}}
 	and t.{{$c.Name}} >= @{{$c.Name}} 
 	and t.{{$c.Name}} < date_add(@{{$c.Name}}, interval 1 day)
+	{{- end}}
 {{- else if and ($c.Type|codeType|isString)  (gt $c.Len $length)}}
 	?t.{{$c.Name}}
 {{- else}}
@@ -144,10 +154,10 @@ select count(1)
 from {{.Name}} t
 where 
 {{- range $i,$c:=$deleterows}}
-	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
 {{- range $i,$c:=.TabInfo.TabListField}}
-&{{(or ($c) ($pks|firstStr))}}
+&t.{{(or ($c) ($pks|firstStr))}}
 {{- end}}{###}
 
 //Get{{.Name|rmhd|upperName}}DetailList 查询{{.Desc}}列表数据
@@ -159,15 +169,22 @@ select
 	{{- else}}
 	t.{{$c.Name}}
 	{{- end}}
-	{{- if lt $i ($detailrows|maxIndex)}},{{end}}
+	{{- if lt $i ($listrows|maxIndex)}},{{end}}
 {{- end}} 
 from {{.Name}} t
 where
 {{- range $i,$c:=$deleterows}}
-	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
 {{- end}}
 {{- range $i,$c:=.TabInfo.TabListField}}
-&{{(or ($c) ($pks|firstStr))}}
+&t.{{(or ($c) ($pks|firstStr))}}
+{{- end}}
+{{- if gt ($sort|len) 0}}
+order by #order_by
+{{- else if gt ($order|len) 0}}
+order by {{range $i,$c:=$order}}t.{{$c.Name}} {{or ($c.Con|orderCon) "desc"}}{{if lt $i ($order|maxIndex)}}, {{end}}{{end}}
+{{- else}}
+order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 {{- end}}
 limit @ps offset @offset{###}
 {{- end}}
@@ -191,7 +208,7 @@ where
 1=1
 {{- else -}}
 {{- range $i,$c:=$pks}}
-	&{{$c}} 
+	&t.{{$c}} 
 {{- end}}{{end}}{###}
 
 //Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 更新{{.Desc}}
@@ -234,28 +251,7 @@ where
 
 
 {{- range $i,$btn:=$btns }}
-//Update{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 更新数据
-const Update{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
-update {{$.Name}}{{$.DBLink}} 
-set
-{{- range $i,$c:=$btn.Rows}}
-{{- if not $c.Disable}}
-	{{- if $c.Type|codeType|isTime }}
-	{{$c.Name}}=to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')
-	{{- else}}
-	{{$c.Name}} = @{{$c.Name}}{{end}}{{if ne $c.Name $btn.LastRowIndex}},{{end}}
-{{- end}}
-{{- end}}
-where
-{{- if eq ($pks|len) 0}}
-	1=1
-{{- else -}}
-{{- range $i,$c:=$pks}}
-	&{{$c}}
-{{- end}}
-{{- end}}{###}
-
-{{- if eq ($btn.VIF|len) 0}}
+{{- if $btn.Show }}
 //Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 查询单条数据{{$.Desc}}
 const Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
 select 

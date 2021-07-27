@@ -8,43 +8,45 @@ const TmplEditVue = `
 {{- $pks := .|pks -}}
 {{- $choose:= false -}}
 <template>
-	<el-dialog title="编辑{{.Desc}}"{{if gt ($rows|update|len) 5}} width="65%" {{- else}} width="25%" {{- end}} @closed="closed" :visible.sync="dialogFormVisible">
-		<el-form :model="editData" {{if gt ($rows|update|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="editForm" label-width="110px">
+	<el-dialog title="编辑{{.Desc}}"{{if gt ($rows|update|len) 5}} width="720px" {{- else}} width="500px" {{- end}} @closed="closed" :visible.sync="dialogFormVisible">
+		<el-form :model="editData" size="small" {{if gt ($rows|update|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="editForm" label-width="110px">
     	{{- range $i,$c:=$rows|update}}
       {{if $c.Con|TA -}}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input size="medium" maxlength="{{or ($c.Con|cfCon) $c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="editData.{{$c.Name}}">
+				<el-input size="small" maxlength="{{or ($c.Con|cfCon) $c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="editData.{{$c.Name}}">
         </el-input>
 			</el-form-item>
 			{{- else if $c.Con|RD }}
 			<el-form-item  label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-radio-group  size="medium" v-model="editData.{{$c.Name}}" style="margin-left:5px">
+				<el-radio-group  size="small" v-model="editData.{{$c.Name}}" style="margin-left:5px">
         	<el-radio v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :label="item.value">{{"{{item.name}}"}}</el-radio>
 				</el-radio-group>
 			</el-form-item>
 			{{- else if $c.Con|SL }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-select size="medium" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
-				 {{- if (uDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
-				 {{- if (uDicCName $c.Name $tb) }} @change="set{{(uDicCName $c.Name $tb)|upperName}}(editData.{{$c.Name}})"	{{- end}}	>
+				<el-select size="small" style="width: 100%;"	v-model="editData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="---请选择---"
+					{{- if (uDicCName $c.Name $tb) }} @change="set{{(uDicCName $c.Name $tb)|upperName}}(editData.{{$c.Name}})"
+					{{- else if (uGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
+					{{- else if or  (uDicPName $c.Con $tb) (uGroupPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}}
+					{{- if (uGroupPName $c.Con $tb)}} disabled{{end}}	>
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>
 			</el-form-item>
 			{{- else if $c.Con|SLM }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-select size="medium" placeholder="---请选择---" clearable filterable v-model="{{$c.Name|lowerName}}Array" multiple style="width: 100%;">
+				<el-select size="small" placeholder="---请选择---" clearable filterable v-model="{{$c.Name|lowerName}}Array" multiple style="width: 100%;">
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name" ></el-option>
 				</el-select>
 			</el-form-item>
 			{{- else if $c.Con|CB }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}"> 
-				<el-checkbox-group size="medium" v-model="{{$c.Name|lowerName}}Array">
+				<el-checkbox-group size="small" v-model="{{$c.Name|lowerName}}Array">
 					<el-checkbox v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
 				</el-checkbox-group>
 			</el-form-item>
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			<el-form-item prop="{{$c.Name}}" label="{{$c.Desc|shortName}}:">
-					<el-date-picker size="medium" class="input-cos"  v-model="editData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ueCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ueCon)}}"  placeholder="选择日期"></el-date-picker>
+					<el-date-picker size="small" class="input-cos"  v-model="editData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ueCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ueCon)}}"  placeholder="选择日期"></el-date-picker>
 			</el-form-item>
 			{{- else if $c.Con|UP }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
@@ -69,7 +71,7 @@ const TmplEditVue = `
 			</el-form-item>
       {{- else -}}
       <el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input size="medium" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
+				<el-input size="small" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
 				{{- if gt $c.DecimalLen 0}} oninput="if(isNaN(value)) { value = null } if(value.indexOf('.')>0){value=value.slice(0,value.indexOf('.')+{{$c.DecimalLen|add1}})}"{{end}}
 				clearable v-model="editData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
 				</el-input>
@@ -78,8 +80,8 @@ const TmplEditVue = `
       {{end}}
     </el-form>
 		<div slot="footer" class="dialog-footer">
-			<el-button size="medium" @click="resetForm('editForm')">取 消</el-button>
-			<el-button type="success" size="medium" @click="edit('editForm')">确 定</el-button>
+			<el-button size="small" @click="resetForm('editForm')">取 消</el-button>
+			<el-button type="success" size="small" @click="edit('editForm')">确 定</el-button>
 		</div>
 	</el-dialog>
 </template>
@@ -135,7 +137,7 @@ export default {
 			this.refresh()
 		},
 		resetForm(formName) {
-			this.dialogAddVisible = false;
+			this.dialogFormVisible = false;
 			this.$refs[formName].resetFields();
 		},
 		{{- if $choose}}
@@ -157,7 +159,27 @@ export default {
 			this.dialogFormVisible = true;
 		},
 		{{- range $i,$c:=$rows|update -}}
-		{{if (uDicPName $c.Con $tb)  }}
+		{{- if (uGroupCName $c.Name $tb) }}
+		set{{$c.Name|upperName}}Group(value){
+			var obj = this.{{$c.Name|lowerName}}.find((item) => {
+        return item.value === value
+      })
+			if (obj){
+				{{- range $i,$c1:=(ugroup $c.Name $tb)}}
+				{{- if (uDicCName $c1.Name $tb)  }}
+				this.set{{(uDicCName $c1.Name $tb)|upperName}}(obj.{{$c1.Name}})
+				{{- end}}
+				{{- end}}
+				{{- range $i,$c1:=(ugroup $c.Name $tb)}}
+				this.editData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- if  (uGroupCName $c1.Name $tb)}}
+				this.set{{$c1.Name|upperName}}Group(this.editData.{{$c1.Name}})
+				{{- end}}
+				{{- end}}
+			}
+		},
+		{{- end}}
+		{{- if (uDicPName $c.Con $tb)  }}
 		set{{$c.Name|upperName}}(pid){
 			this.editData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}",pid)
@@ -219,7 +241,14 @@ export default {
 			this.$refs[formName].validate((valid) => {
 				if (valid) {
 					this.$http.put("/{{.Name|rmhd|rpath}}", this.editData, {}, true, true)
-					.then(res => {			
+					.then(res => {
+						{{- range $i,$c:=$rows}}
+						{{- if $c.Con|fIsDT}}
+						this.$enum.clear(this.editData.{{$c.Name}})
+						{{- else if and ($c.Con|fIsDI) (not ($tb|fHasDT))}}
+						this.$enum.clear("{{$.Name|rmhd|lower}}")
+						{{- end}}
+						{{- end}}
 						this.dialogFormVisible = false;
 						this.refresh()
 					})

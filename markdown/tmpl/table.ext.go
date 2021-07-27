@@ -29,8 +29,8 @@ func newTableInfo() *TabInfo {
 	}
 }
 
-//DisposeTabTables 处理前端详情页
-func (t *Table) DisposeTabTables() {
+//DisposeELTab 处理前端详情页
+func (t *Table) DisposeELTab() {
 	if t.ExtInfo == "" {
 		return
 	}
@@ -97,7 +97,7 @@ type BtnInfo struct {
 	Rows               []Row
 	RelativeShelfFiled map[string]string
 	RelativeFiled      map[string]string
-	LastRowIndex       string
+	Show               bool
 }
 type VIF struct {
 	IfName string
@@ -112,7 +112,7 @@ func newBtnInfo() *BtnInfo {
 }
 
 //DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,table:adas/iqe,key:sa)}
-func (t *Table) DispostBtnTables() {
+func (t *Table) DispostELBtn() {
 	if t.ExtInfo == "" {
 		return
 	}
@@ -191,6 +191,7 @@ func (t *Table) DispostBtnTables() {
 					info.RelativeShelfFiled[tb.Name] = tabField[0]
 					info.RelativeFiled[tb.Name] = tabField[1]
 					info.Table = append(info.Table, tb)
+					info.Show = true
 				}
 			}
 		}
@@ -199,7 +200,6 @@ func (t *Table) DispostBtnTables() {
 		for _, v := range getRows(info.KeyWord)(t.Rows) {
 			v.BelongTable = t
 			info.Rows = append(info.Rows, *v)
-			info.LastRowIndex = v.Name
 		}
 
 		for k, v := range info.Table {
@@ -212,7 +212,6 @@ func (t *Table) DispostBtnTables() {
 		}
 		if len(info.Rows) < 1 {
 			logs.Log.Warn("列表页面btn的更新的字段未配置")
-			continue
 		}
 
 		t.BtnInfo = append(t.BtnInfo, info)
@@ -224,7 +223,7 @@ type DownloadInfo struct {
 	Title []string
 }
 
-func (t *Table) DispostDownloadTables() {
+func (t *Table) DispostELDownload() {
 	t.DownloadInfo = &DownloadInfo{
 		Title: make([]string, 0),
 	}
@@ -243,7 +242,7 @@ type SelectInfo struct {
 	URL string
 }
 
-func (t *Table) DispostSelectTables() {
+func (t *Table) DispostELSelect() {
 	key := "el_select"
 	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
 		return
@@ -256,12 +255,14 @@ func (a *SelectInfo) IsEmpty() bool {
 	return a == nil || reflect.DeepEqual(a, &SelectInfo{})
 }
 
-type ComponentsInfo struct {
-	Name string
-	Path string
+type ListComponents struct {
+	Name      string
+	Path      string
+	BtnName   string
+	Condition string
 }
 
-func (t *Table) DispostComponentsInfoTables() {
+func (t *Table) DispostELListComponents() {
 	key := "el_components"
 	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
 		return
@@ -271,12 +272,12 @@ func (t *Table) DispostComponentsInfoTables() {
 	if len(tabs) == 0 {
 		return
 	}
-	t.ComponentsInfo = make([]*ComponentsInfo, 0)
+	t.ListComponents = make([]*ListComponents, 0)
 	for _, v := range tabs {
-		info := &ComponentsInfo{}
+		info := &ListComponents{}
 		tab := strings.Split(v, ",")
-		if len(tab) != 2 {
-			logs.Log.Warn("列表页面components的选项配置不正确(name,path|name,path...)", key, t.ExtInfo)
+		if len(tab) < 2 {
+			logs.Log.Warn("列表页面components的选项配置不正确(name,path,btn_name,condition|name,path...)", key, t.ExtInfo)
 			continue
 		}
 
@@ -291,6 +292,55 @@ func (t *Table) DispostComponentsInfoTables() {
 			logs.Log.Warn("列表页面btn的path选项未配置:", key, t.ExtInfo)
 			continue
 		}
-		t.ComponentsInfo = append(t.ComponentsInfo, info)
+		if len(tab) > 2 {
+			info.BtnName = tab[2]
+		}
+		if len(tab) > 3 {
+			info.Condition = tab[3]
+		}
+		t.ListComponents = append(t.ListComponents, info)
+	}
+}
+
+type QueryComponents struct {
+	Name    string
+	Path    string
+	BtnName string
+}
+
+func (t *Table) DispostELQueryComponents() {
+	key := "el_query_components"
+	if t.ExtInfo == "" || !strings.Contains(t.ExtInfo, key) {
+		return
+	}
+	c := getBracketContent([]string{key})(t.ExtInfo)
+	tabs := strings.Split(c, "|")
+	if len(tabs) == 0 {
+		return
+	}
+	t.QueryComponents = make([]*QueryComponents, 0)
+	for _, v := range tabs {
+		info := &QueryComponents{}
+		tab := strings.Split(v, ",")
+		if len(tab) < 2 {
+			logs.Log.Warn("页面查询components的选项配置不正确(name,path,btn_name|name,path...)", key, t.ExtInfo)
+			continue
+		}
+
+		//name
+		info.Name = tab[0]
+		if info.Name == "" {
+			logs.Log.Warn("页面查询btn的name选项未配置:", key, t.ExtInfo)
+			continue
+		}
+		info.Path = tab[1]
+		if info.Path == "" {
+			logs.Log.Warn("页面查询btn的path选项未配置:", key, t.ExtInfo)
+			continue
+		}
+		if len(tab) > 2 {
+			info.BtnName = tab[2]
+		}
+		t.QueryComponents = append(t.QueryComponents, info)
 	}
 }

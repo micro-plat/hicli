@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/lib4go/types"
@@ -57,6 +58,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"fIsDN":     getKWS("dn"),      //字段是否为字典Name
 		"fIsDT":     getKWS("dt"),      //字段是否为字典Type
 		"fIsDC":     getKWS("dc"),      //字段是否为字典column
+		"fIsDPID":   getKWS("dpid"),    //字段是否为字典PID
 
 		//数据库，sql，后端modules相关处理函数
 		"shortName": shortName,                                          //获取特殊字段前的字符串
@@ -93,40 +95,58 @@ func getfuncs(tp string) map[string]interface{} {
 		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
 		"sort":     getRows("sort"),                                   //查询字段
 		"sortSort": sortByKw("sort"),                                  //
+		"qgroup":   getChildrenGroup("q"),                             //导出字段
+		"cgroup":   getChildrenGroup("c"),                             //导出字段
+		"ugroup":   getChildrenGroup("u"),                             //导出字段
 
 		//前端约束处理函数
-		"SL":            getKWS("sl"),                                  //表单下拉框
-		"SLM":           getKWS("slm"),                                 //表单下拉框
-		"CB":            getKWS("cb"),                                  //表单复选框
-		"RD":            getKWS("rd"),                                  //表单单选框
-		"TA":            getKWS("ta"),                                  //表单文本域
-		"DTIME":         getKWS("dtime"),                               //表单日期时间选择器
-		"DATE":          getKWS("date"),                                //表单日期选择器
-		"UP":            getKWS("up"),                                  //文件上传
-		"dateType":      getDateType,                                   //日期字段对应的组件的日期类型
-		"dateFormat":    getDateFormat,                                 //日期字段对应的组件的日期格式
-		"dateFormatDef": getDateFormatDef,                              //日期字段对应的组件的日期默认值
-		"CC":            getKWS("cc"),                                  //表单颜色样式
-		"FIXED":         getKWS("fixed"),                               //表单固定列
-		"SORT":          getKWS("sort"),                                //表单固定列
-		"lfCon":         getSubConContent("l", "f"),                    //列表展示字段的过滤器子约束l(f:xx)
-		"leCon":         getSubConContent("l", "e"),                    //列表展示字段的枚举子约束l(e:xx)
-		"qeCon":         getSubConContent("q", "e"),                    //查询字段的枚举子约束q(e:xx)
-		"qfCon":         getSubConContent("q", "f"),                    //查询字段的枚举子约束q(f:xx)
-		"rfCon":         getSubConContent("r", "f"),                    //详情展示字段的过滤器子约束r(f:xx)
-		"ufCon":         getSubConContent("u", "f"),                    //详情展示字段的过滤器子约束r(f:xx)
-		"cfCon":         getSubConContent("c", "f"),                    //详情展示字段的过滤器子约束r(f:xx)
-		"reCon":         getSubConContent("r", "e"),                    //详情展示字段的枚举子约束r(e:xx)
-		"ueCon":         getSubConContent("u", "e"),                    //编辑字段的格式枚举子约束u(e:xx)
-		"ceCon":         getSubConContent("c", "e"),                    //添加字段的格式枚举子约束c(e:xx)
-		"dicName":       getDicName(webEnumComponents...),              //字段的对应的枚举名称
-		"qDicCName":     getDicChildrenName("q", webEnumComponents...), //查询下拉字段级联枚举对应的引用枚举名称
-		"qDicPName":     getDicParentName("q", webEnumComponents...),   //查询下拉字段级联枚举对应的被引用枚举名称
-		"cDicCName":     getDicChildrenName("c", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
-		"cDicPName":     getDicParentName("c", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
-		"uDicCName":     getDicChildrenName("u", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
-		"uDicPName":     getDicParentName("u", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
+		"SL":            getKWS("sl"),                                           //表单下拉框
+		"SLM":           getKWS("slm"),                                          //表单下拉框
+		"CB":            getKWS("cb"),                                           //表单复选框
+		"RD":            getKWS("rd"),                                           //表单单选框
+		"TA":            getKWS("ta"),                                           //表单文本域
+		"DRANGE":        getKWS("drange"),                                       //表单日期时间选择器
+		"DTIME":         getKWS("dtime"),                                        //表单日期时间选择器
+		"DATE":          getKWS("date"),                                         //表单日期选择器
+		"UP":            getKWS("up"),                                           //文件上传
+		"dateType":      getDateType,                                            //日期字段对应的组件的日期类型
+		"dateFormat":    getDateFormat,                                          //日期字段对应的组件的日期格式
+		"dateFormatDef": getDateFormatDef,                                       //日期字段对应的组件的日期默认值
+		"CC":            getKWS("cc"),                                           //表单颜色样式
+		"FIXED":         getKWS("fixed"),                                        //表单固定列
+		"SORT":          getKWS("sort"),                                         //表单固定列
+		"fIsNofltr":     getKWS("nofltr"),                                       //前端字段不格式化
+		"lfCon":         getSubConContent("l", "f"),                             //列表展示字段的过滤器子约束l(f:xx)
+		"leCon":         getSubConContent("l", "e"),                             //列表展示字段的枚举子约束l(e:xx)
+		"qeCon":         getSubConContent("q", "e"),                             //查询字段的枚举子约束q(e:xx)
+		"qfCon":         getSubConContent("q", "f"),                             //查询字段的枚举子约束q(f:xx)
+		"rfCon":         getSubConContent("r", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
+		"ufCon":         getSubConContent("u", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
+		"cfCon":         getSubConContent("c", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
+		"reCon":         getSubConContent("r", "e"),                             //详情展示字段的枚举子约束r(e:xx)
+		"ueCon":         getSubConContent("u", "e"),                             //编辑字段的格式枚举子约束u(e:xx)
+		"ceCon":         getSubConContent("c", "e"),                             //添加字段的格式枚举子约束c(e:xx)
+		"dicName":       getDicName(webEnumComponents...),                       //字段的对应的枚举名称
+		"qDicCName":     getCascadeChildrenName("q", "e", webEnumComponents...), //查询下拉字段级联枚举对应的引用枚举名称
+		"qDicPName":     getCascadeParentName("q", "e", webEnumComponents...),   //查询下拉字段级联枚举对应的被引用枚举名称
+		"cDicCName":     getCascadeChildrenName("c", "e", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
+		"cDicPName":     getCascadeParentName("c", "e", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
+		"uDicCName":     getCascadeChildrenName("u", "e", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
+		"uDicPName":     getCascadeParentName("u", "e", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
+		"qGroupCName":   getCascadeChildrenName("q", "g", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
+		"qGroupPName":   getCascadeParentName("q", "g", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
+		"cGroupCName":   getCascadeChildrenName("c", "g", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
+		"cGroupPName":   getCascadeParentName("c", "g", webEnumComponents...),   //创建下拉字段级联枚举对应的被引用枚举名称
+		"uGroupCName":   getCascadeChildrenName("u", "g", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
+		"uGroupPName":   getCascadeParentName("u", "g", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
+
+		"setIsInput": setIsInput,
 	}
+}
+
+func setIsInput(r *Row) string {
+	r.IsInput = true
+	return ""
 }
 
 func getMod(x int, y int) int {
@@ -685,10 +705,13 @@ func getDateFormat(con, subCon string) string {
 		if getKWS("dtime")(con) {
 			return "yyyy-MM-dd HH:mm:ss"
 		}
+		if getKWS("drange")(con) {
+			return "yyyy-MM-dd"
+		}
 		if getKWS("date")(con) {
 			return "yyyy-MM-dd"
 		}
-		return "yyyy-MM-dd"
+		return "yyyy-MM-dd HH:mm:ss"
 	}
 
 	return subCon
@@ -719,11 +742,11 @@ func getDateType(con, subCon string) string {
 	return "date"
 }
 
-func getDicChildrenName(tp string, keys ...string) func(name string, t *Table) string {
+func getCascadeChildrenName(tp, tkey string, keys ...string) func(name string, t *Table) string {
 	return func(name string, t *Table) string {
 		kw := fmt.Sprintf("#%s", name)
 		for _, v := range t.Rows {
-			subCon := getSubConContent(tp, "e")(v.Con) //该字段枚举子约束
+			subCon := getSubConContent(tp, tkey)(v.Con) //该字段枚举子约束
 			if kw == subCon {
 				return v.Name
 			}
@@ -739,9 +762,9 @@ func getDicChildrenName(tp string, keys ...string) func(name string, t *Table) s
 	}
 }
 
-func getDicParentName(tp string, keys ...string) func(con string, t *Table) string {
+func getCascadeParentName(tp, tkey string, keys ...string) func(con string, t *Table) string {
 	return func(con string, t *Table) string {
-		subCon := getSubConContent(tp, "e")(con)             //该字段枚举子约束
+		subCon := getSubConContent(tp, tkey)(con)            //该字段枚举子约束
 		if subCon != "" && !strings.HasPrefix(subCon, "#") { //字段标识配置配置了对应枚举,不再处理组件标识的级联枚举
 			return ""
 		}
@@ -776,6 +799,29 @@ func getDicParentName(tp string, keys ...string) func(con string, t *Table) stri
 		}
 
 		return ""
+	}
+}
+
+func getChildrenGroup(tp string) func(name string, t *Table) []*Row {
+	return func(name string, t *Table) []*Row {
+		r := []*Row{}
+		var wg sync.WaitGroup
+		var lock sync.Mutex
+		for _, v := range t.Rows {
+			wg.Add(1)
+			go func(tp string, v *Row, t *Table) {
+				defer wg.Done()
+				pname := getCascadeParentName(tp, "g", webEnumComponents...)(v.Con, t)
+				if pname == name {
+					lock.Lock()
+					defer lock.Unlock()
+					r = append(r, v)
+				}
+			}(tp, v, t)
+		}
+		wg.Wait()
+
+		return r
 	}
 }
 

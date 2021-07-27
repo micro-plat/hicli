@@ -19,11 +19,13 @@ func createScheme(c *cli.Context) (err error) {
 		return fmt.Errorf("未指定输出路径")
 	}
 
-	//读取文件
-	tbs, err := tmpl.Markdown2DB(c.Args().First())
+	filePath := c.Args().First()
+	var tbs *tmpl.Tables
+	tbs, err = tmpl.Markdowns2DB(filePath)
 	if err != nil {
 		return err
 	}
+
 	//设置包名称
 	if c.Bool(gofile) {
 		tbs.SetPkg(c.Args().Get(1))
@@ -36,9 +38,10 @@ func createScheme(c *cli.Context) (err error) {
 	tbs.BuildSEQFile(c.Bool("seqfile"))
 
 	//循环创建表
+	outpath := c.Args().Get(1)
 	for _, tb := range tbs.Tbs {
 		//创建文件
-		path := tmpl.GetSchemePath(c.Args().Get(1), tb.Name, c.Bool(gofile))
+		path := tmpl.GetSchemePath(outpath, tb.Name, c.Bool(gofile))
 
 		//翻译文件
 		content, err := tmpl.Translate(tmpl.SQLTmpl, dbtp, tb)
@@ -55,11 +58,11 @@ func createScheme(c *cli.Context) (err error) {
 		}
 	}
 	if tbs.SEQFile {
-		content, err := tmpl.Translate(tmpl.CreateSEQTable, dbtp, tbs)
+		content, err := tmpl.Translate(tmpl.MarkdownCurdSeqInstallSQL, dbtp, tbs)
 		if err != nil {
 			return err
 		}
-		path := tmpl.GetSEQFilePath(c.Args().Get(1), c.Bool(gofile))
+		path := tmpl.GetSEQFilePath(outpath, c.Bool(gofile))
 		fs, err := tmpl.Create(path, c.Bool("cover"))
 		if err != nil {
 			return err
@@ -75,7 +78,7 @@ func createScheme(c *cli.Context) (err error) {
 		if err != nil {
 			return err
 		}
-		path := tmpl.GetInstallPath(c.Args().Get(1))
+		path := tmpl.GetInstallPath(outpath)
 		fs, err := tmpl.Create(path, c.Bool("cover"))
 		if err != nil {
 			return err
@@ -84,5 +87,6 @@ func createScheme(c *cli.Context) (err error) {
 		fs.WriteString(content)
 		fs.Close()
 	}
+
 	return nil
 }

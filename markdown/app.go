@@ -59,7 +59,7 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 		basePath := utils.GetProjectBasePath(projectPath)
 
 		//读取文件
-		tbs, err := tmpl.Markdown2DB(c.Args().First())
+		tbs, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
 		}
@@ -67,8 +67,8 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 		allTables := tbs.Tbs
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
-			tb.DisposeTabTables()
-			tb.DispostBtnTables()
+			tb.DisposeELTab()
+			tb.DispostELBtn()
 		}
 
 		//过滤数据表
@@ -138,7 +138,7 @@ func createEnum() func(c *cli.Context) (err error) {
 		projectPath := utils.GetProjectPath(root)
 
 		//读取文件
-		tbs, err := tmpl.Markdown2DB(c.Args().First())
+		tbs, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
 		}

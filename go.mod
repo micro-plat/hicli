@@ -10,6 +10,6 @@ require (
 	github.com/jordan-wright/email v0.0.0-20200917010138-e1c00e156980
 	github.com/lib4dev/cli v1.2.6
 	github.com/mattn/go-oci8 v0.1.1 // indirect
-	github.com/micro-plat/lib4go v1.1.0
+	github.com/micro-plat/lib4go v1.1.7
 	github.com/urfave/cli v1.22.4
 )

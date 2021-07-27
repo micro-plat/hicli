@@ -8,47 +8,49 @@ const TmplCreateVue = `
 {{- $choose:= false -}}
 <template>
   <!-- Add Form -->
-  <el-dialog title="添加{{.Desc}}" {{- if gt ($rows|create|len) 5}} width="65%" {{else}} width="25%" {{- end}} :visible.sync="dialogAddVisible">
-    <el-form :model="addData" {{if gt ($rows|create|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="addForm" label-width="110px">
+  <el-dialog title="添加{{.Desc}}" {{- if gt ($rows|create|len) 5}} width="720px" {{else}} width="500px" {{- end}} :visible.sync="dialogAddVisible">
+    <el-form :model="addData" size="small" {{if gt ($rows|create|len) 5 -}}:inline="true"{{- end}} :rules="rules" ref="addForm" label-width="110px">
     	{{- range $i,$c:=$rows|create }}
       {{if $c.Con|TA -}}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input size="medium" maxlength="{{or ($c.Con|cfCon) $c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="addData.{{$c.Name}}">
+				<el-input size="small" maxlength="{{or ($c.Con|cfCon) $c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="addData.{{$c.Name}}">
         </el-input>
 			</el-form-item>
 			{{- else if $c.Con|RD }}
 			<el-form-item  label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-radio-group size="medium" v-model="addData.{{$c.Name}}" style="margin-left:5px">
+				<el-radio-group size="small" v-model="addData.{{$c.Name}}" style="margin-left:5px">
         	<el-radio v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :label="item.value">{{"{{item.name}}"}}</el-radio>
 				</el-radio-group>
 			</el-form-item>
 			{{- else if $c.Con|SL }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-select size="medium" style="width: 100%;"	v-model="addData.{{$c.Name}}"	clearable filterable class="input-cos" placeholder="---请选择---"
-				{{- if (cDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{end}}
-				{{- if (cDicCName $c.Name $tb) }} @change="set{{(cDicCName $c.Name $tb)|upperName}}(addData.{{$c.Name}})" {{- end}}>
+				<el-select size="small" style="width: 100%;"	v-model="addData.{{$c.Name}}"	clearable filterable class="input-cos" placeholder="---请选择---"
+				{{- if (cDicCName $c.Name $tb) }} @change="set{{(cDicCName $c.Name $tb)|upperName}}(addData.{{$c.Name}})"
+				{{- else if (cGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
+				{{- else if or (cDicPName $c.Con $tb) (cGroupPName $c.Con $tb)  }} @change="handleChooseTool()"{{$choose = true}}{{- end}}
+				{{- if (cGroupPName $c.Con $tb)}} disabled{{end}} >
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 				</el-select>
 			</el-form-item>
 			{{- else if $c.Con|SLM }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-select size="medium"  placeholder="---请选择---" clearable filterable v-model="{{$c.Name|lowerName}}Array" multiple style="width: 100%;">
+				<el-select size="small"  placeholder="---请选择---" clearable filterable v-model="{{$c.Name|lowerName}}Array" multiple style="width: 100%;">
 					<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name" ></el-option>
 				</el-select>
 			</el-form-item>
 			{{- else if $c.Con|CB }}
 			<el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}"> 
-				<el-checkbox-group size="medium" v-model="{{$c.Name|lowerName}}Array">
+				<el-checkbox-group size="small" v-model="{{$c.Name|lowerName}}Array">
 					<el-checkbox v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
 				</el-checkbox-group>
 			</el-form-item>
 			{{- else if or ($c.Con|DTIME) ($c.Con|DATE) ($c.Type|isTime) }}
 			<el-form-item prop="{{$c.Name}}" label="{{$c.Desc|shortName}}:">
-					<el-date-picker size="medium" class="input-cos"  v-model="addData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ceCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ceCon)}}"  placeholder="选择日期"></el-date-picker>
+					<el-date-picker size="small" class="input-cos"  v-model="addData.{{$c.Name}}" type="{{dateType $c.Con ($c.Con|ceCon)}}" value-format="{{dateFormat $c.Con ($c.Con|ceCon)}}"  placeholder="选择日期"></el-date-picker>
 			</el-form-item>
       {{- else -}}
       <el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
-				<el-input size="medium" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
+				<el-input size="small" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
 				{{- if gt $c.DecimalLen 0}} oninput="if(isNaN(value)) { value = null } if(value.indexOf('.')>0){value=value.slice(0,value.indexOf('.')+{{$c.DecimalLen|add1}})}"{{end}}
 				 clearable v-model="addData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
 				</el-input>
@@ -57,8 +59,8 @@ const TmplCreateVue = `
       {{end}}
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button size="medium" @click="resetForm('addForm')">取 消</el-button>
-      <el-button size="medium" type="success" @click="add('addForm')">确 定</el-button>
+      <el-button size="small" @click="resetForm('addForm')">取 消</el-button>
+      <el-button size="small" type="success" @click="add('addForm')">确 定</el-button>
     </div>
   </el-dialog>
   <!--Add Form -->
@@ -121,6 +123,26 @@ export default {
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|ueCon) $tb) ($c.Name|lower)}}",pid)
 		},
 		{{- end}}
+		{{- if (cGroupCName $c.Name $tb) }}
+		set{{$c.Name|upperName}}Group(value){
+			var obj = this.{{$c.Name|lowerName}}.find((item) => {
+					return item.value === value
+      })
+			if (obj){
+				{{- range $i,$c1:=(cgroup $c.Name $tb)}}
+				{{- if (cDicCName $c1.Name $tb)  }}
+				this.set{{(cDicCName $c1.Name $tb)|upperName}}(obj.{{$c1.Name}})
+				{{- end}}
+				{{- end}}
+				{{- range $i,$c1:=(cgroup $c.Name $tb)}}
+				this.addData.{{$c1.Name}} = obj.{{$c1.Name}}
+				{{- if  (cGroupCName $c1.Name $tb)}}
+				this.set{{$c1.Name|upperName}}Group(this.addData.{{$c1.Name}})
+				{{- end}}
+				{{- end}}
+			}
+		},
+		{{- end}}
 		{{- end }}
 		add(formName) {
 			{{- range $i,$c:=$rows|create -}}
@@ -135,6 +157,13 @@ export default {
 					this.$http.post("/{{.Name|rmhd|rpath}}", this.addData, {}, true, true)
 						.then(res => {
 							this.$refs[formName].resetFields()
+							{{- range $i,$c:=$rows}}
+							{{- if $c.Con|fIsDT}}
+							this.$enum.clear(this.addData.{{$c.Name}})
+							{{- else if and ($c.Con|fIsDI) (not ($tb|fHasDT))}}
+							this.$enum.clear("{{$.Name|rmhd|lower}}")
+							{{- end}}
+							{{- end}}
 							this.dialogAddVisible = false
 							this.refresh()
 						})

@@ -7,7 +7,8 @@ const TmplDetail = `
 {{- $tb :=. -}}
 {{- $tabs := .TabTables -}}
 {{- $choose :=false -}}
-{{- $name:=.Name }}
+{{- $panelbody :=false -}}
+{{- $name:=.Name -}}
 <template>
   <div>
     <div>
@@ -36,6 +37,10 @@ const TmplDetail = `
                       </el-tooltip>
                       <div v-else>{{"{{ info."}}{{$c.Name}} | fltrEmpty }}</div>
                     </el-col>
+              {{- else if ($c.Con|fIsNofltr)}}
+                    <el-col :span="6">
+                      <div>{{"{{ info."}}{{$c.Name}} | fltrEmpty }}</div>
+                    </el-col>
               {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt)) (ne $c.Name ($pks|firstStr)) }}
                     <el-col :span="6">
                       <div>{{"{{ info."}}{{$c.Name}} |  fltrNumberFormat({{or ($c.Con|rfCon) "0"}})}}</div>
@@ -46,7 +51,7 @@ const TmplDetail = `
                     </el-col>
               {{- else if $c.Type|isTime }}
                     <el-col :span="6">
-                      <div>{{"{{ info."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd"}}") }}</div>
+                      <div>{{"{{ info."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
                     </el-col>
               {{- else}}
                     <el-col :span="6">
@@ -92,6 +97,10 @@ const TmplDetail = `
                       </el-tooltip>
                       <div v-else>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEmpty }}</div>
                     </el-col>
+              {{- else if ($c.Con|fIsNofltr)}}
+                    <el-col :span="6">
+                      <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEmpty }}</div>
+                    </el-col>
               {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt)) (ne $c.Name ($tab|pks|firstStr)) }}
                     <el-col :span="6">
                       <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} |  fltrNumberFormat({{or ($c.Con|rfCon) "0"}})}}</div>
@@ -102,7 +111,7 @@ const TmplDetail = `
                     </el-col>
               {{- else if $c.Type|isTime }}
                     <el-col :span="6">
-                      <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd"}}") }}</div>
+                      <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
                     </el-col>
               {{- else}}
                     <el-col :span="6">
@@ -121,9 +130,9 @@ const TmplDetail = `
               </tbody>
             </table>
           </div>
-        {{- else if (index $tab.TabInfo.TabTableList $name) }}
+        {{- else if (index $tab.TabInfo.TabTableList $name) }}{{$panelbody = true}}
           <el-scrollbar style="height:100%" id="panel-body">
-            <el-table :data="{{$tab.Name|rmhd|varName}}List.items" stripe style="width: 100%" :height="maxHeight">
+            <el-table :data="{{$tab.Name|rmhd|varName}}List.items" size="small" stripe style="width: 100%" :height="maxHeight">
               {{if gt $tab.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod"></el-table-column>{{end}}
               {{- range $i,$c:=$tab.Rows|list}}
               <el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
@@ -139,6 +148,10 @@ const TmplDetail = `
                   </el-tooltip>
                   <span v-else>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
                 </template>
+              {{- else if ($c.Con|fIsNofltr)}}
+              <template slot-scope="scope">
+                <span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
+              </template>
               {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($tab|pks|firstStr))}}
               <template slot-scope="scope">
                 <span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
@@ -149,7 +162,7 @@ const TmplDetail = `
               </template>
               {{- else if $c.Type|isTime }}
               <template slot-scope="scope">
-                <div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd"}}") }}</div>
+                <div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
               </template>
               {{- else}}
               <template slot-scope="scope">
@@ -201,10 +214,18 @@ export default {
 			maxHeight: 0
     }
   },
+  {{- if not $panelbody}}
+  watch: {
+    "$route.fullPath"(val) {
+      this.init();
+    }
+  },
+  {{- end}}
   mounted() {
+    {{if $panelbody}}
     this.$nextTick(()=>{
 			this.maxHeight = this.$utility.getTableHeight("panel-body")
-		})
+		}){{end}}
     this.init();
   },
   created(){

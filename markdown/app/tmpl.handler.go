@@ -291,26 +291,7 @@ func (u *{{.Name|rmhd|varName}}Handler) PutHandle(ctx hydra.IContext) (r interfa
 
 
 {{- range $i,$btn:=$btns }}
-//{{$btn.Name|upperName}}Handle 更新{{$.Desc}}数据
-func (u *{{$.Name|rmhd|varName}}Handler) {{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
-
-	ctx.Log().Info("--------更新{{$.Desc}}数据--------")
-
-	ctx.Log().Info("1.参数校验")
-	if err := ctx.Request().CheckMap(update{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields); err != nil {
-		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
-	}
-
-	ctx.Log().Info("2.执行操作")
-	_, err := hydra.C.DB().GetRegularDB().Execute(sql.Update{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
-	if err != nil {
-		return errs.NewErrorf(http.StatusNotExtended,"更新数据出错:%+v", err)
-	}
-
-	ctx.Log().Info("3.返回结果")
-	return "success"
-}
-{{- if eq ($btn.VIF|len) 0}}
+{{- if  $btn.Show }}
 //Get{{$btn.Name|upperName}}Handle 获取{{$.Desc}}单条数据
 func (u *{{$.Name|rmhd|varName}}Handler) Get{{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
 
@@ -362,7 +343,7 @@ func (u *{{.Name|rmhd|varName}}Handler) DeleteHandle(ctx hydra.IContext) (r inte
 var post{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 	{{- range $i,$c:=.Rows|create}}
 	{{- if ne ($c|isNull) $empty}}
-	field.Field{{$c.Name|varName}}:"required",
+	field.{{$c.Name|varName}}:"required",
 	{{- end}}
 	{{- end}}
 }
@@ -370,11 +351,11 @@ var post{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 
 {{if gt (.Rows|detail|len) 0 -}}
 var get{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
+	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
 }
 {{if gt (.TabInfo.TabField|len) 0}}
 var get{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	{{range $i,$c:=.TabInfo.TabField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
+	{{range $i,$c:=.TabInfo.TabField}}field.{{(or ($c) ($pks|firstStr))|varName}}:"required",
 	{{end}}
 }
 {{- end}}
@@ -382,12 +363,12 @@ var get{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
 
 {{if gt (.Rows|list|len) 0 -}}
 var query{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=.Rows|query}}field.Field{{$c.Name|varName}}:"required",
+	{{range $i,$c:=.Rows|query}}field.{{$c.Name|varName}}:"required",
 	{{end -}}
 }
 {{if gt (.TabInfo.TabListField|len) 0}}
 var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
-	{{range $i,$c:=.TabInfo.TabListField}}field.Field{{(or ($c) ($pks|firstStr))|varName}}:"required",
+	{{range $i,$c:=.TabInfo.TabListField}}field.{{(or ($c) ($pks|firstStr))|varName}}:"required",
 	{{end}}
 }
 {{- end}}
@@ -395,30 +376,26 @@ var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
 
 {{if gt (.Rows|update|len) 0 -}}
 var update{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=.Rows|update}}{{if ne ($c|isNull) $empty}}field.Field{{$c.Name|varName}}:"required",{{end}}
+	{{range $i,$c:=.Rows|update}}{{if ne ($c|isNull) $empty}}field.{{$c.Name|varName}}:"required",{{end}}
 	{{end -}}
 }
 
 var getUpdate{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
+	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
 }
 {{- end}}
 
 {{if gt (.Rows|delete|len) 0 -}}
 var delete{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
+	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
 }
 {{- end}}
 
 
 {{- range $i,$btn:=$btns }}
-var update{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=$btn.Rows}}{{if not $c.Disable}}field.Field{{$c.Name|varName}}:"required",{{end}}{{end}}
-	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
-}
-{{- if eq ($btn.VIF|len) 0}}
+{{- if  $btn.Show }}
 var get{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=$pks}}field.Field{{$c|varName}}:"required",{{end}}
+	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
 }
 {{- end}}
 {{- end}}

@@ -29,7 +29,7 @@ func showCode(tp string) func(c *cli.Context) (err error) {
 		projectPath := utils.GetProjectPath(root)
 
 		//读取文件
-		tb, err := tmpl.Markdown2DB(c.Args().First())
+		tb, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return err
 		}
@@ -76,6 +76,29 @@ func showFiledCode(tp string) func(c *cli.Context) (err error) {
 		if filedPath == "" {
 			return
 		}
+		projectPath := utils.GetProjectPath(root)
+		basePath := utils.GetProjectBasePath(projectPath)
+
+		//读取文件
+		tbs, err := tmpl.Markdowns2DB(c.Args().First())
+		if err != nil {
+			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
+		}
+
+		//过滤数据表
+		tbs.FilterByKW(c.String("table"))
+
+		for _, tb := range tbs.Tbs {
+			//设置项目目录
+			tb.SetBasePath(basePath)
+
+			//保存的动态配置
+			err := tmpl.NewFieldConf(tb).SaveConf(filedPath)
+			if err != nil {
+				logs.Log.Error(err)
+			}
+		}
+
 		confs, err := tmpl.GetFieldConf(filedPath)
 		if err != nil {
 			return err
@@ -92,7 +115,6 @@ func showFiledCode(tp string) func(c *cli.Context) (err error) {
 		}
 
 		//生成文件
-		projectPath := utils.GetProjectPath(root)
 		path := tmpl.GetFileName(fmt.Sprintf("%s/modules/const/%s", projectPath, tp), "field", "")
 		fs, err := tmpl.Create(path, c.Bool("cover"))
 		if err != nil {

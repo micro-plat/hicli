@@ -80,7 +80,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 		root := c.Args().Get(1)
 		confPath := tmpl.GetWebConfPath(root)
 		//读取文件
-		tbs, err := tmpl.Markdown2DB(c.Args().First())
+		tbs, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
 		}
@@ -88,11 +88,12 @@ func create(tp string) func(c *cli.Context) (err error) {
 		allTables := tbs.Tbs
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
-			tb.DisposeTabTables()
-			tb.DispostBtnTables()
-			tb.DispostDownloadTables()
-			tb.DispostSelectTables()
-			tb.DispostComponentsInfoTables()
+			tb.DisposeELTab()
+			tb.DispostELBtn()
+			tb.DispostELDownload()
+			tb.DispostELSelect()
+			tb.DispostELListComponents()
+			tb.DispostELQueryComponents()
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {
@@ -148,7 +149,7 @@ func createExt() func(c *cli.Context) (err error) {
 
 		root := c.Args().Get(1)
 		//读取文件
-		tbs, err := tmpl.Markdown2DB(c.Args().First())
+		tbs, err := tmpl.Markdowns2DB(c.Args().First())
 		if err != nil {
 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
 		}
@@ -156,8 +157,8 @@ func createExt() func(c *cli.Context) (err error) {
 		allTables := tbs.Tbs
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
-			tb.DisposeTabTables()
-			tb.DispostBtnTables()
+			tb.DisposeELTab()
+			tb.DispostELBtn()
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {
@@ -167,7 +168,7 @@ func createExt() func(c *cli.Context) (err error) {
 			tb.SortRows()
 
 			for k, v := range tb.BtnInfo {
-				if len(v.VIF) > 0 {
+				if !v.Show {
 					continue
 				}
 
