@@ -98,16 +98,24 @@ ORDER BY a.column_id
 `
 
 const GetMysqlColumnInfo = `
-select
-c.table_name,
-GROUP_CONCAT(c.column_name) column_name
-from
-information_schema.columns c
-where
-c.table_schema = @schema
-group by 
-c.table_name
-order by c.table_name,c.ordinal_position
+SELECT
+	a.table_name,
+	GROUP_CONCAT( a.column_name ) column_name 
+FROM
+	(
+	SELECT
+		c.table_name,
+		c.column_name 
+	FROM
+		information_schema.COLUMNS c 
+	WHERE
+		c.table_schema = @schema
+	ORDER BY
+		c.table_name,
+		c.ordinal_position 
+	) a 
+GROUP BY
+	a.table_name
 `
 
 const ExportMysqlData = `SELECT #column_name value from #table_name t`
