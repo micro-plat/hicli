@@ -3,6 +3,7 @@ package tmpl
 import (
 	"encoding/json"
 	"path"
+	"sync"
 
 	"github.com/micro-plat/hicli/markdown/utils"
 )
@@ -119,8 +120,11 @@ func (t *FieldConf) SaveConf(confPath string) error {
 	return writeConf(confPath, conf)
 }
 
-func writeConf(confPath string, conf interface{}) error {
+var mutex sync.Mutex
 
+func writeConf(confPath string, conf interface{}) error {
+	mutex.Lock()
+	defer mutex.Unlock()
 	//创建文件
 	fs, err := Create(confPath, true)
 	if err != nil {
