@@ -64,7 +64,7 @@ func Create(path string, cover bool) (file *os.File, err error) {
 		return
 	}
 
-	file, err = os.OpenFile(path, os.O_RDWR, os.ModePerm)
+	file, err = os.OpenFile(path, os.O_RDWR|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return nil, fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 	}

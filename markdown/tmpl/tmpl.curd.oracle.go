@@ -253,22 +253,11 @@ where
 {{- if gt ($deleterows|len) 0}}
 //Delete{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 删除{{.Desc}}
 const Delete{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} = {###}
-update {{.Name}}{{.DBLink}} 
-set
-{{- range $i,$c:=$deleterows}}
-	{{$c.Name}}={{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
-{{- end}}
+delete from {{.Name}}{{.DBLink}}
 where
-{{- if eq ($pks|len) 0}}
-1=1
-{{- else -}}
 {{- range $i,$c:=$pks}}
 	&{{$c}}
-{{- end}}
-{{- range $i,$c:=$deleterows}}
-	and {{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
-{{- end}}
-{{end }}{###}
+{{- end}}{###}
 {{end}}
 
 {{- range $i,$btn:=$btns }}
