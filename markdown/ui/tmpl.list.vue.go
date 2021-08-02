@@ -290,7 +290,15 @@ export default {
 			{{- if ($c.Con|DRANGE)}}
       times: '',
       pickerOptions: {
-        shortcuts: [
+        shortcuts: [{
+						text: '今天',
+						onClick(picker) {
+							const end = new Date();
+							const start = new Date();
+							start.setTime(start.getTime() - 3600 * 1000 * 24 * 3);
+							picker.$emit('pick', [start, end]);
+						}
+					},
           {
             text: '最近三天',
             onClick(picker) {
