@@ -123,8 +123,9 @@ func Markdowns2DB(filePath string) (*Tables, error) {
 			}
 			baseTable.TableNames[key] = true
 		}
-		baseTable.Tbs = append(baseTable.Tbs, newTable.Tbs...)
+		baseTable.RawTables = append(baseTable.RawTables, newTable.Tbs...)
 	}
+	baseTable.Tbs = baseTable.RawTables
 	return baseTable, nil
 }
 
