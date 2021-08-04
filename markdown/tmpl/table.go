@@ -9,6 +9,8 @@ import (
 	"text/template"
 
 	logs "github.com/lib4dev/cli/logger"
+	"github.com/micro-plat/hicli/markdown/const/enums"
+	"github.com/micro-plat/hicli/markdown/utils"
 	"github.com/micro-plat/lib4go/types"
 )
 
@@ -23,7 +25,9 @@ type Table struct {
 	DBLink          string //
 	Rows            TableColumn
 	RawRows         []*Row
+	DiffRows        TableColumn
 	Indexs          Indexs
+	DiffIndexs      []*Index
 	BasePath        string   //生成项目基本路径
 	AllTables       []*Table //所有表
 	Exclude         bool     //排除生成sql
@@ -36,93 +40,7 @@ type Table struct {
 	SelectInfo      *SelectInfo
 	ListComponents  []*ListComponents
 	QueryComponents []*QueryComponents
-}
-
-//Row 行信息
-type Row struct {
-	Name         string //字段名
-	Type         string //类型
-	Def          string //默认值
-	IsNull       string //为空
-	Con          string //约束
-	Desc         string //描述
-	Len          int    //类型长度
-	LenStr       string
-	DecimalLen   int //小数长度
-	LineID       int
-	Sort         int //字段在列表中排序位置
-	BelongTable  *Table
-	Disable      bool
-	SQLAliasName string //SQL别名
-	IsInput      bool
-}
-
-//TableColumn 表的列排序用
-type TableColumn []*Row
-
-func (t TableColumn) Len() int {
-	return len(t)
-}
-
-//从低到高
-func (t TableColumn) Less(i, j int) bool {
-	return t[i].Sort < t[j].Sort
-}
-
-func (t TableColumn) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
-}
-
-//Indexs 索引集
-type Indexs map[string]*Index
-
-//Index 索引
-type Index struct {
-	fields fields
-	Name   string
-	Type   string
-}
-type fields []*Field
-
-//Field 字段信息
-type Field struct {
-	Name  string
-	Index int
-}
-
-//List 获取所有字段名的列表
-func (t fields) List() []string {
-	list := make([]string, 0, len(t))
-	for _, fi := range t {
-		list = append(list, fi.Name)
-	}
-	return list
-}
-
-//Len 字段个数
-func (t fields) Len() int {
-	return len(t)
-}
-
-//Join 指定连接符，将字段名连接为一个长字符串
-func (t fields) Join(s string) string {
-	list := t.List()
-	return strings.Join(list, s)
-}
-
-//从低到高
-func (t fields) Less(i, j int) bool {
-	if t[i].Index < t[j].Index {
-		return true
-	}
-	if t[i].Index == t[j].Index {
-		return true
-	}
-	return false
-}
-
-func (t fields) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
+	Operation       enums.Operation
 }
 
 //NewTable 创建表
@@ -148,6 +66,10 @@ func (t *Table) AddRow(r *Row) error {
 
 //SetPkg 添加行信息
 func (t *Table) SetPkg(path string) {
+	if path == "" {
+		path = utils.GetProjectPath(path)
+	}
+
 	t.PKG = getPKSName(path)
 }
 
@@ -228,9 +150,9 @@ func (t *Table) GetIndexs() Indexs {
 	}
 	indexs := map[string]*Index{}
 	for ri, r := range t.Rows {
-		t.getIndex(indexs, r, ri, "idx")
-		t.getIndex(indexs, r, ri, "unq")
-		t.getIndex(indexs, r, ri, "pk")
+		t.getIndex(indexs, r, ri, enums.IndexNor)
+		t.getIndex(indexs, r, ri, enums.IndexUnq)
+		t.getIndex(indexs, r, ri, enums.IndexPK)
 	}
 	for _, index := range indexs {
 		sort.Sort(index.fields)
@@ -238,8 +160,8 @@ func (t *Table) GetIndexs() Indexs {
 	t.Indexs = indexs
 	return t.Indexs
 }
-func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) {
-	ok, name, i, _ := getCapturingGroup(row.Con, tp)
+func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp enums.IndexType) {
+	ok, name, i, _ := getCapturingGroup(row.Con, string(tp))
 	if !ok {
 		return
 	}
@@ -249,7 +171,12 @@ func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) 
 		v.fields = append(v.fields, &Field{Name: row.Name, Index: index})
 		return
 	}
-	indexs[name] = &Index{Name: name, Type: tp, fields: []*Field{{Name: row.Name, Index: index}}}
+	indexs[name] = &Index{
+		Name:      name,
+		TableName: t.Name,
+		Type:      tp,
+		fields:    []*Field{{Name: row.Name, Index: index}},
+	}
 }
 
 func (t *Table) String() string {

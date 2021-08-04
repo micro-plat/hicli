@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/micro-plat/hicli/markdown/const/enums"
+
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/lib4go/types"
 )
@@ -82,6 +84,10 @@ func getfuncs(tp string) map[string]interface{} {
 		"isInt":     isType("int"),                                      //是否是int
 		"isString":  isType("string"),                                   //是否是string
 		"replace":   replace(tp),
+		"isPK":      judgeIndexType(enums.IndexPK),  //是否是主键
+		"isUNQ":     judgeIndexType(enums.IndexUnq), //是否是唯一索引
+		"isIndex":   judgeIndexType(enums.IndexNor), //是否是唯一索引
+		"indexStr":  indexString(tp),
 
 		//前后端约束处理函数
 		"query":    getRows("q"),                                      //查询字段
@@ -476,12 +482,12 @@ func getDBIndex(tp string) func(r *Table) string {
 			list := make([]string, 0, len(indexs))
 			for _, index := range indexs {
 				switch index.Type {
-				case "idx":
-					list = append(list, fmt.Sprintf("index %s(%s)", index.Name, index.fields.Join(",")))
-				case "unq":
-					list = append(list, fmt.Sprintf("unique index %s(%s)", index.Name, index.fields.Join(",")))
-				case "pk":
-					list = append(list, fmt.Sprintf("primary key (%s)", index.fields.Join(",")))
+				case enums.IndexNor:
+					list = append(list, index.String(tp))
+				case enums.IndexUnq:
+					list = append(list, index.String(tp))
+				case enums.IndexPK:
+					list = append(list, index.String(tp))
 				}
 			}
 			if len(list) > 0 {
@@ -495,12 +501,12 @@ func getDBIndex(tp string) func(r *Table) string {
 			list := make([]string, 0, len(indexs))
 			for _, index := range indexs {
 				switch index.Type {
-				case "idx":
-					list = append(list, fmt.Sprintf("create index %s on %s(%s);\n\t", index.Name, r.Name, index.fields.Join(",")))
-				case "unq":
-					list = append(list, fmt.Sprintf("alter table %s add constraint %s unique(%s);\n\t", r.Name, index.Name, index.fields.Join(",")))
-				case "pk":
-					list = append(list, fmt.Sprintf("alter table %s add constraint pk_%s primary key (%s);\n\t", r.Name, index.Name, index.fields.Join(",")))
+				case enums.IndexNor:
+					list = append(list, fmt.Sprintf("create %s;\n\t", index.String(tp)))
+				case enums.IndexUnq:
+					list = append(list, fmt.Sprintf("alter table %s add %s;\n\t", r.Name, index.String(tp)))
+				case enums.IndexPK:
+					list = append(list, fmt.Sprintf("alter table %s add %s;\n\t", r.Name, index.String(tp)))
 				}
 			}
 			if len(list) > 0 {
@@ -890,4 +896,16 @@ func hasKW(tp ...string) func(t *Table) bool {
 
 func add(a int) func(b int) int {
 	return func(b int) int { return a + b }
+}
+
+func indexString(tp string) func(index *Index) string {
+	return func(index *Index) string {
+		return index.String(tp)
+	}
+}
+
+func judgeIndexType(t enums.IndexType) func(index *Index) bool {
+	return func(index *Index) bool {
+		return index.JudgeType(t)
+	}
 }
