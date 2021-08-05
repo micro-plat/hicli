@@ -92,6 +92,7 @@ type BtnInfo struct {
 	VIF                []*VIF
 	KeyWord            string
 	Confirm            string
+	Condition          string
 	URL                string
 	Table              []*Table
 	Rows               []Row
@@ -164,6 +165,8 @@ func (t *Table) DispostELBtn() {
 		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
 
 		info.URL = getSubConContent(key, "url")(t.ExtInfo)
+
+		info.Condition = getSubConContent(key, "condition")(t.ExtInfo)
 
 		//key
 		info.KeyWord = types.GetString(getSubConContent(key, "key")(t.ExtInfo), key)

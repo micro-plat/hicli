@@ -174,9 +174,9 @@ const TmplList = `
 									{{- end}}
 								{{- end}}
 							{{- else if $c.Show}}	
-						<el-button type="text" size="mini" @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 						{{- else}}	
-						<el-button type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 							{{- end }}
 						{{- end}}
 					</template>
