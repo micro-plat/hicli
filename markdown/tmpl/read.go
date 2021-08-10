@@ -42,7 +42,6 @@ func Markdowns2DB(filePath string) (*Tables, error) {
 
 	fns := getAllMatchMD(filePath)
 	//读取文件
-	fmt.Println("files:", fns)
 	baseTable := &Tables{
 		TableNames: make(map[string]bool),
 	}
@@ -264,7 +263,6 @@ func getAllMatchMD(path string) (paths []string) {
 	if dir == "" {
 		dir = "./"
 	}
-	fmt.Println("regexName：", regexName, "dir:", dir)
 	files, _ := ioutil.ReadDir(dir)
 	for _, f := range files {
 		fname := f.Name()

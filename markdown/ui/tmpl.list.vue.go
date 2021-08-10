@@ -27,8 +27,7 @@ const TmplList = `
 					<el-select size="small" v-model="queryData.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
 					{{- if (qDicCName $c.Name $tb) }} @change="set{{(qDicCName $c.Name $tb)|upperName}}(queryData.{{$c.Name}})"
 					{{- else if (qGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
-					{{- else if or (qGroupPName $c.Con $tb) (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}}	
-					{{- if (qGroupPName $c.Con $tb)}} disabled{{- end}} >
+					{{- else if or (qGroupPName $c.Con $tb) (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}} >
 						<el-option value="" label="全部"></el-option>
 						<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 					</el-select>
@@ -159,7 +158,7 @@ const TmplList = `
 						{{- end}}
 
 						{{- range $i,$c:=$tb.ListComponents}}
-						<el-button type="text" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
+						<el-button type="text" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
 						{{- end}}
 
 						{{- range $i,$c:= $btn }}
@@ -174,9 +173,9 @@ const TmplList = `
 									{{- end}}
 								{{- end}}
 							{{- else if $c.Show}}	
-						<el-button type="text" size="mini" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 						{{- else}}	
-						<el-button type="text" size="mini" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 							{{- end }}
 						{{- end}}
 					</template>
@@ -282,9 +281,9 @@ export default {
       queryData:{},               //查询数据对象 
 			{{- range $i,$c:=$rows|query -}}
 			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"){{end}},
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
 			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"){{end}},
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
 			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
 			{{- if ($c.Con|DRANGE)}}

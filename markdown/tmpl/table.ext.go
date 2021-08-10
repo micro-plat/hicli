@@ -166,7 +166,7 @@ func (t *Table) DispostELBtn() {
 
 		info.URL = getSubConContent(key, "url")(t.ExtInfo)
 
-		info.Condition = getSubConContent(key, "condition")(t.ExtInfo)
+		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
 
 		//key
 		info.KeyWord = types.GetString(getSubConContent(key, "key")(t.ExtInfo), key)
@@ -299,7 +299,7 @@ func (t *Table) DispostELListComponents() {
 			info.BtnName = tab[2]
 		}
 		if len(tab) > 3 {
-			info.Condition = tab[3]
+			info.Condition = translateCondition(tab[3])
 		}
 		t.ListComponents = append(t.ListComponents, info)
 	}
@@ -346,4 +346,10 @@ func (t *Table) DispostELQueryComponents() {
 		}
 		t.QueryComponents = append(t.QueryComponents, info)
 	}
+}
+
+func translateCondition(c string) string {
+	c = strings.Replace(c, "and", "&&", -1)
+	c = strings.Replace(c, "or", "||", -1)
+	return c
 }
