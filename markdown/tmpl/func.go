@@ -101,9 +101,9 @@ func getfuncs(tp string) map[string]interface{} {
 		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
 		"sort":     getRows("sort"),                                   //查询字段
 		"sortSort": sortByKw("sort"),                                  //
-		"qgroup":   getChildrenGroup("q"),                             //导出字段
-		"cgroup":   getChildrenGroup("c"),                             //导出字段
-		"ugroup":   getChildrenGroup("u"),                             //导出字段
+		"qgroup":   getChildrenGroup("q"),                             //
+		"cgroup":   getChildrenGroup("c"),                             //
+		"ugroup":   getChildrenGroup("u"),                             //
 
 		//前端约束处理函数
 		"SL":            getKWS("sl"),                                           //表单下拉框
@@ -146,7 +146,9 @@ func getfuncs(tp string) map[string]interface{} {
 		"uGroupCName":   getCascadeChildrenName("u", "g", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
 		"uGroupPName":   getCascadeParentName("u", "g", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
 
-		"setIsInput": setIsInput,
+		"setIsInput":  setIsInput,
+		"DMI":         getKWS("dmi"),  //dropdown menu+input 查询
+		"dropmenurow": getRows("dmi"), //dropdown menu+input 查询
 	}
 }
 

@@ -57,9 +57,24 @@ const TmplList = `
 						<el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+				{{- else if $c.Con|DMI }}
 				{{- else}}{{$c|setIsInput}}
 				{{- end}}
 			{{end}}
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+				<el-form-item>
+					<el-dropdown size="small">
+						<el-button size="small" style="width: 100px">{{"{{ currentDropItem.name }}"}}<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
+						<el-dropdown-menu slot="dropdown">
+							<el-dropdown-item v-for="(item, index) in dropMenu" @click.native="dropmenu(item)" :key="index" :value="item.value" :label="item.name">{{"{{item.name}}"}}</el-dropdown-item>
+						</el-dropdown-menu>
+					</el-dropdown>
+				</el-form-item>
+
+				<el-form-item>
+					<el-input clearable size="small" v-model="queryContent" placeholder="请输入查询内容"></el-input>
+				</el-form-item>
+			{{- end}}
 			{{- range $i,$c:=$rows|query}}
 				{{- if $c.IsInput}}
 				<el-form-item>
@@ -173,9 +188,9 @@ const TmplList = `
 									{{- end}}
 								{{- end}}
 							{{- else if $c.Show}}	
-						<el-button type="text" size="mini" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 						{{- else}}	
-						<el-button type="text" size="mini" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 							{{- end }}
 						{{- end}}
 					</template>
@@ -297,6 +312,16 @@ export default {
 							picker.$emit('pick', [start, end]);
 						}
 					},
+					{
+						text: '昨天',
+						onClick(picker) {
+							const end = new Date();
+							const start = new Date();
+							start.setTime(start.getTime() - 3600 * 1000 * 24 * 1);
+							end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+							picker.$emit('pick', [start, end]);
+						}
+					},
           {
             text: '最近三天',
             onClick(picker) {
@@ -332,6 +357,16 @@ export default {
 			{{- if not $tb.SelectInfo.IsEmpty }}
 			multipleSelection: [],
 			{{- end}}
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+			queryContent:"",
+      preDropItem: {},
+      currentDropItem: {},
+      dropMenu: [
+				{{- range $i,$c:=$rows|query|dropmenurow}}
+				{ name: "{{$c.Desc|shortName}}", value: "{{$c.Name}}" },
+				{{- end}}
+      ],
+			{{- end}}
 			dataList: {count: 0,items: []}, //表单数据对象,
 			maxHeight: 0
 		}
@@ -347,6 +382,10 @@ export default {
 	methods:{
     /**初始化操作**/
     init(){
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+			this.preDropItem = this.dropMenu[0]
+      this.currentDropItem = this.dropMenu[0]
+			{{- end}}
 			{{- if $drange}}
 			var now = new Date()
 			now.setTime(new Date().getTime() - 3600 * 1000 * 24 * 30)
@@ -403,12 +442,24 @@ export default {
 		},
 		{{- end}}
 		{{- end }}
+		{{- if gt ($rows|query|dropmenurow|len) 0}}
+		dropmenu(item) {
+      this.currentDropItem = item
+      if (this.currentDropItem != this.preDropItem) {
+        this.queryData[this.preDropItem.value] = ""
+				this.preDropItem=item
+      }
+    },
+		{{- end}}
     /**查询数据并赋值*/
 		queryDatas() {
       this.paging.pi = 1
       this.query()
     },
     query(){
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+			this.queryData[this.currentDropItem.value] = this.queryContent
+			{{- end}}
       this.queryData.pi = this.paging.pi
 			this.queryData.ps = this.paging.ps
 			{{- range $i,$c:=$rows|query -}}
