@@ -63,18 +63,16 @@ const TmplList = `
 			{{end}}
 			{{- if gt ($rows|query|dropmenurow|len) 0}}
 				<el-form-item>
-					<el-dropdown size="small">
-						<el-button size="small" style="width: 100px">{{"{{ currentDropItem.name }}"}}<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
-						<el-dropdown-menu slot="dropdown">
-							<el-dropdown-item v-for="(item, index) in dropMenu" @click.native="dropmenu(item)" :key="index" :value="item.value" :label="item.name">{{"{{item.name}}"}}</el-dropdown-item>
-						</el-dropdown-menu>
-					</el-dropdown>
+					<el-input clearable size="small" v-model="queryContent" placeholder="请输入查询内容">
+						<el-dropdown size="small" slot="prepend">
+							<el-button size="small" style="width: 100px;font-size: 0.677083vw">{{"{{ currentDropItem.name }}"}}<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
+							<el-dropdown-menu slot="dropdown">
+								<el-dropdown-item v-for="(item, index) in dropMenu" @click.native="dropmenu(item)" :key="index" :value="item.value" :label="item.name">{{"{{item.name}}"}}</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
+					</el-input>
 				</el-form-item>
-
-				<el-form-item>
-					<el-input clearable size="small" v-model="queryContent" placeholder="请输入查询内容"></el-input>
-				</el-form-item>
-			{{- end}}
+			{{end}}
 			{{- range $i,$c:=$rows|query}}
 				{{- if $c.IsInput}}
 				<el-form-item>
