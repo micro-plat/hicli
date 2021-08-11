@@ -119,43 +119,41 @@ const TmplList = `
 		<el-scrollbar style="height:100%">
 			<el-table :data="dataList.items" stripe style="width: 100%" size="small" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
 			{{- if not $tb.SelectInfo.IsEmpty }}  @selection-change="handleSelectionChange" {{end}}>
-			  {{if not $tb.SelectInfo.IsEmpty }}<el-table-column type="selection" width="55"> </el-table-column>{{end}}
-				{{if gt $tb.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>{{end}}
+			  {{- if not $tb.SelectInfo.IsEmpty }}
+				<el-table-column type="selection" width="55"> </el-table-column>
+				{{- end}}
+				{{- if gt $tb.ELTableIndex 0}}
+				<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>
+				{{- end}}
 				{{- range $i,$c:=$rows|list}}
 				<el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
+					<template slot-scope="scope">
+						{{- if $c.Con|LINK}}
+						<el-button type="text" size="small" @click="{{if ($c.Con|linkCon)}}link{{$c.Name|upperName}}{{else}}showDetail{{end}}(scope.row)">
+						{{- end}}
 				{{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
-					<template slot-scope="scope">
 						<span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}")}}</span>
-					</template>
 				{{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
-					<template slot-scope="scope">
 						<el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > {{or ($c.Con|lfCon) "20"}}" effect="dark" placement="top">
 							<div slot="content" style="width: 110px">{{"{{scope.row."}}{{$c.Name}}}}</div>
 							<span>{{"{{scope.row."}}{{$c.Name}} | fltrSubstr({{or ($c.Con|lfCon) "20"}}) }}</span>
 						</el-tooltip>
 						<span v-else>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-					</template>
 				{{- else if ($c.Con|fIsNofltr)}}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-				</template>
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
 				{{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($pks|firstStr))}}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
-				</template>
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
 				{{- else if $c.Type|isDecimal }}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "2"}})}}</span>
-				</template>
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "2"}})}}</span>
 				{{- else if $c.Type|isTime }}
-				<template slot-scope="scope">
-					<div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
-				</template>
+						<div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
 				{{- else}}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-				</template>
-				{{end}}
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
+				{{- end}}
+					{{- if $c.Con|LINK}}
+						</el-button>
+					{{- end}}
+					</template>
 				</el-table-column>
 				{{- end}}
 				<el-table-column  label="操作" align="center">
@@ -412,8 +410,8 @@ export default {
 			return index * {{$tb.ELTableIndex}};
 		},
 		{{- end}}
-		{{- range $i,$c:=$rows|query -}}
-		{{if (qDicPName $c.Con $tb)  }}
+		{{- range $i,$c:=$rows|query}}
+		{{- if (qDicPName $c.Con $tb)  }}
 		set{{$c.Name|upperName}}(pid){
 			this.queryData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}",pid)
@@ -437,6 +435,14 @@ export default {
 				{{- end}}
 				{{- end}}
 			}
+		},
+		{{- end}}
+		{{- if ($c.Con|linkCon)}}
+		link{{$c.Name|upperName}}(val){
+			var data = {
+        {{$c.Name}}: val.{{$c.Name}},
+      }
+      this.$emit("addTab","详情"+val.{{$c.Name}},"/{{$c.Con|linkCon|rmhd|rpath}}",data);
 		},
 		{{- end}}
 		{{- end }}
