@@ -168,6 +168,15 @@ func init() {
 					},
 				},
 				{
+					Name:   "datadiff",
+					Usage:  "比较数据库数据差异",
+					Action: createDataDiff,
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "titles,t", Usage: `-对比数据的标题`},
+						cli.StringFlag{Name: "sheet,s", Usage: `-数据sheet名`},
+					},
+				},
+				{
 					Name:   "data",
 					Usage:  "导出数据库数据",
 					Action: exportDBData,

@@ -3,6 +3,7 @@ module github.com/micro-plat/hicli
 go 1.14
 
 require (
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
 	github.com/atotto/clipboard v0.1.2 // indirect
 	github.com/codeskyblue/go-sh v0.0.0-20190412065543-76bd3d59ff27
 	github.com/fsnotify/fsnotify v1.4.9

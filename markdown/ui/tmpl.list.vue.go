@@ -437,14 +437,6 @@ export default {
 			}
 		},
 		{{- end}}
-		{{- if ($c.Con|linkCon)}}
-		link{{$c.Name|upperName}}(val){
-			var data = {
-        {{$c.Name}}: val.{{$c.Name}},
-      }
-      this.$emit("addTab","详情"+val.{{$c.Name}},"/{{$c.Con|linkCon|rmhd|rpath}}",data);
-		},
-		{{- end}}
 		{{- end }}
 		{{- if gt ($rows|query|dropmenurow|len) 0}}
 		dropmenu(item) {
@@ -624,6 +616,17 @@ export default {
       this.multipleSelection = val;
     },
 		{{- end}}
+
+		{{- range $i,$c:=$rows|list}}
+		{{- if ($c.Con|linkCon)}}
+		link{{$c.Name|upperName}}(val){
+			var data = {
+        {{$c.Name}}: val.{{$c.Name}},
+      }
+      this.$emit("addTab","详情"+val.{{$c.Name}},"/{{$c.Con|linkCon|rmhd|rpath}}",data);
+		},
+		{{- end}}
+		{{- end }}
 
 		{{- if gt ($rows|delete|len) 0}}
     del(val){

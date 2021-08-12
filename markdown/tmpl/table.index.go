@@ -104,7 +104,7 @@ func (source Indexs) Diff(target Indexs) []*Index {
 	tempSource := source
 	diff := make([]*Index, 0)
 
-	//减少,索引要处理删除
+	//减少,索引要先处理删除
 	for name, index := range target {
 		if _, ok := tempSource[name]; !ok {
 			index.Operation = enums.DiffDelete
