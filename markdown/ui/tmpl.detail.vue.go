@@ -77,7 +77,7 @@ const TmplDetail = `
           <div class="table-responsive">
             <table :date="{{$tab.Name|rmhd|lowerName}}Info" class="table table-striped m-b-none">
               <tbody class="table-border">
-              {{- range $i,$c:=$tab.Rows|detail -}}
+              {{- range $i,$c:=$tab.Rows|tabdetail -}}
               {{- if eq 0 (mod $i 2)}}
                 <tr>
                   <td>
@@ -118,11 +118,11 @@ const TmplDetail = `
                       <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEmpty }}</div>
                     </el-col>
               {{- end}}
-              {{- if and (eq (mod $i 2) 1) (ne ($tab.Rows|detail|maxIndex) $i) }}
+              {{- if and (eq (mod $i 2) 1) (ne ($tab.Rows|tabdetail|maxIndex) $i) }}
                   </td>
                 </tr>
               {{- end}}
-              {{- if eq ($tab.Rows|detail|maxIndex) $i }}
+              {{- if eq ($tab.Rows|tabdetail|maxIndex) $i }}
                   </td>
                 </tr>
               {{- end -}}
@@ -134,7 +134,7 @@ const TmplDetail = `
           <el-scrollbar style="height:100%" id="panel-body">
             <el-table :data="{{$tab.Name|rmhd|varName}}List.items" size="small" stripe style="width: 100%" :height="maxHeight">
               {{if gt $tab.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod"></el-table-column>{{end}}
-              {{- range $i,$c:=$tab.Rows|list}}
+              {{- range $i,$c:=$tab.Rows|tablist}}
               <el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
               {{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
                 <template slot-scope="scope">

@@ -335,12 +335,12 @@ func (t *Table) DispostELQueryComponents() {
 		//name
 		info.Name = tab[0]
 		if info.Name == "" {
-			logs.Log.Warn("页面查询btn的name选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("页面查询components的name选项未配置:", key, t.ExtInfo)
 			continue
 		}
 		info.Path = tab[1]
 		if info.Path == "" {
-			logs.Log.Warn("页面查询btn的path选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("页面查询components的path选项未配置:", key, t.ExtInfo)
 			continue
 		}
 		if len(tab) > 2 {

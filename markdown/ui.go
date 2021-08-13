@@ -94,6 +94,10 @@ func create(tp string) func(c *cli.Context) (err error) {
 			tb.DispostELSelect()
 			tb.DispostELListComponents()
 			tb.DispostELQueryComponents()
+			tb.SetELTableIndex()
+			//根据关键字过滤
+			tb.FilterRowByKW(c.String("kw"))
+			tb.SortRows()
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {
@@ -103,11 +107,6 @@ func create(tp string) func(c *cli.Context) (err error) {
 			if err != nil {
 				logs.Log.Error(err)
 			}
-
-			tb.SetELTableIndex()
-			//根据关键字过滤
-			tb.FilterRowByKW(c.String("kw"))
-			tb.SortRows()
 
 			//翻译文件
 			content, err := tmpl.Translate(uiMap[tp], dbtp, tb)

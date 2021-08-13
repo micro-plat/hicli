@@ -90,20 +90,22 @@ func getfuncs(tp string) map[string]interface{} {
 		"indexStr":  indexString(tp),
 
 		//前后端约束处理函数
-		"query":    getRows("q"),                                      //查询字段
-		"list":     getRows("l"),                                      //列表展示字段
-		"detail":   getRows("d"),                                      //详情展示字段
-		"create":   getRows("c"),                                      //创建字段
-		"delete":   getRows("del"),                                    //删除时判定字段
-		"update":   getRows("u"),                                      //更新字段
-		"export":   getRows("ept"),                                    //导出字段
-		"delCon":   getBracketContent([]string{"del"}),                //删除字段约束
-		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
-		"sort":     getRows("sort"),                                   //查询字段
-		"sortSort": sortByKw("sort"),                                  //
-		"qgroup":   getChildrenGroup("q"),                             //
-		"cgroup":   getChildrenGroup("c"),                             //
-		"ugroup":   getChildrenGroup("u"),                             //
+		"query":     getRows("q"),                                      //查询字段
+		"list":      getRows("l"),                                      //列表展示字段
+		"detail":    getRows("d"),                                      //详情展示字段
+		"create":    getRows("c"),                                      //创建字段
+		"delete":    getRows("del"),                                    //删除时判定字段
+		"update":    getRows("u"),                                      //更新字段
+		"export":    getRows("ept"),                                    //导出字段
+		"tablist":   decodeRows("tabl", "l"),                           //详情tab页面列表字段
+		"tabdetail": decodeRows("tabd", "d"),                           //详情tab页面字段
+		"delCon":    getBracketContent([]string{"del"}),                //删除字段约束
+		"sortCon":   getBracketContent([]string{"sort"}, `(asc|desc)`), //
+		"sort":      getRows("sort"),                                   //查询字段
+		"sortSort":  sortByKw("sort"),                                  //
+		"qgroup":    getChildrenGroup("q"),                             //
+		"cgroup":    getChildrenGroup("c"),                             //
+		"ugroup":    getChildrenGroup("u"),                             //
 
 		//前端约束处理函数
 		"SL":            getKWS("sl"),                                           //表单下拉框
@@ -547,6 +549,24 @@ func getCapturingGroup(input string, kw string) (bool, string, string, string) {
 		}
 	}
 	return false, "", "", ""
+}
+
+func decodeRows(tp, deftp string) func(row []*Row) []*Row {
+	return func(row []*Row) []*Row {
+		list := make([]*Row, 0, 1)
+		for _, r := range row {
+			fmt.Println(r.Name, r.Sort)
+			if isCons(r.Con, tp) {
+				list = append(list, r)
+			}
+		}
+		fmt.Println("list:", list)
+		if len(list) > 0 {
+			return list
+		}
+
+		return getRows(deftp)(row)
+	}
 }
 
 func getRows(tp ...string) func(row []*Row) []*Row {
