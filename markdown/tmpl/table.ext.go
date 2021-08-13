@@ -12,10 +12,10 @@ import (
 type TabInfo struct {
 	TabField         map[string]string //详情字段名---详情字段名
 	TabListField     map[string]string //详情列表字段名---详情列表字段名
-	TabTable         map[string]bool   //主页
-	TabTableList     map[string]bool   //详情tab关联字段
-	TabTablePreField map[string]string //详情tab关联字段
-	TabTableProField map[string]string //详情tab关联字段
+	TabTable         map[string]bool   //详情
+	TabTableList     map[string]bool   //详情列表
+	TabTablePreField map[string]string //前表关联字段 表名-字段名
+	TabTableProField map[string]string //后表关联字段 表名-字段名
 }
 
 func newTableInfo() *TabInfo {
@@ -66,7 +66,7 @@ func (t *Table) DisposeELTab() {
 		exist := false
 		for _, tb := range t.AllTables {
 			if tb.Name == tabName {
-				if tabList == "list" {
+				if tabList == "list" { //列表
 					tb.TabInfo.TabTableList[t.Name] = true
 					tb.TabInfo.TabListField[tabField[1]] = tabField[1]
 				} else {
@@ -74,14 +74,14 @@ func (t *Table) DisposeELTab() {
 					tb.TabInfo.TabField[tabField[1]] = tabField[1]
 				}
 				tb.TabInfo.TabTablePreField[t.Name] = tabField[0]
-				tb.TabInfo.TabTableProField[t.Name] = tabField[1]
+				tb.TabInfo.TabTableProField[t.Name] = tabField[1] //后表关联字段
 				t.TabTables = append(t.TabTables, tb)
 				exist = true
 				break
 			}
 		}
 		if !exist {
-			logs.Log.Warn("tab表名不正确：", tabName)
+			logs.Log.Warnf("[%s]详情tab表名不正确：[%s]", t.Name, tabName)
 		}
 	}
 }
@@ -164,8 +164,10 @@ func (t *Table) DispostELBtn() {
 		//confirm
 		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
 
+		//url
 		info.URL = getSubConContent(key, "url")(t.ExtInfo)
 
+		//condition
 		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
 
 		//key
