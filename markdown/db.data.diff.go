@@ -68,7 +68,6 @@ func createDataDiff(c *cli.Context) (err error) {
 		return fmt.Errorf("设置样式错误：%+v", err)
 	}
 	for _, v := range diff { //修改excel
-		fmt.Println("diff", v.index, v.key)
 		sourceFile.SetCellStyle(sheet, fmt.Sprintf("A%d", v.index), fmt.Sprintf("%s%d", getEnd(len(sourceTitle)), v.index), style)
 	}
 
