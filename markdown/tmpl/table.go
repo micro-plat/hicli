@@ -108,9 +108,11 @@ func (t *Table) SetAllTables(tbs []*Table) {
 //SortRows 行排序
 func (t *Table) SortRows() {
 	sorts := make(map[string]int, len(t.Rows))
+	cons := make(map[string]string, len(t.Rows))
 	for _, v := range t.Rows {
-		v.Sort = v.LineID
+		v.Sort = v.LineID * 1000 //取1000倍
 		sorts[v.Name] = v.Sort
+		cons[v.Name] = v.Con
 	}
 	for k, v := range t.Rows {
 		after := getBracketContent([]string{"after"})(v.Con)
@@ -121,12 +123,33 @@ func (t *Table) SortRows() {
 			t.Rows[k].Sort = 0
 			continue
 		}
-		if _, ok := sorts[after]; ok {
-			t.Rows[k].Sort = sorts[after]
-			sorts[t.Rows[k].Name] = sorts[after]
+		if s, ok := sorts[after]; ok {
+			t.Rows[k].Sort = t.getSortByAfter(cons, sorts, after, s)
 		}
 	}
 	sort.Sort(t.Rows)
+}
+
+func (t *Table) getSortByAfter(cons map[string]string, sorts map[string]int, rowName string, sort int) int {
+	con, ok := cons[rowName]
+	if !ok {
+		return sort + 1
+	}
+
+	rowName = getBracketContent([]string{"after"})(con)
+	if rowName == "" {
+		return sort + 1
+	}
+	if rowName == "0" {
+		return 0 + 1
+	}
+
+	if s, ok := sorts[rowName]; ok {
+		ts := t.getSortByAfter(cons, sorts, rowName, s)
+		return ts + 1
+	}
+
+	return sort + 1
 }
 
 //FilterRowByKW 过滤行信息
