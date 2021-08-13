@@ -92,12 +92,12 @@ func getfuncs(tp string) map[string]interface{} {
 		//前后端约束处理函数
 		"query":    getRows("q"),                                      //查询字段
 		"list":     getRows("l"),                                      //列表展示字段
-		"detail":   getRows("r"),                                      //详情展示字段
+		"detail":   getRows("d"),                                      //详情展示字段
 		"create":   getRows("c"),                                      //创建字段
-		"delete":   getRows("d"),                                      //删除时判定字段
+		"delete":   getRows("del"),                                    //删除时判定字段
 		"update":   getRows("u"),                                      //更新字段
 		"export":   getRows("ept"),                                    //导出字段
-		"delCon":   getBracketContent([]string{"d"}),                  //删除字段约束
+		"delCon":   getBracketContent([]string{"del"}),                //删除字段约束
 		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
 		"sort":     getRows("sort"),                                   //查询字段
 		"sortSort": sortByKw("sort"),                                  //
@@ -128,10 +128,10 @@ func getfuncs(tp string) map[string]interface{} {
 		"leCon":         getSubConContent("l", "e"),                             //列表展示字段的枚举子约束l(e:xx)
 		"qeCon":         getSubConContent("q", "e"),                             //查询字段的枚举子约束q(e:xx)
 		"qfCon":         getSubConContent("q", "f"),                             //查询字段的枚举子约束q(f:xx)
-		"rfCon":         getSubConContent("r", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
+		"rfCon":         getSubConContent("d", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
 		"ufCon":         getSubConContent("u", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
 		"cfCon":         getSubConContent("c", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
-		"reCon":         getSubConContent("r", "e"),                             //详情展示字段的枚举子约束r(e:xx)
+		"reCon":         getSubConContent("d", "e"),                             //详情展示字段的枚举子约束r(e:xx)
 		"ueCon":         getSubConContent("u", "e"),                             //编辑字段的格式枚举子约束u(e:xx)
 		"ceCon":         getSubConContent("c", "e"),                             //添加字段的格式枚举子约束c(e:xx)
 		"dicName":       getDicName(webEnumComponents...),                       //字段的对应的枚举名称

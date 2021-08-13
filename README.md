@@ -354,18 +354,18 @@ hicli ui page ../../docs/dic.md src/pages/ -t system_user_info -f -cover
 
 #### 4. 生成详情页面
 
-在数据字典中添加`R`标签  
+在数据字典中添加`D`标签  
 
 准备数据字典
 ```markdown
 ### 用户信息[system_user_info]
 | 字段名      | 类型        |      默认值       | 为空  |               约束               | 描述         |
 | ----------- | ----------- | :---------------: | :---: | :------------------------------: | :----------- |
-| id          | int(10)     |                   |  否   |            SEQ,PK,L,R            | 编号         |
-| name        | varchar(32) |                   |  否   |            UNQ,L,C,R             | 名称         |
-| gender      | int(1)      |                   |  否   |            L,Q,SL,R,U            | 性别 0男 1女 |
-| school_id   | int(10)     |                   |  否   | L,Q,C,R,U,SL(system_school_info) | 学校         |
-| create_time | datetime    | CURRENT_TIMESTAMP |  否   |               R,L                | 创建时间     |
+| id          | int(10)     |                   |  否   |            SEQ,PK,L,D            | 编号         |
+| name        | varchar(32) |                   |  否   |            UNQ,L,C,D             | 名称         |
+| gender      | int(1)      |                   |  否   |            L,Q,SL,D,U            | 性别 0男 1女 |
+| school_id   | int(10)     |                   |  否   | L,Q,C,D,U,SL(system_school_info) | 学校         |
+| create_time | datetime    | CURRENT_TIMESTAMP |  否   |               D,L                | 创建时间     |
 ```
 - R：单条数据的查询字段  
 
@@ -382,27 +382,27 @@ hicli ui page ../../docs/dic.md src/pages/ -t system_user_info -f -cover
 
 ### 5. 生成详情扩展数据页面
 
-在对应扩展表的数据字典中添加`R`标签，并在添加表名的约束`el_tab`  
+在对应扩展表的数据字典中添加`D`标签，并在添加表名的约束`el_tab`  
 
 准备数据字典
 ```markdown
 ### 用户信息[system_user_info]{el_tab(system_school_info,school_id/id)}
 | 字段名      | 类型        |      默认值       | 为空  |               约束               | 描述         |
 | ----------- | ----------- | :---------------: | :---: | :------------------------------: | :----------- |
-| id          | int(10)     |                   |  否   |            SEQ,PK,L,R            | 编号         |
-| name        | varchar(32) |                   |  否   |            UNQ,L,C,R             | 名称         |
-| gender      | int(1)      |                   |  否   |            L,Q,SL,R,U            | 性别 0男 1女 |
-| school_id   | int(10)     |                   |  否   | L,Q,C,R,U,SL(system_school_info) | 学校         |
-| create_time | datetime    | CURRENT_TIMESTAMP |  否   |               R,L                | 创建时间     |
+| id          | int(10)     |                   |  否   |            SEQ,PK,L,D            | 编号         |
+| name        | varchar(32) |                   |  否   |            UNQ,L,C,D             | 名称         |
+| gender      | int(1)      |                   |  否   |            L,Q,SL,D,U            | 性别 0男 1女 |
+| school_id   | int(10)     |                   |  否   | L,Q,C,D,U,SL(system_school_info) | 学校         |
+| create_time | datetime    | CURRENT_TIMESTAMP |  否   |               D,L                | 创建时间     |
 
 ### 学校信息[system_school_info]
 | 字段名      | 类型        | 默认值 | 为空  |       约束        | 描述     |
 | ----------- | ----------- | :----: | :---: | :---------------: | :------- |
-| id          | int(10)     |        |  否   |    SEQ,PK,DI,R    | 编号     |
-| name        | varchar(32) |        |  否   |     UNQ,DN,R      | 名称     |
-| province_no | varchar(8)  |        |  否   | DC,R(e:province)  | 省份     |
-| city_no     | varchar(8)  |        |  否   | DC,R(e:#province) | 城市     |
-| address     | text        |        |  是   |         R         | 扩展信息 |
+| id          | int(10)     |        |  否   |    SEQ,PK,DI,D    | 编号     |
+| name        | varchar(32) |        |  否   |     UNQ,DN,D      | 名称     |
+| province_no | varchar(8)  |        |  否   | DC,D(e:province)  | 省份     |
+| city_no     | varchar(8)  |        |  否   | DC,D(e:#province) | 城市     |
+| address     | text        |        |  是   |         D         | 扩展信息 |
 ```
 - R：单条数据的查询字段  
 - e: 页面功能的扩展约束，可指定表名，dds类型或者级联字段名
@@ -437,9 +437,9 @@ hicli根据数据字典的字段约束配置来生成文件，具体约束参考
 | UNQ     | 唯一索引                                        |                UNQ[(索引名,字段在联合索引中的位置)]                 |
 | IDX     | 索引                                            |                IDX[(索引名,字段在联合索引中的位置)]                 |
 | C       | 创建数据时的字段                                |                                  -                                  |
-| R       | 单条数据读取时的字段                            |                                  -                                  |
+| D       | 单条数据读取时的字段                            |                                  -                                  |
 | U       | 修改数据时需要的字段                            |                                  -                                  |
-| D       | 删除，默认为更新字段状态值为1                   |                           D[(更新状态值)]                           |
+| DEL     | 删除，默认为更新字段状态值为1                   |                          DEL[(更新状态值)]                          |
 | Q       | 查询条件的字段                                  |                                  -                                  |
 | L       | 列表展示的字段                                  |                                  -                                  |
 | ORDER   | (前端页面)列表里列出的字段;默认降序             |          ORDER[(asc&#124;desc,字段排序顺序)]，越小越先排序          |
@@ -463,10 +463,11 @@ hicli根据数据字典的字段约束配置来生成文件，具体约束参考
 | FIXED   | 前端页面列表表单固定列                          |                                  -                                  |
 | AFTER   | 前端列表字段在指定字段后面，AFTER(字段名)       |                                  -                                  |
 | REPLACE | 查询替换字符串                                  |     replace(开始位置,倒数结束位置,[替换字符])，替换字符默认为*      |
-
+| DMI     | 前端搜索下拉菜单加输入框联合搜索                |                                  -                                  |
+| LINK    | 前端字段链接跳转，默认跳转至当前详情            |                          LINK[(跳转路径)]                           |
 
 ##### 二、页面展示约束配置
-> 该配置是基于L,Q,R,U,C约束配置的扩展
+> 该配置是基于L,Q,D,U,C约束配置的扩展
 
 | 约束名 | 说明                                     |                                                       可选值                                                        |
 | ------ | ---------------------------------------- | :-----------------------------------------------------------------------------------------------------------------: |

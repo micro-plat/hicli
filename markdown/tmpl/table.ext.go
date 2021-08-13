@@ -351,7 +351,7 @@ func (t *Table) DispostELQueryComponents() {
 }
 
 func translateCondition(c string) string {
-	c = strings.Replace(c, " and ", "&&", -1)
-	c = strings.Replace(c, " or ", "||", -1)
+	c = strings.Replace(c, " and ", " && ", -1)
+	c = strings.Replace(c, " or ", " || ", -1)
 	return c
 }
