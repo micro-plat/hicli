@@ -555,12 +555,10 @@ func decodeRows(tp, deftp string) func(row []*Row) []*Row {
 	return func(row []*Row) []*Row {
 		list := make([]*Row, 0, 1)
 		for _, r := range row {
-			fmt.Println(r.Name, r.Sort)
 			if isCons(r.Con, tp) {
 				list = append(list, r)
 			}
 		}
-		fmt.Println("list:", list)
 		if len(list) > 0 {
 			return list
 		}

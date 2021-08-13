@@ -171,8 +171,40 @@ const TmplDetail = `
               {{end}}
               </el-table-column>
               {{- end}}
+              {{- if gt ($tab.BtnInfo|len) 0}}
+              <el-table-column  label="操作" align="center">
+              {{- end}}
+                <template slot-scope="scope">
+                  {{- range $i,$c:= $tab.BtnInfo }}
+                    {{- if gt ($c.VIF|len) 0}}
+                      {{- range $k,$v:= $c.VIF}}
+                        {{- if eq $k 0}}
+                  <el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+                        {{- else if lt $k ($c.VIF|maxIndex) }}		
+                  <el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+                        {{- else}}
+                  <el-button v-else type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
+                        {{- end}}
+                      {{- end}}
+                    {{- else if $c.Show}}	
+                  <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+                  {{- else}}	
+                  <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+                    {{- end }}
+                  {{- end}}
+                </template>
+              {{- if gt ($tab.BtnInfo|len) 0}}
+              </el-table-column>
+              {{- end}}
             </el-table>
           </el-scrollbar>
+          {{- range $i,$c:= $tab.BtnInfo }}
+          {{- if $c.Show}}
+          <!-- {{$c.Name|upperName}} Form -->
+          <{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
+          <!--{{$c.Name|upperName}} Form -->
+          {{- end}}
+          {{- end}}
         {{- end}}
         </el-tab-pane>
         {{ end }}
@@ -197,7 +229,27 @@ const TmplDetail = `
 </template>
 
 <script>
+{{- range $index,$tab:=$tabs -}}  
+{{- if (index $tab.TabInfo.TabTableList $name)}}  
+{{- range $i,$c:= $tab.BtnInfo }}
+{{- if $c.Show}}
+import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
+{{- end}}
+{{- end}}
+{{- end}}
+{{- end}}
 export default {
+  components: {
+    {{- range $index,$tab:=$tabs -}}  
+    {{- if (index $tab.TabInfo.TabTableList $name)}}  
+    {{- range $i,$c:= $tab.BtnInfo }}
+		{{- if $c.Show -}},
+		{{$c.Name|upperName}}
+		{{- end}}
+		{{- end}}
+    {{- end}}
+		{{- end}}
+  },
   data(){
     return {
       tabName: "{{.Name|rmhd|varName}}Detail",
@@ -273,6 +325,48 @@ export default {
     },
     {{- end}}
     {{- end }}
+    
+    {{- range $index,$tab:=$tabs -}}  
+    {{- if (index $tab.TabInfo.TabTableList $name)}}  
+    {{- range $i,$c:= $tab.BtnInfo }}
+		{{- if $c.Show }}
+	  show{{$c.Name}}(val) {
+      this.$refs.{{$c.Name|upperName}}.editData = val
+      this.$refs.{{$c.Name|upperName}}.show();
+		},
+		{{- end}}
+		{{- end}}
+    {{- end}}
+		{{- end}}
+
+    {{- range $index,$tab:=$tabs -}}  
+    {{- if (index $tab.TabInfo.TabTableList $name)}}  
+    {{- range $i,$c:= $tab.BtnInfo }}
+		{{$c.Name}}(val){
+		{{- if not $c.Show }}
+			var data = {
+				{{- range $i,$c:=$c.Rows}}
+				{{$c.Name}} :val.{{$c.Name}},
+				{{- end}}
+			}
+			{{- if $c.Confirm}}
+      this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
+					.then(res => {
+						this.dialogFormVisible = false;
+						this.query()
+					})
+			{{- if $c.Confirm}}
+				});
+			{{- end}}
+		},
+		{{- end}}
+		{{- end}}
+    {{- end}}
+		{{- end}}
+
     handleClick(tab) {
       switch (tab.name) {
         case "{{.Name|rmhd|varName}}Detail":

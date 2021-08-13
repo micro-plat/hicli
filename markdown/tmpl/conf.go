@@ -20,7 +20,7 @@ type SnippetConf struct {
 
 //NewSnippetConf .
 func NewSnippetConf(t *Table) *SnippetConf {
-	rows := getRows("r")(t.Rows)
+	rows := getRows("d")(t.Rows)
 	return &SnippetConf{
 		Name:      t.Name,
 		HasDetail: len(rows) > 0,
