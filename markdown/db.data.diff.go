@@ -146,7 +146,7 @@ func dataDiff(sourceMap, targetMap map[string]int) []*rowDiff {
 func getEnd(count int) string {
 	count = count - 1
 	if count < 26 {
-		return string(65 + count)
+		return string(rune(65 + count))
 	}
-	return fmt.Sprintf("%s%s", string(64+count/26), string(65+count%26))
+	return fmt.Sprintf("%s%s", string(rune(64+count/26)), string(rune(65+count%26)))
 }
