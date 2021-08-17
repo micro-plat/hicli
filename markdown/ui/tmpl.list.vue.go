@@ -33,7 +33,7 @@ const TmplList = `
 					</el-select>
 				</el-form-item>
 				{{- else if ($c.Con|DRANGE) }}{{$drange = $c.Con|drangeCon|drangeValue }}
-				<el-form-item label="创建时间:">
+				<el-form-item>
 					<el-date-picker
 					v-model="times"
 					type="{{dateType $c.Con ($c.Con|qfCon)}}range"
