@@ -30,8 +30,9 @@ type callHanlder func(string) string
 func getfuncs(tp string) map[string]interface{} {
 	return map[string]interface{}{
 		//参数计算函数
-		"add1": add(1), //加1
-		"mod":  getMod, //余数
+		"add1":    add(1), //加1
+		"mod":     getMod, //余数
+		"mkSlice": mkSlice,
 
 		//字符串处理函数
 		"varName":   getVarName,            //获取pascal变量名称
@@ -126,6 +127,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"fIsNofltr":     getKWS("nofltr"),                                       //前端字段不格式化
 		"LINK":          getKWS("link"),                                         //表单点击跳转
 		"linkCon":       getBracketContent([]string{"link"}),                    //表单点击跳转约束
+		"drangeCon":     getBracketContent([]string{"drange"}),                  //表单点击跳转约束
 		"lfCon":         getSubConContent("l", "f"),                             //列表展示字段的过滤器子约束l(f:xx)
 		"leCon":         getSubConContent("l", "e"),                             //列表展示字段的枚举子约束l(e:xx)
 		"qeCon":         getSubConContent("q", "e"),                             //查询字段的枚举子约束q(e:xx)
@@ -153,7 +155,14 @@ func getfuncs(tp string) map[string]interface{} {
 		"setIsInput":  setIsInput,
 		"DMI":         getKWS("dmi"),  //dropdown menu+input 查询
 		"dropmenurow": getRows("dmi"), //dropdown menu+input 查询
+
+		"drangeValue": drangeValue, //表单日期时间选择器
+
 	}
+}
+
+func mkSlice(args ...interface{}) []interface{} {
+	return args
 }
 
 func setIsInput(r *Row) string {
@@ -768,6 +777,20 @@ func getDateType(con, subCon string) string {
 		return "datetime"
 	}
 	return "date"
+}
+
+func drangeValue(con string) []string {
+	if con == "" {
+		return []string{"30"}
+	}
+	r := strings.Split(con, ",")
+	if len(r) == 1 {
+		return []string{r[0], r[0]}
+	}
+	if len(r) == 2 {
+		return r
+	}
+	return []string{"30"}
 }
 
 func getCascadeChildrenName(tp, tkey string, keys ...string) func(name string, t *Table) string {

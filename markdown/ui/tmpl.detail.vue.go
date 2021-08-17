@@ -239,7 +239,9 @@ import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
 {{- end}}
 {{- end}}
 export default {
+  {{- if gt ($tabs|len) 0}}
   components: {
+  {{- end}}
     {{- range $index,$tab:=$tabs -}}  
     {{- if (index $tab.TabInfo.TabTableList $name)}}  
     {{- range $i,$c:= $tab.BtnInfo }}
@@ -249,7 +251,9 @@ export default {
 		{{- end}}
     {{- end}}
 		{{- end}}
+  {{- if gt ($tabs|len) 0}}
   },
+  {{- end}}
   data(){
     return {
       tabName: "{{.Name|rmhd|varName}}Detail",
@@ -366,7 +370,6 @@ export default {
 		{{- end}}
     {{- end}}
 		{{- end}}
-
     handleClick(tab) {
       switch (tab.name) {
         case "{{.Name|rmhd|varName}}Detail":

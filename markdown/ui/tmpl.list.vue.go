@@ -9,7 +9,7 @@ const TmplList = `
 {{- $tb :=. -}}
 {{- $sort:=.Rows|sort -}}
 {{- $choose:= false -}}
-{{- $drange:= false -}}
+{{- $drange:= mkSlice -}}
 {{- $btn:=.BtnInfo -}}
 <template>
 	<div class="panel panel-default">
@@ -32,7 +32,7 @@ const TmplList = `
 						<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 					</el-select>
 				</el-form-item>
-				{{- else if ($c.Con|DRANGE) }}{{$drange = true}}
+				{{- else if ($c.Con|DRANGE) }}{{$drange = $c.Con|drangeCon|drangeValue }}
 				<el-form-item label="创建时间:">
 					<el-date-picker
 					v-model="times"
@@ -382,10 +382,16 @@ export default {
 			this.preDropItem = this.dropMenu[0]
       this.currentDropItem = this.dropMenu[0]
 			{{- end}}
-			{{- if $drange}}
+			{{- if gt ($drange|len) 0}}
 			var now = new Date()
-			now.setTime(new Date().getTime() - 3600 * 1000 * 24 * 30)
+			now.setTime(new Date().getTime() - 3600 * 1000 * 24 * {{index $drange 0}})
+			{{- if eq ($drange|len) 1}}
 			this.times = [now, new Date()]
+			{{- else }}
+			var end = new Date()
+			end.setTime(new Date().getTime() - 3600 * 1000 * 24 * {{index $drange 1}})
+			this.times = [now, end]
+			{{- end}}
 			{{- end}}
       this.query()
 		},
