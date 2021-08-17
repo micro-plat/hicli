@@ -138,6 +138,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"reCon":         getSubConContent("d", "e"),                             //详情展示字段的枚举子约束r(e:xx)
 		"ueCon":         getSubConContent("u", "e"),                             //编辑字段的格式枚举子约束u(e:xx)
 		"ceCon":         getSubConContent("c", "e"),                             //添加字段的格式枚举子约束c(e:xx)
+		"crCon":         getSubConContent("c", "r"),                             //添加字段的格式枚举子约束c(r:xx)
 		"dicName":       getDicName(webEnumComponents...),                       //字段的对应的枚举名称
 		"qDicCName":     getCascadeChildrenName("q", "e", webEnumComponents...), //查询下拉字段级联枚举对应的引用枚举名称
 		"qDicPName":     getCascadeParentName("q", "e", webEnumComponents...),   //查询下拉字段级联枚举对应的被引用枚举名称
@@ -157,7 +158,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"dropmenurow": getRows("dmi"), //dropdown menu+input 查询
 
 		"drangeValue": drangeValue, //表单日期时间选择器
-
+		"ruleValue":   ruleValue,   //表单日期时间选择器
 	}
 }
 
@@ -791,6 +792,20 @@ func drangeValue(con string) []string {
 		return r
 	}
 	return []string{"30"}
+}
+
+func ruleValue(con string) []string {
+	if con == "" {
+		return []string{}
+	}
+	r := strings.Split(con, ",")
+	if len(r) == 1 {
+		return []string{"0", r[0]}
+	}
+	if len(r) == 2 {
+		return r
+	}
+	return []string{}
 }
 
 func getCascadeChildrenName(tp, tkey string, keys ...string) func(name string, t *Table) string {
