@@ -24,7 +24,7 @@ const TmplList = `
 				</el-form-item>
 				{{- else if or ($c.Con|SL) ($c.Con|SLM) }}
 				<el-form-item>
-					<el-select size="small" v-model="queryData.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
+					<el-select size="small" v-model="queryData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
 					{{- if (qDicCName $c.Name $tb) }} @change="set{{(qDicCName $c.Name $tb)|upperName}}(queryData.{{$c.Name}})"
 					{{- else if (qGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
 					{{- else if or (qGroupPName $c.Con $tb) (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}} >
@@ -35,15 +35,15 @@ const TmplList = `
 				{{- else if ($c.Con|DRANGE) }}{{$drange = $c.Con|drangeCon|drangeValue }}
 				<el-form-item>
 					<el-date-picker
-					v-model="times"
-					type="{{dateType $c.Con ($c.Con|qfCon)}}range"
-					:clearable="false"
-					:picker-options="pickerOptions"
-					range-separator="至"
-					start-placeholder="开始日期"
-					end-placeholder="结束日期"
-					align="right"
-					size="small"
+						v-model="times"
+						type="{{dateType $c.Con ($c.Con|qfCon)}}range"
+						:clearable="false"
+						:picker-options="pickerOptions"
+						range-separator="至"
+						start-placeholder="开始日期"
+						end-placeholder="结束日期"
+						align="right"
+						size="small"
 					>
 					</el-date-picker>
         </el-form-item>
@@ -60,37 +60,37 @@ const TmplList = `
 				{{- else if $c.Con|DMI }}
 				{{- else}}{{$c|setIsInput}}
 				{{- end}}
-			{{end}}
+			{{- end}}
 			{{- if gt ($rows|query|dropmenurow|len) 0}}
 				<el-form-item>
 					<el-input clearable size="small" v-model="queryContent" placeholder="请输入查询内容">
 						<el-dropdown size="small" slot="prepend">
-							<el-button size="small" style="width: 100px;font-size: 0.677083vw">{{"{{ currentDropItem.name }}"}}<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
+							<el-button size="small" style="width: 100px; font-size: 0.677083vw">{{"{{ currentDropItem.name }}"}}<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
 							<el-dropdown-menu slot="dropdown">
 								<el-dropdown-item v-for="(item, index) in dropMenu" @click.native="dropmenu(item)" :key="index" :value="item.value" :label="item.name">{{"{{item.name}}"}}</el-dropdown-item>
 							</el-dropdown-menu>
 						</el-dropdown>
 					</el-input>
 				</el-form-item>
-			{{end}}
+			{{- end}}
 			{{- range $i,$c:=$rows|query}}
 				{{- if $c.IsInput}}
 				<el-form-item>
 					<el-input clearable size="small" prefix-icon="el-icon-search" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
 					</el-input>
 				</el-form-item>
-				{{end}}
+				{{- end}}
 			{{- end}}
 				{{- if gt ($rows|query|len) 0}}
 				<el-form-item>
-					<el-button  type="primary" @click="queryDatas" size="small">查询</el-button>
+					<el-button type="primary" @click="queryDatas" size="small">查询</el-button>
 				</el-form-item>
-				{{end}}
+				{{- end}}
 				{{- if gt ($rows|create|len) 0}}
 				<el-form-item>
 					<el-button type="success" size="small" @click="showAdd">添加</el-button>
 				</el-form-item>
-				{{end}}
+				{{- end}}
 				{{- if gt ($rows|export|len) 0}}
 				<el-form-item>
 					<el-button type="success" @click="exportExcl" size="small">导出excel</el-button>
@@ -118,7 +118,7 @@ const TmplList = `
     <!-- list start-->
 		<el-scrollbar style="height:100%">
 			<el-table :data="dataList.items" stripe style="width: 100%" size="small" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
-			{{- if not $tb.SelectInfo.IsEmpty }}  @selection-change="handleSelectionChange" {{end}}>
+			{{- if not $tb.SelectInfo.IsEmpty }} @selection-change="handleSelectionChange" {{end}}>
 			  {{- if not $tb.SelectInfo.IsEmpty }}
 				<el-table-column type="selection" width="55"> </el-table-column>
 				{{- end}}
@@ -126,12 +126,12 @@ const TmplList = `
 				<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>
 				{{- end}}
 				{{- range $i,$c:=$rows|list}}
-				<el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
+				<el-table-column {{- if $c.Con|FIXED}} fixed{{end}} {{- if $c.Con|SORT}} sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
 					<template slot-scope="scope">
 						{{- if $c.Con|LINK}}
 						<el-button type="text" size="small" @click="{{if ($c.Con|linkCon)}}link{{$c.Name|upperName}}{{else}}showDetail{{end}}(scope.row)">
 						{{- end}}
-				{{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+				{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
 						<span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}")}}</span>
 				{{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
 						<el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > {{or ($c.Con|lfCon) "20"}}" effect="dark" placement="top">
@@ -156,7 +156,7 @@ const TmplList = `
 					</template>
 				</el-table-column>
 				{{- end}}
-				<el-table-column  label="操作" align="center">
+				<el-table-column label="操作" align="center">
 					<template slot-scope="scope">
 						{{- if gt ($rows|update|len) 0}}
 						<el-button type="text" size="mini" @click="showEdit(scope.row)">编辑</el-button>
@@ -203,13 +203,15 @@ const TmplList = `
 		{{- end}}
 		{{- end}}
 
-		{{if gt ($rows|create|len) 0 -}}
+		{{- if gt ($rows|create|len) 0}}
+
 		<!-- Add Form -->
 		<Add ref="Add" :refresh="query"></Add>
 		<!--Add Form -->
 		{{- end}}
 
-		{{if gt ($rows|update|len) 0 -}}
+		{{- if gt ($rows|update|len) 0}}
+
 		<!-- edit Form start-->
 		<Edit ref="Edit" :refresh="query"></Edit>
 		<!-- edit Form end-->
@@ -398,9 +400,9 @@ export default {
 		{{- if gt ($sort|len) 0}}
 		sort(column) {
       if (column.order == "ascending") {
-        this.order ="t." +  column.prop + " " + "asc"
+        this.order ="t." + column.prop + " " + "asc"
       } else if (column.order == "descending") {
-        this.order ="t." +  column.prop + " " + "desc"
+        this.order ="t." + column.prop + " " + "desc"
       } else {
         this.order = ""
       }
@@ -417,7 +419,7 @@ export default {
 		},
 		{{- end}}
 		{{- range $i,$c:=$rows|query}}
-		{{- if (qDicPName $c.Con $tb)  }}
+		{{- if (qDicPName $c.Con $tb) }}
 		set{{$c.Name|upperName}}(pid){
 			this.queryData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}",pid)
@@ -436,7 +438,7 @@ export default {
 				{{- end}}
 				{{- range $i,$c1:=(qgroup $c.Name $tb)}}
 				this.queryData.{{$c1.Name}} = obj.{{$c1.Name}}
-				{{- if  (qGroupCName $c1.Name $tb)}}
+				{{- if (qGroupCName $c1.Name $tb)}}
 				this.set{{$c1.Name|upperName}}Group(this.queryData.{{$c1.Name}})
 				{{- end}}
 				{{- end}}
@@ -585,7 +587,7 @@ export default {
           ];
           this.BuildExcel("{{$desc}}.xlsx", [header], res.items || [], {
 						{{- range $i,$c:=$rows|list}}
-						{{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+						{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
 						{{$c.Name}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}"),
 						{{- end}}
 						{{- end}}
@@ -636,7 +638,7 @@ export default {
 
 		{{- if gt ($rows|delete|len) 0}}
     del(val){
-			this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {confirmButtonText: "确定",  cancelButtonText: "取消", type: "warning"})
+			this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {confirmButtonText: "确定", cancelButtonText: "取消", type: "warning"})
 			.then(() => {
 				this.$http.del("/{{.Name|rmhd|rpath}}",val, {}, true, true)
 					.then(res => {

@@ -9,6 +9,7 @@ const TmplDetail = `
 {{- $choose :=false -}}
 {{- $panelbody :=false -}}
 {{- $name:=.Name -}}
+{{- $components:=false -}}
 <template>
   <div>
     <div>
@@ -133,14 +134,16 @@ const TmplDetail = `
         {{- else if (index $tab.TabInfo.TabTableList $name) }}{{$panelbody = true}}
           <el-scrollbar style="height:100%" id="panel-body">
             <el-table :data="{{$tab.Name|rmhd|varName}}List.items" size="small" stripe style="width: 100%" :height="maxHeight">
-              {{if gt $tab.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod"></el-table-column>{{end}}
+              {{- if gt $tab.ELTableIndex 0}}
+              <el-table-column type="index" fixed	:index="indexMethod"></el-table-column>
+              {{- end}}
               {{- range $i,$c:=$tab.Rows|tablist}}
               <el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
-              {{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+                {{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
                 <template slot-scope="scope">
                   <span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|leCon) $tab) ($c.Name|lower)}}")}}</span>
                 </template>
-              {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
+                {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
                 <template slot-scope="scope">
                   <el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > {{or ($c.Con|lfCon) "20"}}" effect="dark" placement="top">
                     <div slot="content" style="width: 110px">{{"{{scope.row."}}{{$c.Name}}}}</div>
@@ -148,32 +151,31 @@ const TmplDetail = `
                   </el-tooltip>
                   <span v-else>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
                 </template>
-              {{- else if ($c.Con|fIsNofltr)}}
-              <template slot-scope="scope">
-                <span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-              </template>
-              {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($tab|pks|firstStr))}}
-              <template slot-scope="scope">
-                <span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
-              </template>
-              {{- else if $c.Type|isDecimal }}
-              <template slot-scope="scope">
-                <span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "2"}})}}</span>
-              </template>
-              {{- else if $c.Type|isTime }}
-              <template slot-scope="scope">
-                <div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
-              </template>
-              {{- else}}
-              <template slot-scope="scope">
-                <span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-              </template>
-              {{end}}
+                {{- else if ($c.Con|fIsNofltr)}}
+                <template slot-scope="scope">
+                  <span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
+                </template>
+                {{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($tab|pks|firstStr))}}
+                <template slot-scope="scope">
+                  <span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
+                </template>
+                {{- else if $c.Type|isDecimal }}
+                <template slot-scope="scope">
+                  <span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "2"}})}}</span>
+                </template>
+                {{- else if $c.Type|isTime }}
+                <template slot-scope="scope">
+                  <div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
+                </template>
+                {{- else}}
+                <template slot-scope="scope">
+                  <span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
+                </template>
+                {{- end}}
               </el-table-column>
               {{- end}}
               {{- if gt ($tab.BtnInfo|len) 0}}
               <el-table-column  label="操作" align="center">
-              {{- end}}
                 <template slot-scope="scope">
                   {{- range $i,$c:= $tab.BtnInfo }}
                     {{- if gt ($c.VIF|len) 0}}
@@ -188,18 +190,17 @@ const TmplDetail = `
                       {{- end}}
                     {{- else if $c.Show}}	
                   <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-                  {{- else}}	
+                    {{- else}}	
                   <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
                     {{- end }}
                   {{- end}}
                 </template>
-              {{- if gt ($tab.BtnInfo|len) 0}}
               </el-table-column>
               {{- end}}
             </el-table>
           </el-scrollbar>
           {{- range $i,$c:= $tab.BtnInfo }}
-          {{- if $c.Show}}
+          {{- if $c.Show}}{{$components = true}}
           <!-- {{$c.Name|upperName}} Form -->
           <{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
           <!--{{$c.Name|upperName}} Form -->
@@ -239,7 +240,7 @@ import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
 {{- end}}
 {{- end}}
 export default {
-  {{- if gt ($tabs|len) 0}}
+  {{- if $components}}
   components: {
   {{- end}}
     {{- range $index,$tab:=$tabs -}}  
@@ -251,7 +252,7 @@ export default {
 		{{- end}}
     {{- end}}
 		{{- end}}
-  {{- if gt ($tabs|len) 0}}
+  {{- if $components}}
   },
   {{- end}}
   data(){
