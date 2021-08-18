@@ -314,7 +314,7 @@ export default {
 			this.query{{$tab.Name|rmhd|varName}}Params.ps = this.paging{{$tab.Name|rmhd|varName}}.ps
       var data = this.$utility.delEmptyProperty(this.query{{$tab.Name|rmhd|varName}}Params)
       data.{{or (index $tab.TabInfo.TabTableProField $name) ($pks|firstStr)}} = this.info.{{or (index $tab.TabInfo.TabTablePreField $name) ($pks|firstStr)}} || ""
-      let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/querydetail", data)
+      let res = this.$http.xget("/{{.Name|rmhd|rpath}}/querydetail", data)
 			this.{{$tab.Name|rmhd|varName}}List.items = res.items || []
 			this.{{$tab.Name|rmhd|varName}}List.count = res.count
     },
