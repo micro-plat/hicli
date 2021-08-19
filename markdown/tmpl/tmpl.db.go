@@ -69,21 +69,21 @@ ALTER TABLE {{$.Name}} MODIFY {{$c.Name}} {{$c.Type|dbType}} {{$c|defValue}} {{$
 ALTER TABLE {{$.Name}} DROP PRIMARY KEY;
 {{- else if and (eq $c.Operation 1) ($c|isPK)}}
 -- 新增主键 {{$c.Name}} 
-ALTER TABLE {{$.Name}} ADD CONSTRAINT symbol {{$c|indexStr}};
+ALTER TABLE {{$.Name}} ADD {{$c|indexStr}};
 {{- else if and (eq $c.Operation 2) ($c|isPK)}}
 -- 修改主键 {{$c.Name}} 
 ALTER TABLE {{$.Name}} DROP PRIMARY KEY;
-ALTER TABLE {{$.Name}} ADD CONSTRAINT symbol {{$c|indexStr}};
+ALTER TABLE {{$.Name}} ADD {{$c|indexStr}};
 {{- else if and (eq $c.Operation -1) (or ($c|isIndex) ($c|isUNQ))}}
 -- 删除索引 {{$c.Name}} 
 ALTER TABLE {{$.Name}} DROP INDEX {{$c.Name}};
 {{- else if and (eq $c.Operation 1) (or ($c|isIndex) ($c|isUNQ))}}
 -- 新增索引 {{$c.Name}} 
-ALTER TABLE {{$.Name}} ADD CONSTRAINT symbol {{$c|indexStr}};
+ALTER TABLE {{$.Name}} ADD {{$c|indexStr}};
 {{- else if and (eq $c.Operation 2) (or ($c|isIndex) ($c|isUNQ))}}
 -- 修改索引 {{$c.Name}} 
 ALTER TABLE {{$.Name}} DROP INDEX {{$c.Name}};
-ALTER TABLE {{$.Name}} ADD CONSTRAINT symbol {{$c|indexStr}};
+ALTER TABLE {{$.Name}} ADD {{$c|indexStr}};
 {{- end}}
 {{- end}}
 {{- if .PKG}}{###}{{end -}};`
