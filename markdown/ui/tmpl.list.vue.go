@@ -108,7 +108,7 @@ const TmplList = `
 				{{- end}}
 				{{- range $i,$c:=$tb.QueryComponents}}
 				<el-form-item>
-					<el-button type="text" size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
+					<el-button size="small" @click="show{{$c.Name|upperName}}">{{$c.BtnName}}</el-button>
 				</el-form-item>
 				{{- end}}
 			</el-form>
@@ -523,8 +523,7 @@ export default {
 		},
 		{{- end}}
 		{{- range $i,$c:=$tb.QueryComponents}}
-		show{{$c.Name|upperName}}(val) {
-			this.$refs.{{$c.Name|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
+		show{{$c.Name|upperName}}() {
       this.$refs.{{$c.Name|upperName}}.show();
 		},
 		{{- end}}
