@@ -87,6 +87,27 @@ func (t SnippetConfs) Swap(i, j int) {
 	t[i], t[j] = t[j], t[i]
 }
 
+//WebExtConf 自定义路由配置
+type WebExtConf struct {
+	Name      string `json:"name"`       //表名
+	Path      string `json:"path"`       //路径
+	Component string `json:"component"`  //页面路径
+	HasDetail bool   `json:"has_detail"` //是否有详情页
+	Desc      string `json:"desc"`
+}
+
+//GetWebExtConf 获取配置
+func GetWebExtConf(path string) ([]*WebExtConf, error) {
+
+	confs := make([]*WebExtConf, 0)
+	err := readConf(path, &confs)
+	if err != nil {
+		return nil, err
+	}
+
+	return confs, nil
+}
+
 //FieldConf 用于field文件生成
 type FieldConf struct {
 	Fields []*FieldItem `json:"fields"`
@@ -196,6 +217,15 @@ func GetWebConfPath(root string) string {
 		return ""
 	}
 	return path.Join(webPath, ".hicli/web.json")
+}
+
+func GetWebExtConfPath(root string) string {
+	projectPath := utils.GetProjectPath(root)
+	webPath, _ := utils.GetWebSrcPath(projectPath)
+	if webPath == "" {
+		return ""
+	}
+	return path.Join(webPath, "public/router.ext.json")
 }
 
 func GetGoConfPath(root string) string {

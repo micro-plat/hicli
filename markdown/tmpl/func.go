@@ -156,6 +156,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"setIsInput":  setIsInput,
 		"DMI":         getKWS("dmi"),  //dropdown menu+input 查询
 		"dropmenurow": getRows("dmi"), //dropdown menu+input 查询
+		"trimlist":    trimSuffix(".list"),
 
 		"drangeValue": drangeValue, //表单日期时间选择器
 		"ruleValue":   ruleValue,   //表单日期时间选择器
@@ -164,6 +165,12 @@ func getfuncs(tp string) map[string]interface{} {
 
 func mkSlice(args ...interface{}) []interface{} {
 	return args
+}
+
+func trimSuffix(suffix string) func(s string) string {
+	return func(s string) string {
+		return strings.TrimSuffix(s, suffix)
+	}
 }
 
 func setIsInput(r *Row) string {
