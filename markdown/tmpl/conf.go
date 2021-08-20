@@ -89,11 +89,12 @@ func (t SnippetConfs) Swap(i, j int) {
 
 //WebExtConf 自定义路由配置
 type WebExtConf struct {
-	Name      string `json:"name"`       //表名
-	Path      string `json:"path"`       //路径
-	Component string `json:"component"`  //页面路径
-	HasDetail bool   `json:"has_detail"` //是否有详情页
-	Desc      string `json:"desc"`
+	Name        string `json:"name"`       //表名
+	Path        string `json:"path"`       //路径
+	Component   string `json:"component"`  //页面路径
+	HasDetail   bool   `json:"has_detail"` //是否有详情页
+	Desc        string `json:"desc"`
+	Independent bool   `json:"independent"` //单独页面
 }
 
 //GetWebExtConf 获取配置

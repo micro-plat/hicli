@@ -67,6 +67,7 @@ export default new Router({
 				},{{- end}}
         {{- end}}
         {{- range $i,$v:=$ext}}
+        {{- if not $v.Independent}}
 				{
 					path: '{{$v.Path}}',
 					name: '{{$v.Name}}',
@@ -77,10 +78,21 @@ export default new Router({
 					path: '{{$v.Path}}/detail',
 					name: '{{$v.Name}}Detail',
 					component: () => import('../pages/{{$v.Component|trimlist}}.detail.vue')
-				},{{- end}}
+				},
+        {{- end}}
+        {{- end}}
         {{- end}}
       ]
     }
+    {{- range $i,$v:=$ext}}
+    {{- if $v.Independent}},
+    {
+      path: '{{$v.Path}}',
+      name: '{{$v.Name}}',
+      component: () => import('../pages/{{$v.Component}}.vue')
+    }
+    {{- end}}
+    {{- end}}
   ]
 })
 
