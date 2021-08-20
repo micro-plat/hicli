@@ -41,6 +41,9 @@ type Table struct {
 	ListComponents  []*ListComponents
 	QueryComponents []*QueryComponents
 	Operation       enums.Operation
+	BtnShowEdit     bool
+	BtnShowDetail   bool
+	BtnDel          bool
 }
 
 //NewTable 创建表

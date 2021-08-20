@@ -93,7 +93,7 @@ const TmplList = `
 				{{- end}}
 				{{- if gt ($rows|export|len) 0}}
 				<el-form-item>
-					<el-button type="success" @click="exportExcl" size="small">导出excel</el-button>
+					<el-button type="success" @click="exportExcl" size="small">导出</el-button>
 				</el-form-item>
 				{{- end}}
 				{{- if gt ($tb.DownloadInfo.Title|len) 0}}
@@ -158,18 +158,19 @@ const TmplList = `
 				{{- end}}
 				<el-table-column label="操作" align="center">
 					<template slot-scope="scope">
-						{{- if gt ($rows|update|len) 0}}
+						{{- if and  (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 						<el-button type="text" size="mini" @click="showEdit(scope.row)">编辑</el-button>
 						{{- end}}
-						{{- if gt ($rows|detail|len) 0}}
-						<el-button type="text" size="mini" @click="showDetail(scope.row)">详情</el-button>
-						{{- end}}
-						{{- if gt ($rows|delete|len) 0}}
+						{{- if and (not .BtnDel) (gt ($rows|delete|len) 0)}}
 						<el-button type="text" size="mini" @click="del(scope.row)">删除</el-button>
 						{{- end}}
 
 						{{- range $i,$c:=$tb.ListComponents}}
 						<el-button type="text" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
+						{{- end}}
+
+						{{- if and (not .BtnShowDetail) (gt ($rows|detail|len) 0)}}
+						<el-button type="text" size="mini" @click="showDetail(scope.row)">详情</el-button>
 						{{- end}}
 
 						{{- range $i,$c:= $btn }}
@@ -185,7 +186,7 @@ const TmplList = `
 								{{- end}}
 							{{- else if $c.Show}}	
 						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-						{{- else}}	
+							{{- else}}	
 						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 							{{- end }}
 						{{- end}}
@@ -218,10 +219,12 @@ const TmplList = `
 		{{- end}}
 
 		{{- range $i,$c:=$tb.ListComponents}}
+		{{- if not $c.Cover}}
 
 		<!-- {{$c.Name|upperName}} Form -->
 		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
 		<!--{{$c.Name|upperName}} Form -->
+		{{- end}}
 		{{- end}}
 
 		{{- range $i,$c:=$tb.QueryComponents}}
@@ -257,7 +260,9 @@ import Add from "./{{.Name|rmhd|l2d}}.add"
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
 {{- range $i,$c:=$tb.ListComponents}}
+{{- if not $c.Cover}}
 import {{$c.Name|upperName}} from "{{$c.Path}}"
+{{- end}}
 {{- end}}
 {{- range $i,$c:=$tb.QueryComponents}}
 import {{$c.Name|upperName}} from "{{$c.Path}}"
@@ -277,7 +282,9 @@ export default {
 		Edit,
 		{{- end}}
 		{{- range $i,$c:=$tb.ListComponents}}
+		{{- if not $c.Cover}}
 		{{$c.Name|upperName}},
+		{{- end}}
 		{{- end}}
 		{{- range $i,$c:=$tb.QueryComponents}}
 		{{$c.Name|upperName}},
@@ -517,10 +524,12 @@ export default {
 		},
 		{{- end}}
 		{{- range $i,$c:=$tb.ListComponents}}
+		{{- if not $c.Cover}}
 		show{{$c.Name|upperName}}(val) {
 			this.$refs.{{$c.Name|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
       this.$refs.{{$c.Name|upperName}}.show();
 		},
+		{{- end}}
 		{{- end}}
 		{{- range $i,$c:=$tb.QueryComponents}}
 		show{{$c.Name|upperName}}() {
@@ -537,6 +546,7 @@ export default {
 		{{- end}}
 
 		{{- range $i,$c:= $btn }}
+		{{- if not $c.Cover}}
 		{{$c.Name}}(val){
 			{{- if not $c.Show }}
 			var data = {
@@ -549,14 +559,21 @@ export default {
         .then(() => {
 			{{- end}}
 					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
-					.then(res => {
-						this.dialogFormVisible = false;
-						this.query()
-					})
+						.then(res => {
+							this.dialogFormVisible = false;
+							this.query()
+						})
+						.catch(err => {
+							this.$message({
+								type: "error",
+								message: err.response.data
+							});
+						})
 			{{- if $c.Confirm}}
 				});
 			{{- end}}
 		},
+		{{- end}}
 		{{- end}}
 		{{- end}}
 

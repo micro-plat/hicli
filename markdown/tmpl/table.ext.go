@@ -99,6 +99,7 @@ type BtnInfo struct {
 	RelativeShelfFiled map[string]string
 	RelativeFiled      map[string]string
 	Show               bool
+	Cover              bool
 }
 type VIF struct {
 	IfName string
@@ -132,6 +133,13 @@ func (t *Table) DispostELBtn() {
 		if info.Name == "" {
 			logs.Log.Warn("列表页面btn的name选项未配置:", key, t.ExtInfo)
 			continue
+		}
+
+		//覆盖删除按钮
+		cover := false
+		if info.Name == "del" {
+			t.BtnDel = true
+			cover = true
 		}
 
 		//desc and if
@@ -169,6 +177,13 @@ func (t *Table) DispostELBtn() {
 
 		//condition
 		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+
+		//cover
+		if cover {
+			info.Cover = true
+			t.BtnInfo = append(t.BtnInfo, info)
+			continue
+		}
 
 		//key
 		info.KeyWord = types.GetString(getSubConContent(key, "key")(t.ExtInfo), key)
@@ -265,6 +280,7 @@ type ListComponents struct {
 	Path      string
 	BtnName   string
 	Condition string
+	Cover     bool
 }
 
 func (t *Table) DispostELListComponents() {
@@ -292,6 +308,15 @@ func (t *Table) DispostELListComponents() {
 			logs.Log.Warn("列表页面btn的name选项未配置:", key, t.ExtInfo)
 			continue
 		}
+		if info.Name == "Edit" {
+			t.BtnShowEdit = true
+			info.Cover = true
+		}
+		if info.Name == "Detail" {
+			t.BtnShowDetail = true
+			info.Cover = true
+		}
+
 		info.Path = tab[1]
 		if info.Path == "" {
 			logs.Log.Warn("列表页面btn的path选项未配置:", key, t.ExtInfo)
