@@ -103,7 +103,8 @@ const TmplList = `
 				{{- end}}
 				{{- if not $tb.SelectInfo.IsEmpty }}
 				<el-form-item>
-					<el-button size="small" @click="toggleSelection()">批量操作</el-button>
+					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="toggleSelection()">{{$tb.SelectInfo.Name}}</el-button>
+					<el-button type="primary" v-else size="small" disabled>{{$tb.SelectInfo.Name}}</el-button>
 				</el-form-item>
 				{{- end}}
 				{{- range $i,$c:=$tb.QueryComponents}}
@@ -120,7 +121,7 @@ const TmplList = `
 			<el-table :data="dataList.items" stripe style="width: 100%" size="small" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
 			{{- if not $tb.SelectInfo.IsEmpty }} @selection-change="handleSelectionChange" {{end}}>
 			  {{- if not $tb.SelectInfo.IsEmpty }}
-				<el-table-column type="selection" width="55"> </el-table-column>
+				<el-table-column type="selection" :selectable="selectableCheckbox" width="24"></el-table-column>
 				{{- end}}
 				{{- if gt $tb.ELTableIndex 0}}
 				<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>
@@ -626,15 +627,38 @@ export default {
 		{{- end}}
 
 		{{- if not $tb.SelectInfo.IsEmpty }}
+		selectableCheckbox(row, rowIndex) {
+			{{- if ($tb.SelectInfo.Condition)}}
+      if ({{$tb.SelectInfo.Condition}}) {
+        return true;
+      }
+      return false;
+			{{- else}}
+			return true;
+			{{- end}}
+    },
 		toggleSelection() {
       var data = []
       this.multipleSelection.forEach(row => {
         data.push(row.{{range $i,$c:=$pks}}{{$c}}{{end}})
       });
-			this.$http.put("{{$tb.SelectInfo.URL}}", {data:data}, {}, true, true)
-			.then(res => {			
-				this.query()
-			})
+			{{- if $tb.SelectInfo.Confirm}}
+      this.$confirm("{{$tb.SelectInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{$tb.SelectInfo.URL}}", { {{range $i,$c:=$pks}}{{$c}}s{{end}}: data.join(",") }, {}, true, true)
+						.then(res => {			
+							this.query()
+						})
+						.catch(err => {
+							this.$message({
+								type: "error",
+								message: err.response.data
+							});
+						})
+			{{- if $tb.SelectInfo.Confirm}}
+			});
+		{{- end}}
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;

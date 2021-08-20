@@ -259,7 +259,10 @@ func (t *Table) DispostELDownload() {
 }
 
 type SelectInfo struct {
-	URL string
+	URL       string
+	Name      string
+	Condition string
+	Confirm   string
 }
 
 func (t *Table) DispostELSelect() {
@@ -269,6 +272,10 @@ func (t *Table) DispostELSelect() {
 	}
 	t.SelectInfo = &SelectInfo{}
 	t.SelectInfo.URL = getSubConContent(key, "url")(t.ExtInfo)
+	t.SelectInfo.Name = getSubConContent(key, "name")(t.ExtInfo)
+	t.SelectInfo.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+	//confirm
+	t.SelectInfo.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
 }
 
 func (a *SelectInfo) IsEmpty() bool {
