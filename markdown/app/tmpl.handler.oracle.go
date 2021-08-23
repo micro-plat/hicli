@@ -151,10 +151,10 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 	}
 }
 {{if gt (.TabInfo.TabListField|len) 0}}
-//QueryDetailHandle  获取{{.Desc}}数据列表
+//QueryDetailHandle  获取{{.Desc}}数据(详情)列表
 func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r interface{}) {
 
-	ctx.Log().Info("--------获取{{.Desc}}数据列表--------")
+	ctx.Log().Info("--------获取{{.Desc}}数据(详情)列表--------")
 
 	ctx.Log().Info("1.参数校验")
 	if err := ctx.Request().CheckMap(query{{.Name|rmhd|varName}}DetailCheckFields); err != nil {
