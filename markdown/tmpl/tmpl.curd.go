@@ -9,6 +9,7 @@ const MarkdownCurdSql = `
 {{- $detailrows := .Rows|detail -}}
 {{- $deleterows := .Rows|delete -}}
 {{- $listrows := .Rows|list -}}
+{{- $exportrows := .Rows|export -}}
 {{- $queryrows := .Rows|query -}}
 {{- $pks := .|pks -}}
 {{- $order:=.Rows|order|orderSort -}}
@@ -189,6 +190,50 @@ order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
 limit @ps offset @offset{###}
 {{- end}}
 
+{{- if (gt ($exportrows|len) 0)}}
+//Get{{.Name|rmhd|upperName}}ExportList 查询{{.Desc}}导出列表数据
+const Get{{.Name|rmhd|upperName}}ExportList = {###}
+select 
+{{- range $i,$c:=$exportrows}}
+	{{- if and ($c.Type|codeType|isString) ($c|replace) }}
+	{{$c|replace}} {{$c.Name}}
+	{{- else}}
+	t.{{$c.Name}}
+	{{- end}}
+	{{- if lt $i ($exportrows|maxIndex)}},{{end}}
+{{- end}} 
+from {{.Name}} t
+where
+{{- if eq ($queryrows|len) 0}}
+1=1
+{{- else -}}
+{{- range $i,$c:=$deleterows}}
+	and t.{{$c.Name}}<>{{or ($c.Con|delCon) "1"}}{{if lt $i ($deleterows|maxIndex)}},{{end}}
+{{- end}}
+{{- range $i,$c:=$queryrows -}}
+{{if $c.Type|codeType|isTime }}
+{{- if ($c.Con|DRANGE)}}
+	and t.{{$c.Name}} >= @start_time
+	and t.{{$c.Name}} < date_add(@end_time, interval 1 day)
+	{{- else}}
+	and t.{{$c.Name}} >= @{{$c.Name}} 
+	and t.{{$c.Name}} < date_add(@{{$c.Name}}, interval 1 day)
+	{{- end}}
+{{- else if and ($c.Type|codeType|isString)  (gt $c.Len $length)}}
+	?t.{{$c.Name}}
+{{- else}}
+	&t.{{$c.Name}}{{end}}
+{{- end}} 
+{{- if gt ($sort|len) 0}}
+order by #order_by
+{{- else if gt ($order|len) 0}}
+order by {{range $i,$c:=$order}}t.{{$c.Name}} {{or ($c.Con|orderCon) "desc"}}{{if lt $i ($order|maxIndex)}}, {{end}}{{end}}
+{{- else}}
+order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
+{{- end}}
+limit @ps offset @offset
+{{end -}}{###}
+{{- end}}
 
 {{- if (gt ($updaterows|len) 0)}}
 //GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 查询{{.Desc}}单条数据

@@ -208,6 +208,39 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r
 {{- end}}
 {{- end}}
 
+{{- if gt ($rows|export|len) 0}}
+//ExportHandle  获取{{.Desc}}数据导出列表
+func (u *{{.Name|rmhd|varName}}Handler) ExportHandle(ctx hydra.IContext) (r interface{}) {
+
+	ctx.Log().Info("--------获取{{.Desc}}数据导出列表--------")
+
+	ctx.Log().Info("1.参数校验")
+	if err := ctx.Request().CheckMap(export{{.Name|rmhd|varName}}CheckFields); err != nil {
+		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
+	}
+	{{- if gt ($sort|len) 0}}
+	orderBy := ctx.Request().GetString("order_by")
+	if len(orderBy) > 1 && !regexp.MustCompile("^t.[A-Za-z0-9_,.\\s]+ (asc|desc)$").MatchString(orderBy) {
+		return errs.NewErrorf(http.StatusNotAcceptable, "排序参数校验错误!")
+	}
+	{{- end}}
+
+	ctx.Log().Info("2.执行操作")
+	m := ctx.Request().GetMap()
+	m["offset"] = (ctx.Request().GetInt("pi") - 1) * ctx.Request().GetInt("ps")
+
+	items, err := hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}ExportList, m)
+	if err != nil {
+		return errs.NewErrorf(http.StatusNotExtended, "查询数据出错:%+v", err)
+	}
+	
+	ctx.Log().Info("3.返回结果")
+	return map[string]interface{}{
+		"items": items,
+	}
+}
+{{- end}}
+
 {{- if eq $up 1}}
 //UploadHandle 上传文件
 func (u *{{.Name|rmhd|varName}}Handler) UploadHandle(ctx hydra.IContext) (r interface{}) {
@@ -383,6 +416,15 @@ var query{{.Name|rmhd|varName}}DetailCheckFields = map[string]interface{}{
 	{{- end}}
 }
 {{- end}}
+{{- end}}
+
+{{- if gt (.Rows|export|len) 0}}
+
+var export{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
+	{{- range $i,$c:=.Rows|query}}
+	field.{{$c.Name|varName}}:"required",
+	{{- end}}
+}
 {{- end}}
 
 {{if gt (.Rows|update|len) 0 -}}

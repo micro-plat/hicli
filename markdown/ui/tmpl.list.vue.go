@@ -581,7 +581,7 @@ export default {
 		{{- if gt ($rows|export|len) 0}}
 		exportExcl() {
 			this.queryData.pi = this.paging.pi
-			this.queryData.ps = this.paging.ps
+			this.queryData.ps = this.dataList.count
 			{{- range $i,$c:=$rows|query -}}
 			{{- if ($c.Con|DRANGE)}}
 			this.queryData.start_time = this.$utility.dateFormat(this.times[0],"{{dateFormat $c.Con ($c.Con|qfCon)}}");
@@ -595,7 +595,7 @@ export default {
 			{{- if gt ($sort|len) 0}}
 			this.queryData.order_by = this.order
 			{{- end}}
-      this.$http.post("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.queryData))
+      this.$http.post("/{{.Name|rmhd|rpath}}/export",this.$utility.delEmptyProperty(this.queryData))
         .then(res => {
           var header = [
 					{{- range $i,$c:=$rows|export}}
@@ -603,7 +603,7 @@ export default {
 					{{- end}}
           ];
           this.BuildExcel("{{$desc}}.xlsx", [header], res.items || [], {
-						{{- range $i,$c:=$rows|list}}
+						{{- range $i,$c:=$rows|export}}
 						{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
 						{{$c.Name}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}"),
 						{{- end}}
