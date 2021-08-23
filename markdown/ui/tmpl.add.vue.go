@@ -174,12 +174,6 @@ export default {
 							this.dialogAddVisible = false
 							this.refresh()
 						})
-						.catch(err => {
-							this.$message({
-								type: "error",
-								message: err.response.data
-							});
-						})
 				} else {
 						console.log("error submit!!");
 						return false;

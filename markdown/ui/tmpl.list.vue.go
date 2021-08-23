@@ -564,12 +564,6 @@ export default {
 							this.dialogFormVisible = false;
 							this.query()
 						})
-						.catch(err => {
-							this.$message({
-								type: "error",
-								message: err.response.data
-							});
-						})
 			{{- if $c.Confirm}}
 				});
 			{{- end}}
@@ -649,12 +643,6 @@ export default {
 					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{$tb.SelectInfo.URL}}", { {{range $i,$c:=$pks}}{{$c}}s{{end}}: data.join(",") }, {}, true, true)
 						.then(res => {			
 							this.query()
-						})
-						.catch(err => {
-							this.$message({
-								type: "error",
-								message: err.response.data
-							});
 						})
 			{{- if $tb.SelectInfo.Confirm}}
 			});
