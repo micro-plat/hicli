@@ -17,7 +17,20 @@ const TmplList = `
 		<div class="panel-body" id="panel-body">
 			<el-form ref="form" size="small" :inline="true" class="form-inline pull-left">
 			{{- range $i,$c:=$rows|query}}
-				{{- if $c.Con|TA}}
+				{{- if $c.Con|CSCR}}
+				<el-form-item>
+					<el-cascader
+						placeholder="请选择{{$c.Desc|shortName}}"
+						v-model="{{$c.Con|cscrCon|lowerName}}Value"
+						@change="{{$c.Con|cscrCon|lowerName}}Change"
+						:show-all-levels="false"
+						collapse-tags
+						:options="{{$c.Con|cscrCon|lowerName|lowerName}}"
+						:props="{ multiple: true, label: 'name' }"
+						clearable
+					></el-cascader>
+				</el-form-item>
+				{{- else if $c.Con|TA}}
 				<el-form-item>
 					<el-input size="small" maxlength="{{$c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="queryData.{{$c.Name}}">
 					</el-input>
@@ -132,7 +145,7 @@ const TmplList = `
 						{{- if $c.Con|LINK}}
 						<el-button type="text" size="small" @click="{{if ($c.Con|linkCon)}}link{{$c.Name|upperName}}{{else}}showDetail{{end}}(scope.row)">
 						{{- end}}
-				{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+				{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon) ($c.Con|CSCR)}}
 						<span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}")}}</span>
 				{{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
 						<el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > {{or ($c.Con|lfCon) "20"}}" effect="dark" placement="top">
@@ -301,7 +314,11 @@ export default {
 			paging: {ps: 10, pi: 1,total:0,sizes:[5, 10, 20, 50]},
       queryData:{},               //查询数据对象 
 			{{- range $i,$c:=$rows|query -}}
-			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
+			{{- if $c.Con|CSCR}}
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
+			{{$c.Con|cscrCon|lowerName}}Value:[],
+			{{$c.Con|cscrCon|lowerName}}:[],
+			{{- else if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
 			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
 			{{- else if $c.Con|CB }}
 			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
@@ -388,6 +405,11 @@ export default {
 	methods:{
     /**初始化操作**/
     init(){
+			{{- range $i,$c:=$rows|query}}
+			{{- if ($c.Con|CSCR) }}
+			this.set{{$c.Con|cscrCon|upperName}}()
+			{{- end}}
+			{{- end}}
 			{{- if gt ($rows|query|dropmenurow|len) 0}}
 			this.preDropItem = this.dropMenu[0]
       this.currentDropItem = this.dropMenu[0]
@@ -427,6 +449,34 @@ export default {
 		},
 		{{- end}}
 		{{- range $i,$c:=$rows|query}}
+		{{- if ($c.Con|CSCR) }}
+		set{{$c.Con|cscrCon|upperName}}() {
+      var that = this
+      this.{{$c.Con|cscrCon|lowerName}} = this.$enum.get("{{$c.Con|cscrCon}}")
+      var setValue = true
+      this.{{$c.Con|cscrCon|lowerName}}.forEach(function (item) {
+        for (const el of that.{{$c.Name|lowerName}}) {
+          if (el.group_code == item.value) {
+						if (!item.children) {
+              item.children = []
+            }
+            item.children.push(el)
+            if (setValue) {
+              that.{{$c.Con|cscrCon|lowerName}}Value.push([item.value, el.value])
+            }
+          }
+        }
+        setValue = false
+      })
+    },
+    {{$c.Con|cscrCon|lowerName}}Change(val) {
+      let vals = [];
+      val.forEach((item) => {
+        vals.push(item[item.length - 1]);
+      })
+      this.queryData.{{$c.Name}} = vals.join(',');
+    },
+		{{- end}}
 		{{- if (qDicPName $c.Con $tb) }}
 		set{{$c.Name|upperName}}(pid){
 			this.queryData.{{$c.Name}} = ""

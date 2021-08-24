@@ -11,6 +11,8 @@ const TmplServiceHandler = `
 {{- $btns:=.BtnInfo -}}
 {{- $up:= 0 -}}
 {{- range $i,$c:=$rows|update}}{{if $c.Con|UP}}{{$up = 1}}{{end}}{{end -}}
+{{- $db:= false -}}
+{{- range $i,$c:=.Rows|query}}{{- if ($c.Con|CSCR) }}{{$db = true}}{{end}}{{end -}}
 package {{.PKG}}
 
 import (
@@ -35,7 +37,7 @@ import (
 	{{- if gt ($sort|len) 0}}
 	"regexp"
 	{{- end}}
-	{{- if and (.|mysqlseq) (gt (.Rows|create|len) 0)}}
+	{{- if or (and (.|mysqlseq) (gt (.Rows|create|len) 0)) $db}}
 	"{{.BasePath}}/modules/db"
 	{{- end}}
 )
@@ -151,7 +153,11 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 	ctx.Log().Info("2.执行操作")
 	m := ctx.Request().GetMap()
 	m["offset"] = (ctx.Request().GetInt("pi") - 1) * ctx.Request().GetInt("ps")
-
+	{{- range $i,$c:=.Rows|query}}
+	{{- if ($c.Con|CSCR) }}
+	m["{{$c.Name}}"] = db.GetInStr(m.GetString("{{$c.Name}}"), "and t.{{$c.Name}} in (%s)")
+	{{- end}}
+	{{- end}}
 	count, err := hydra.C.DB().GetRegularDB().Scalar(sql.Get{{.Name|rmhd|upperName}}ListCount, m)
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended, "查询数据数量出错:%+v", err)

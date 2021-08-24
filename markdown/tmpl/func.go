@@ -118,6 +118,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"DTIME":         getKWS("dtime"),                                        //表单日期时间选择器
 		"DATE":          getKWS("date"),                                         //表单日期选择器
 		"UP":            getKWS("up"),                                           //文件上传
+		"CSCR":          getKWS("cscr"),                                         //级联组件
 		"dateType":      getDateType,                                            //日期字段对应的组件的日期类型
 		"dateFormat":    getDateFormat,                                          //日期字段对应的组件的日期格式
 		"dateFormatDef": getDateFormatDef,                                       //日期字段对应的组件的日期默认值
@@ -128,6 +129,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"LINK":          getKWS("link"),                                         //表单点击跳转
 		"linkCon":       getBracketContent([]string{"link"}),                    //表单点击跳转约束
 		"drangeCon":     getBracketContent([]string{"drange"}),                  //表单点击跳转约束
+		"cscrCon":       getBracketContent([]string{"cscr"}),                    //表单点击跳转约束
 		"lfCon":         getSubConContent("l", "f"),                             //列表展示字段的过滤器子约束l(f:xx)
 		"leCon":         getSubConContent("l", "e"),                             //列表展示字段的枚举子约束l(e:xx)
 		"qeCon":         getSubConContent("q", "e"),                             //查询字段的枚举子约束q(e:xx)

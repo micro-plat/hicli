@@ -101,6 +101,8 @@ where
 	{{- end}}
 {{- else if and ($c.Type|codeType|isString) (gt $c.Len $length)}}
 	?t.{{$c.Name}}
+{{- else if ($c.Con|CSCR) }}
+	#{{$c.Name}}
 {{- else}}
 	&t.{{$c.Name}}{{end}}
 {{- end}}{{end}}{###}
@@ -135,6 +137,8 @@ where
 	{{- end}}
 {{- else if and ($c.Type|codeType|isString)  (gt $c.Len $length)}}
 	?t.{{$c.Name}}
+{{- else if ($c.Con|CSCR) }}
+	#{{$c.Name}}
 {{- else}}
 	&t.{{$c.Name}}{{end}}
 {{- end}} 
