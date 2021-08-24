@@ -51,7 +51,7 @@ func getEnums(tp string, m types.XMap) (types.XMaps, error) {
 	}
 
 	if _, ok := enumsExt[tp]; ok {
-		items, err := hydra.C.DB().GetRegularDB().Query(enumsMap[tp], m)
+		items, err := hydra.C.DB().GetRegularDB().Query(enumsExt[tp], m)
 		return items, err
 	}
 
@@ -127,7 +127,7 @@ func getEnums(tp string, m types.XMap) (types.XMaps, error) {
 	}
 
 	if _, ok := enumsExt[tp]; ok {
-		items, err := hydra.C.DB().GetRegularDB().Query(enumsMap[tp], m)
+		items, err := hydra.C.DB().GetRegularDB().Query(enumsExt[tp], m)
 		return items, err
 	}
 
