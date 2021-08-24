@@ -25,17 +25,11 @@ func (o *SystemEnumsHandler) QueryHandle(ctx hydra.IContext) interface{} {
 	//根据传入的枚举类型获取数据
 	tp := ctx.Request().GetString("dic_type")
 	if tp != "" {
-		var items types.XMaps
-		var err error
-		if _, ok := enumsMap[tp]; !ok {
-			items, err = dds.GetEnums(ctx, ctx.Request().GetMap())
-		} else {
-			items, err = hydra.C.DB().GetRegularDB().Query(enumsMap[tp], ctx.Request().GetMap())
-		}
+		list, err := getEnums(tp, ctx.Request().GetMap())
 		if err != nil {
 			return err
 		}
-		return items
+		return list
 	}
 
 	//查询所有枚举数据
@@ -49,6 +43,23 @@ func (o *SystemEnumsHandler) QueryHandle(ctx hydra.IContext) interface{} {
 	}
 	return list
 }
+
+func getEnums(tp string, m types.XMap) (types.XMaps, error) {
+	if _, ok := enumsMap[tp]; ok {
+		items, err := hydra.C.DB().GetRegularDB().Query(enumsMap[tp], m)
+		return items, err
+	}
+
+	if _, ok := enumsExt[tp]; ok {
+		items, err := hydra.C.DB().GetRegularDB().Query(enumsMap[tp], m)
+		return items, err
+	}
+
+	items, err := dds.GetEnums(nil, m)
+	return items, err
+}
+
+var enumsExt = map[string]string{}
 
 var enumsMap = map[string]string{
 {{ range $j,$t:=.Tbs -}}
