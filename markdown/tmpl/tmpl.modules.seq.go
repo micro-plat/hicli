@@ -5,9 +5,12 @@ package db
 
 import (
 	"fmt"
+	"strings"
+
 	"{{.BasePath}}/modules/const/sql"
 
 	"github.com/micro-plat/lib4go/db"
+	"github.com/micro-plat/lib4go/types"
 )
 
 // GetNewID 获取新ID
@@ -25,4 +28,23 @@ func GetNewID(db db.IDBExecuter, SQLGetSEQ string, imap map[string]interface{}) 
 	}
 	return id, nil
 }
+
+func GetQuerySetSQL(value, format string) string {
+	if value == "" {
+		return " "
+	}
+	s1 := strings.Split(value, ",")
+	s2 := make([]string, 0)
+	for _, v := range s1 {
+		if v != "" {
+			s2 = append(s2, types.GetString(types.GetInt(v, -1)))
+		}
+	}
+	if len(s2) == 0 {
+		return " "
+	}
+
+	return fmt.Sprintf(format, strings.Join(s2, ","))
+}
+
 `

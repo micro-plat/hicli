@@ -468,6 +468,7 @@ export default {
         }
         setValue = false
       })
+			this.{{$c.Con|cscrCon|lowerName}}Change(this.{{$c.Con|cscrCon|lowerName}}Value)
     },
     {{$c.Con|cscrCon|lowerName}}Change(val) {
       let vals = [];

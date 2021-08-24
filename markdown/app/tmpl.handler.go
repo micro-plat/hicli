@@ -155,7 +155,7 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 	m["offset"] = (ctx.Request().GetInt("pi") - 1) * ctx.Request().GetInt("ps")
 	{{- range $i,$c:=.Rows|query}}
 	{{- if ($c.Con|CSCR) }}
-	m["{{$c.Name}}"] = db.GetInStr(m.GetString("{{$c.Name}}"), "and t.{{$c.Name}} in (%s)")
+	m["{{$c.Name}}"] = db.GetQuerySetSQL(m.GetString("{{$c.Name}}"), "and t.{{$c.Name}} in (%s)")
 	{{- end}}
 	{{- end}}
 	count, err := hydra.C.DB().GetRegularDB().Scalar(sql.Get{{.Name|rmhd|upperName}}ListCount, m)
