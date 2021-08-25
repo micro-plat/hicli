@@ -27,6 +27,9 @@ const TmplDetail = `
                       <div class="pull-right" style="margin-right: 10px">{{$c.Desc|shortName}}:</div>
                     </el-col>
                     <el-col :span="6">
+                    {{- if gt ($c.DetailBtnInfo|len) 0}}
+                      <el-row type="flex">
+                    {{- end}}
               {{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) ($c.Con|CB) ($c.Con|reCon) }}
                       <div {{- if ($c.Con|CC) }} :class="info.{{$c.Name}} | fltrTextColor"{{end}}>{{"{{ info."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|reCon) $tb) ($c.Name|lower) }}") }}</div>
               {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) ) }}
@@ -45,6 +48,26 @@ const TmplDetail = `
                       <div>{{"{{ info."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|rfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
               {{- else}}
                       <div>{{"{{ info."}}{{$c.Name}} | fltrEmpty }}</div>
+              {{- end}}
+              {{- range $i,$c:= $c.DetailBtnInfo }}
+                {{- if gt ($c.VIF|len) 0}}
+                  {{- range $k,$v:= $c.VIF}}
+                            {{- if eq $k 0}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
+                            {{- else if lt $k ($c.VIF|maxIndex) }}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
+                            {{- else}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
+                            {{- end}}
+                  {{- end}}
+                {{- else if $c.Show}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(info)">{{$c.DESC}}</el-button>
+                {{- else}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(info)">{{$c.DESC}}</el-button>
+                {{- end }}
+              {{- end}}
+              {{- if gt ($c.DetailBtnInfo|len) 0}}
+                      </el-row>
               {{- end}}
                     </el-col>
               {{- if and (eq (mod $i 2) 1) (ne ($rows|maxIndex) $i) }}
@@ -75,6 +98,9 @@ const TmplDetail = `
                       <div class="pull-right" style="margin-right: 10px">{{$c.Desc|shortName}}:</div>
                     </el-col>
                     <el-col :span="6">
+                    {{- if gt ($c.DetailBtnInfo|len) 0}}
+                      <el-row type="flex">
+                    {{- end}}
               {{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) ($c.Con|CB) ($c.Con|reCon) }}
                       <div {{if ($c.Con|CC) }}:class="{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrTextColor"{{end}}>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|reCon) $tb) ($c.Name|lower) }}") }}</div>
               {{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) ) }}
@@ -94,6 +120,26 @@ const TmplDetail = `
               {{- else}}
                       <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEmpty }}</div>
               {{- end}}
+              {{- range $i,$c:= $c.DetailBtnInfo }}
+                {{- if gt ($c.VIF|len) 0}}
+                  {{- range $k,$v:= $c.VIF}}
+                            {{- if eq $k 0}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
+                            {{- else if lt $k ($c.VIF|maxIndex) }}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
+                            {{- else}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
+                            {{- end}}
+                  {{- end}}
+                {{- else if $c.Show}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(info)">{{$c.DESC}}</el-button>
+                {{- else}}
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(info)">{{$c.DESC}}</el-button>
+                {{- end }}
+              {{- end}}
+              {{- if gt ($c.DetailBtnInfo|len) 0}}
+                      </el-row>
+              {{- end}}              
                     </el-col>
               {{- if and (eq (mod $i 2) 1) (ne ($tab.Rows|tabdetail|maxIndex) $i) }}
                   </td>
@@ -321,6 +367,32 @@ export default {
 		{{- end}}
     {{- end}}
 		{{- end}}
+
+    {{- range $index,$r:=$rows -}}  
+    {{- range $i,$c:= $r.DetailBtnInfo }}
+    {{$c.Name}}(val) {
+		{{- if not $c.Show }}
+      var data = {
+        {{- range $i,$c:=$c.Rows}}
+        {{$c.Name}}: val.{{$c.Name}},
+				{{- end}}
+      }
+			{{- if $c.Confirm}}
+      this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+          this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName) }}", data, {}, true, true)
+            .then(res => {
+              this.dialogFormVisible = false;
+              this.query()
+            })
+      {{- if $c.Confirm}}
+        });
+			{{- end}}
+    },
+		{{- end}}
+		{{- end}}
+    {{- end}}
 
     {{- range $index,$tab:=$tabs -}}  
     {{- if (index $tab.TabInfo.TabTableList $name) }}  

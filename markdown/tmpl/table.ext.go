@@ -100,6 +100,7 @@ type BtnInfo struct {
 	RelativeFiled      map[string]string
 	Show               bool
 	Cover              bool
+	FieldName          string //详情页面按钮，对应的字段名
 }
 type VIF struct {
 	IfName string
@@ -122,7 +123,7 @@ func (t *Table) DispostELBtn() {
 
 	for _, v := range a {
 		key := fmt.Sprintf("el_btn%s", v)
-		if !strings.Contains(t.ExtInfo, key) {
+		if !strings.Contains(t.ExtInfo, key+"(") {
 			break
 		}
 
@@ -231,10 +232,137 @@ func (t *Table) DispostELBtn() {
 			}
 		}
 		if len(info.Rows) < 1 {
-			logs.Log.Warn("列表页面btn的更新的字段未配置")
+			logs.Log.Warn("列表页面btn的绑定的字段未配置")
 		}
 
 		t.BtnInfo = append(t.BtnInfo, info)
+	}
+
+}
+
+//DispostELBtnDetail {el_btn_detail(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,field_name:name,table:adas/iqe,key:sa)}
+func (t *Table) DispostELBtnDetail() {
+	if t.ExtInfo == "" {
+		return
+	}
+	a := []string{"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+Next:
+	for _, v := range a {
+		key := fmt.Sprintf("el_btn_detail%s", v)
+		if !strings.Contains(t.ExtInfo, key+"(") {
+			break
+		}
+
+		info := newBtnInfo()
+
+		//name
+		info.Name = getSubConContent(key, "name")(t.ExtInfo)
+		if info.Name == "" {
+			logs.Log.Warn("详情页面btn的name选项未配置:", key, t.ExtInfo)
+			continue
+		}
+
+		//desc and if
+		desc := getSubConContent(key, "desc")(t.ExtInfo)
+		if desc == "" {
+			logs.Log.Warn("详情页面btn的desc选项未配置:", t.ExtInfo)
+			continue
+		}
+
+		if strings.Contains(desc, "|") {
+			for _, v := range strings.Split(desc, "|") {
+				pos := strings.Index(v, "-")
+				if pos < 0 {
+					logs.Log.Warn("详情页面btn的if选项不正确:", desc)
+					continue
+				}
+				info.VIF = append(info.VIF, &VIF{
+					IfName: v[:pos],
+					IfDESC: v[pos+1:],
+				})
+			}
+
+			if len(info.VIF) < 2 {
+				logs.Log.Warn("详情页面btn的if选项最少为2个：", desc)
+			}
+		} else {
+			info.DESC = desc
+		}
+
+		//confirm
+		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
+
+		//url
+		info.URL = getSubConContent(key, "url")(t.ExtInfo)
+
+		//condition
+		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+
+		//key
+		info.KeyWord = types.GetString(getSubConContent(key, "key")(t.ExtInfo), key)
+
+		//field_name
+		info.FieldName = getSubConContent(key, "field_name")(t.ExtInfo)
+
+		//table
+		tabs := getSubConContent(key, "table")(t.ExtInfo)
+
+		for _, v := range strings.Split(tabs, "|") {
+
+			tabName := v
+			tabField := make([]string, 2)
+			if pos := strings.Index(v, ":"); pos > 0 {
+				tabName = v[0:pos]
+				t := strings.Split(v[pos+1:], "/")
+				if len(t) == 1 {
+					tabField = []string{t[0], t[0]}
+				}
+				if len(t) == 2 {
+					tabField = []string{t[0], t[1]}
+				}
+			}
+
+			for _, tb := range t.AllTables {
+				if tb.Name == tabName {
+					info.RelativeShelfFiled[tb.Name] = tabField[0]
+					info.RelativeFiled[tb.Name] = tabField[1]
+					info.Table = append(info.Table, tb)
+					info.Show = true
+				}
+			}
+		}
+
+		//Rows
+		for _, v := range getRows(info.KeyWord)(t.Rows) {
+			v.BelongTable = t
+			info.Rows = append(info.Rows, *v)
+		}
+
+		for k, v := range info.Table {
+			for _, v1 := range getRows(info.KeyWord)(v.Rows) {
+				v1.BelongTable = v
+				v1.Disable = true
+				v1.SQLAliasName = fmt.Sprintf("t%d", k)
+				info.Rows = append(info.Rows, *v1)
+			}
+		}
+		if len(info.Rows) < 1 {
+			logs.Log.Warn("详情页面btn绑定的字段未配置")
+			continue
+		}
+
+		if info.FieldName == "" && len(info.Rows) == 1 {
+			info.FieldName = info.Rows[0].Name
+		}
+
+		for _, v := range t.Rows {
+			if v.Name == info.FieldName {
+				v.DetailBtnInfo = append(v.DetailBtnInfo, info)
+				break Next
+			}
+		}
+
+		logs.Log.Warn("详情页面btn未配置按钮字段")
 	}
 
 }
@@ -312,7 +440,7 @@ func (t *Table) DispostELListComponents() {
 		//name
 		info.Name = tab[0]
 		if info.Name == "" {
-			logs.Log.Warn("列表页面btn的name选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("列表页面components的name选项未配置:", key, t.ExtInfo)
 			continue
 		}
 		if info.Name == "Edit" {
@@ -326,7 +454,7 @@ func (t *Table) DispostELListComponents() {
 
 		info.Path = tab[1]
 		if info.Path == "" {
-			logs.Log.Warn("列表页面btn的path选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("列表页面components的path选项未配置:", key, t.ExtInfo)
 			continue
 		}
 		if len(tab) > 2 {
