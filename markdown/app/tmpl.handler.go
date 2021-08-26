@@ -335,34 +335,6 @@ func (u *{{.Name|rmhd|varName}}Handler) PutHandle(ctx hydra.IContext) (r interfa
 }
 {{- end}}
 
-
-{{- range $i,$btn:=$btns }}
-{{- if  $btn.Show }}
-//Get{{$btn.Name|upperName}}Handle 获取{{$.Desc}}单条数据
-func (u *{{$.Name|rmhd|varName}}Handler) Get{{$btn.Name|upperName}}Handle(ctx hydra.IContext) (r interface{}) {
-
-	ctx.Log().Info("--------获取{{$.Desc}}单条数据--------")
-
-	ctx.Log().Info("1.参数校验")
-	if err := ctx.Request().CheckMap(get{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields); err != nil {
-		return errs.NewErrorf(http.StatusNotAcceptable, "参数校验错误:%+v", err)
-	}
-
-	ctx.Log().Info("2.执行操作")
-	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
-	if err != nil {
-		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
-	}
-	if items.Len() == 0 {
-		return errs.NewError(http.StatusNoContent, "未查询到数据")
-	}
-
-	ctx.Log().Info("3.返回结果")
-	return items.Get(0)
-}
-{{- end}}
-{{- end}}
-
 {{- if gt ($rows|delete|len) 0}}
 //DeleteHandle 删除{{.Desc}}数据
 func (u *{{.Name|rmhd|varName}}Handler) DeleteHandle(ctx hydra.IContext) (r interface{}) {
@@ -453,12 +425,4 @@ var delete{{.Name|rmhd|varName}}CheckFields = map[string]interface{}{
 }
 {{- end}}
 
-
-{{- range $i,$btn:=$btns }}
-{{- if  $btn.Show }}
-var get{{$.Name|rmhd|varName}}{{$btn.Name|upperName}}CheckFields = map[string]interface{}{
-	{{range $i,$c:=$pks}}field.{{$c|varName}}:"required",{{end}}
-}
-{{- end}}
-{{- end}}
 `

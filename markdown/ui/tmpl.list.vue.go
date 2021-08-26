@@ -188,35 +188,13 @@ const TmplList = `
 						{{- end}}
 
 						{{- range $i,$c:= $btn }}
-							{{- if gt ($c.VIF|len) 0}}
-								{{- range $k,$v:= $c.VIF}}
-									{{- if eq $k 0}}
-						<el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-									{{- else if lt $k ($c.VIF|maxIndex) }}		
-						<el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-									{{- else}}
-						<el-button v-else type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-									{{- end}}
-								{{- end}}
-							{{- else if $c.Show}}	
-						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-							{{- else}}	
 						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-							{{- end }}
 						{{- end}}
 					</template>
 				</el-table-column>
 			</el-table>
 		</el-scrollbar>
 		<!-- list end-->
-
-		{{- range $i,$c:= $btn }}
-		{{- if $c.Show}}
-		<!-- {{$c.Name|upperName}} Form -->
-		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
-		<!--{{$c.Name|upperName}} Form -->
-		{{- end}}
-		{{- end}}
 
 		{{- if gt ($rows|create|len) 0}}
 
@@ -281,11 +259,6 @@ import {{$c.Name|upperName}} from "{{$c.Path}}"
 {{- range $i,$c:=$tb.QueryComponents}}
 import {{$c.Name|upperName}} from "{{$c.Path}}"
 {{- end}}
-{{- range $i,$c:= $btn }}
-{{- if $c.Show}}
-import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
-{{- end}}
-{{- end}}
 export default {
 	name: "{{$name|rmhd|varName}}",
   components: {
@@ -303,16 +276,11 @@ export default {
 		{{- range $i,$c:=$tb.QueryComponents}}
 		{{$c.Name|upperName}},
 		{{- end}}
-		{{- range $i,$c:= $btn }}
-		{{- if $c.Show -}},
-		{{$c.Name|upperName}}
-		{{- end}}
-		{{- end}}
   },
   data () {
 		return {
 			paging: {ps: 10, pi: 1,total:0,sizes:[5, 10, 20, 50]},
-      queryData:{},               //查询数据对象 
+			queryData:{},               //查询数据对象
 			{{- range $i,$c:=$rows|query -}}
 			{{- if $c.Con|CSCR}}
 			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
@@ -588,19 +556,10 @@ export default {
       this.$refs.{{$c.Name|upperName}}.show();
 		},
 		{{- end}}
-		{{- range $i,$c:= $btn }}
-		{{- if $c.Show }}
-	  show{{$c.Name}}(val) {
-      this.$refs.{{$c.Name|upperName}}.editData = val
-      this.$refs.{{$c.Name|upperName}}.show();
-		},
-		{{- end}}
-		{{- end}}
 
 		{{- range $i,$c:= $btn }}
 		{{- if not $c.Cover}}
 		{{$c.Name}}(val){
-			{{- if not $c.Show }}
 			var data = {
 				{{- range $i,$c:=$c.Rows}}
 				{{$c.Name}} :val.{{$c.Name}},
@@ -619,7 +578,6 @@ export default {
 				});
 			{{- end}}
 		},
-		{{- end}}
 		{{- end}}
 		{{- end}}
 

@@ -17,7 +17,6 @@ type Row struct {
 	DecimalLen    int //小数长度
 	LineID        int
 	Sort          int //字段在列表中排序位置
-	BelongTable   *Table
 	Disable       bool
 	SQLAliasName  string //SQL别名
 	IsInput       bool

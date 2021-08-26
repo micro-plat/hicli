@@ -311,29 +311,5 @@ where
 {{- range $i,$c:=$pks}}
 	&{{$c}}
 {{- end}}{###}
-{{end}}
-
-{{- range $i,$btn:=$btns }}
-{{- if $btn.Show }}
-//Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 查询单条数据{{$.Desc}}
-const Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
-select 
-{{- range $i,$c:=$btn.Rows}}
-	{{or $c.SQLAliasName "t"}}.{{$c.Name}}{{if lt $i ($btn.Rows|maxIndex)}},{{end}}
-{{- end}} 
-from {{$.Name}}{{$.DBLink}} t
-{{- range $i,$c:=$btn.Table}}
-left join {{$c.Name}}{{$.DBLink}} t{{$i}} on t.{{index $btn.RelativeShelfFiled $c.Name}} = t{{$i}}.{{index $btn.RelativeFiled $c.Name}} 
-{{- end}}
-where
-{{- if eq ($pks|len) 0}}
-1=1
-{{- else -}}
-{{- range $i,$c:=$pks}}
-	&t.{{$c}}
-{{- end}}
-{{- end}}{###}
-{{- end}}
-
 {{- end}}
 `

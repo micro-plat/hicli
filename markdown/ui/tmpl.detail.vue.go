@@ -50,21 +50,7 @@ const TmplDetail = `
                       <div>{{"{{ info."}}{{$c.Name}} | fltrEmpty }}</div>
               {{- end}}
               {{- range $i,$c:= $c.DetailBtnInfo }}
-                {{- if gt ($c.VIF|len) 0}}
-                  {{- range $k,$v:= $c.VIF}}
-                            {{- if eq $k 0}}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
-                            {{- else if lt $k ($c.VIF|maxIndex) }}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
-                            {{- else}}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
-                            {{- end}}
-                  {{- end}}
-                {{- else if $c.Show}}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(info)">{{$c.DESC}}</el-button>
-                {{- else}}
                         <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(info)">{{$c.DESC}}</el-button>
-                {{- end }}
               {{- end}}
               {{- if gt ($c.DetailBtnInfo|len) 0}}
                       </el-row>
@@ -121,21 +107,7 @@ const TmplDetail = `
                       <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEmpty }}</div>
               {{- end}}
               {{- range $i,$c:= $c.DetailBtnInfo }}
-                {{- if gt ($c.VIF|len) 0}}
-                  {{- range $k,$v:= $c.VIF}}
-                            {{- if eq $k 0}}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
-                            {{- else if lt $k ($c.VIF|maxIndex) }}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else-if="info.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
-                            {{- else}}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" v-else type="text" size="mini" @click="{{$c.Name}}(info)">{{$v.IfDESC}}</el-button>
-                            {{- end}}
-                  {{- end}}
-                {{- else if $c.Show}}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(info)">{{$c.DESC}}</el-button>
-                {{- else}}
                         <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(info)">{{$c.DESC}}</el-button>
-                {{- end }}
               {{- end}}
               {{- if gt ($c.DetailBtnInfo|len) 0}}
                       </el-row>
@@ -200,34 +172,13 @@ const TmplDetail = `
               <el-table-column label="操作" align="center">
                 <template slot-scope="scope">
                   {{- range $i,$c:= $tab.BtnInfo }}
-                    {{- if gt ($c.VIF|len) 0}}
-                      {{- range $k,$v:= $c.VIF}}
-                        {{- if eq $k 0}}
-                  <el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-                        {{- else if lt $k ($c.VIF|maxIndex) }}
-                  <el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-                        {{- else}}
-                  <el-button v-else type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-                        {{- end}}
-                      {{- end}}
-                    {{- else if $c.Show}}
-                  <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-                    {{- else}}
                   <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-                    {{- end }}
                   {{- end}}
                 </template>
               </el-table-column>
               {{- end}}
             </el-table>
           </el-scrollbar>
-          {{- range $i,$c:= $tab.BtnInfo }}
-          {{- if $c.Show}}{{$components = true}}
-          <!-- {{$c.Name|upperName}} Form -->
-          <{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
-          <!--{{$c.Name|upperName}} Form -->
-          {{- end}}
-          {{- end}}
         {{- end}}
         </el-tab-pane>
         {{- end }}
@@ -253,28 +204,10 @@ const TmplDetail = `
 </template>
 
 <script>
-{{- range $index,$tab:=$tabs -}}  
-{{- if (index $tab.TabInfo.TabTableList $name) }}  
-{{- range $i,$c:= $tab.BtnInfo }}
-{{- if $c.Show}}
-import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
-{{- end}}
-{{- end}}
-{{- end}}
-{{- end}}
 export default {
   {{- if $components}}
   components: {
   {{- end}}
-    {{- range $index,$tab:=$tabs -}}  
-    {{- if (index $tab.TabInfo.TabTableList $name) }}  
-    {{- range $i,$c:= $tab.BtnInfo }}
-		{{- if $c.Show -}},
-		{{$c.Name|upperName}}
-		{{- end}}
-		{{- end}}
-    {{- end}}
-		{{- end}}
   {{- if $components}}
   },
   {{- end}}
@@ -355,23 +288,9 @@ export default {
     {{- end}}
     {{- end }}
     
-    {{- range $index,$tab:=$tabs -}}  
-    {{- if (index $tab.TabInfo.TabTableList $name) }}  
-    {{- range $i,$c:= $tab.BtnInfo }}
-		{{- if $c.Show }}
-    show{{$c.Name}}(val) {
-      this.$refs.{{$c.Name|upperName}}.editData = val
-      this.$refs.{{$c.Name|upperName}}.show();
-    },
-		{{- end}}
-		{{- end}}
-    {{- end}}
-		{{- end}}
-
     {{- range $index,$r:=$rows -}}  
     {{- range $i,$c:= $r.DetailBtnInfo }}
     {{$c.Name}}(val) {
-		{{- if not $c.Show }}
       var data = {
         {{- range $i,$c:=$c.Rows}}
         {{$c.Name}}: val.{{$c.Name}},
@@ -390,7 +309,6 @@ export default {
         });
 			{{- end}}
     },
-		{{- end}}
 		{{- end}}
     {{- end}}
 
@@ -398,7 +316,6 @@ export default {
     {{- if (index $tab.TabInfo.TabTableList $name) }}  
     {{- range $i,$c:= $tab.BtnInfo }}
     {{$c.Name}}(val) {
-		{{- if not $c.Show }}
       var data = {
         {{- range $i,$c:=$c.Rows}}
         {{$c.Name}}: val.{{$c.Name}},
@@ -417,7 +334,6 @@ export default {
         });
 			{{- end}}
     },
-		{{- end}}
 		{{- end}}
     {{- end}}
 		{{- end}}
