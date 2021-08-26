@@ -116,8 +116,8 @@ const TmplList = `
 				{{- end}}
 				{{- if not $tb.SelectInfo.IsEmpty }}
 				<el-form-item>
-					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="toggleSelection()">{{$tb.SelectInfo.Name}}</el-button>
-					<el-button type="primary" v-else size="small" disabled>{{$tb.SelectInfo.Name}}</el-button>
+					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="{{$tb.SelectInfo.Name}}()">{{$tb.SelectInfo.Desc}}</el-button>
+					<el-button type="primary" v-else size="small" disabled>{{$tb.SelectInfo.Desc}}</el-button>
 				</el-form-item>
 				{{- end}}
 				{{- range $i,$c:=$tb.QueryComponents}}
@@ -640,7 +640,7 @@ export default {
 			return true;
 			{{- end}}
     },
-		toggleSelection() {
+		{{$tb.SelectInfo.Name}}() {
       var data = []
       this.multipleSelection.forEach(row => {
         data.push(row.{{range $i,$c:=$pks}}{{$c}}{{end}})
