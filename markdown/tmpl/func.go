@@ -33,6 +33,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"add1":    add(1), //加1
 		"mod":     getMod, //余数
 		"mkSlice": mkSlice,
+		"isTrue":  types.GetBool,
 
 		//字符串处理函数
 		"varName":   getVarName,            //获取pascal变量名称
@@ -141,7 +142,8 @@ func getfuncs(tp string) map[string]interface{} {
 		"ueCon":         getSubConContent("u", "e"),                             //编辑字段的格式枚举子约束u(e:xx)
 		"ceCon":         getSubConContent("c", "e"),                             //添加字段的格式枚举子约束c(e:xx)
 		"crCon":         getSubConContent("c", "r"),                             //添加字段的格式枚举子约束c(r:xx)
-		"dicName":       getDicName(webEnumComponents...),                       //字段的对应的枚举名称
+		"udCon":         getSubConContent("u", "d"),                             //添加字段的格式枚举子约束c(r:xx)
+		"dicName":       getDicName(webEnumComponents...),                       //编辑字段的格式枚举子约束u(d:true|false)
 		"qDicCName":     getCascadeChildrenName("q", "e", webEnumComponents...), //查询下拉字段级联枚举对应的引用枚举名称
 		"qDicPName":     getCascadeParentName("q", "e", webEnumComponents...),   //查询下拉字段级联枚举对应的被引用枚举名称
 		"cDicCName":     getCascadeChildrenName("c", "e", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
