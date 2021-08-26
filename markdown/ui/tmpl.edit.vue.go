@@ -97,6 +97,7 @@ export default {
 	data() {
 		return {
 			dialogFormVisible: false,    //编辑表单显示隐藏
+			{{range $i,$c:=$pks}}{{$c}}: "",{{end}}
 			editData: {},                //编辑数据对象
       {{- range $i,$c:=$rows|update -}}
       {{if or ($c.Con|SL) ($c.Con|RD) }}
@@ -156,9 +157,8 @@ export default {
       this.$forceUpdate()
     },{{end}}
 		show() {
-			{{range $i,$c:=$pks}}var {{$c}} = this.editData.{{$c}}{{end}}
-			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}/getupdate", { {{range $i,$c:=$pks}}{{$c}}: {{$c}}{{end}} })
-			{{range $i,$c:=$pks}}this.editData.{{$c}} = {{$c}}{{end}}
+			this.editData = this.$http.xget("/{{.Name|rmhd|rpath}}/getupdate", { {{range $i,$c:=$pks}}{{$c}}: this.{{$c}}{{end}} })
+			{{range $i,$c:=$pks}}this.editData.{{$c}} = this.{{$c}}{{end}}
 			{{- range $i,$c:=$rows|update -}}
 			{{- if and (or ($c.Type|codeType|isInt) ($c.Type|codeType|isInt64)) ($c.Con|crCon)}}
 			this.editData.{{$c.Name}} = this.editData.{{$c.Name}} * 1

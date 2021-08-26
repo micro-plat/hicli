@@ -94,15 +94,15 @@ type BtnInfo struct {
 	Condition string
 	URL       string
 	Rows      []Row
-	Cover     bool
 	FieldName string //详情页面按钮，对应的字段名
+	IsQuery   bool
 }
 
 func newBtnInfo() *BtnInfo {
 	return &BtnInfo{}
 }
 
-//DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,table:adas/iqe,key:sa)}
+//DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,condition:condition,key:sa)}
 func (t *Table) DispostELBtn() {
 	if t.ExtInfo == "" {
 		return
@@ -149,7 +149,6 @@ func (t *Table) DispostELBtn() {
 
 		//cover
 		if cover {
-			info.Cover = true
 			t.BtnInfo = append(t.BtnInfo, info)
 			continue
 		}
@@ -171,7 +170,7 @@ func (t *Table) DispostELBtn() {
 
 }
 
-//DispostELBtnDetail {el_btn_detail(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,field_name:name,table:adas/iqe,key:sa)}
+//DispostELBtnDetail {el_btn_detail(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,field_name:name,condition:condition,key:sa)}
 func (t *Table) DispostELBtnDetail() {
 	if t.ExtInfo == "" {
 		return
@@ -236,6 +235,55 @@ Next:
 
 }
 
+//DispostELBtnQuery {el_btn_query(name:funcName,desc:desc,confirm:你确定进行修改吗,url:xxxx,condition:condition)}
+func (t *Table) DispostELBtnQuery() {
+	if t.ExtInfo == "" {
+		return
+	}
+	a := []string{"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+
+	for _, v := range a {
+		key := fmt.Sprintf("el_btn_query%s", v)
+		if !strings.Contains(t.ExtInfo, key+"(") {
+			break
+		}
+
+		info := newBtnInfo()
+
+		//name
+		info.Name = getSubConContent(key, "name")(t.ExtInfo)
+		if info.Name == "" {
+			logs.Log.Warn("查询的btn的name选项未配置:", key, t.ExtInfo)
+			continue
+		}
+
+		//desc
+		info.DESC = getSubConContent(key, "desc")(t.ExtInfo)
+		if info.DESC == "" {
+			logs.Log.Warn("查询的btn的desc选项未配置:", t.ExtInfo)
+			continue
+		}
+
+		//confirm
+		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
+
+		//url
+		info.URL = getSubConContent(key, "url")(t.ExtInfo)
+
+		//condition
+		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+
+		if info.Name == "queryDatas" {
+			t.BtnShowQuery = true
+			t.QueryURL = info.URL
+			info.IsQuery = true
+		}
+
+		t.QueryBtnInfo = append(t.QueryBtnInfo, info)
+	}
+
+}
+
 type DownloadInfo struct {
 	Title []string
 }
@@ -286,7 +334,6 @@ type ListComponents struct {
 	Path      string
 	BtnName   string
 	Condition string
-	Cover     bool
 }
 
 func (t *Table) DispostELListComponents() {
@@ -316,11 +363,9 @@ func (t *Table) DispostELListComponents() {
 		}
 		if info.Name == "Edit" {
 			t.BtnShowEdit = true
-			info.Cover = true
 		}
 		if info.Name == "Detail" {
 			t.BtnShowDetail = true
-			info.Cover = true
 		}
 
 		info.Path = tab[1]

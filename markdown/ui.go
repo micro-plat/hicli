@@ -91,6 +91,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 			tb.DisposeELTab()
 			tb.DispostELBtn()
 			tb.DispostELBtnDetail()
+			tb.DispostELBtnQuery()
 			tb.DispostELDownload()
 			tb.DispostELSelect()
 			tb.DispostELListComponents()

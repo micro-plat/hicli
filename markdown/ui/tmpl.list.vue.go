@@ -94,12 +94,12 @@ const TmplList = `
 				</el-form-item>
 				{{- end}}
 			{{- end}}
-				{{- if gt ($rows|query|len) 0}}
+				{{- if and (not .BtnShowQuery) (gt ($rows|query|len) 0)}}
 				<el-form-item>
 					<el-button type="primary" @click="queryDatas" size="small">查询</el-button>
 				</el-form-item>
 				{{- end}}
-				{{- if gt ($rows|create|len) 0}}
+				{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 				<el-form-item>
 					<el-button type="success" size="small" @click="showAdd">添加</el-button>
 				</el-form-item>
@@ -123,6 +123,11 @@ const TmplList = `
 				{{- range $i,$c:=$tb.QueryComponents}}
 				<el-form-item>
 					<el-button size="small" @click="show{{$c.Name|upperName}}">{{$c.BtnName}}</el-button>
+				</el-form-item>
+				{{- end}}
+				{{- range $i,$c:=$tb.QueryBtnInfo}}
+				<el-form-item>
+					<el-button type="primary" size="small" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}">{{$c.DESC}}</el-button>
 				</el-form-item>
 				{{- end}}
 			</el-form>
@@ -196,14 +201,14 @@ const TmplList = `
 		</el-scrollbar>
 		<!-- list end-->
 
-		{{- if gt ($rows|create|len) 0}}
+		{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 
 		<!-- Add Form -->
 		<Add ref="Add" :refresh="query"></Add>
 		<!--Add Form -->
 		{{- end}}
 
-		{{- if gt ($rows|update|len) 0}}
+		{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 
 		<!-- edit Form start-->
 		<Edit ref="Edit" :refresh="query"></Edit>
@@ -211,12 +216,10 @@ const TmplList = `
 		{{- end}}
 
 		{{- range $i,$c:=$tb.ListComponents}}
-		{{- if not $c.Cover}}
 
 		<!-- {{$c.Name|upperName}} Form -->
 		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
 		<!--{{$c.Name|upperName}} Form -->
-		{{- end}}
 		{{- end}}
 
 		{{- range $i,$c:=$tb.QueryComponents}}
@@ -245,16 +248,14 @@ const TmplList = `
 
 
 <script>
-{{- if gt ($rows|create|len) 0}}
+{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 import Add from "./{{.Name|rmhd|l2d}}.add"
 {{- end}}
-{{- if gt ($rows|update|len) 0}}
+{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
 {{- range $i,$c:=$tb.ListComponents}}
-{{- if not $c.Cover}}
 import {{$c.Name|upperName}} from "{{$c.Path}}"
-{{- end}}
 {{- end}}
 {{- range $i,$c:=$tb.QueryComponents}}
 import {{$c.Name|upperName}} from "{{$c.Path}}"
@@ -262,16 +263,14 @@ import {{$c.Name|upperName}} from "{{$c.Path}}"
 export default {
 	name: "{{$name|rmhd|varName}}",
   components: {
-		{{- if gt ($rows|create|len) 0}}
+		{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 		Add,
 		{{- end}}
-		{{- if gt ($rows|update|len) 0}}
+		{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 		Edit,
 		{{- end}}
 		{{- range $i,$c:=$tb.ListComponents}}
-		{{- if not $c.Cover}}
 		{{$c.Name|upperName}},
-		{{- end}}
 		{{- end}}
 		{{- range $i,$c:=$tb.QueryComponents}}
 		{{$c.Name|upperName}},
@@ -506,7 +505,7 @@ export default {
 			{{- if gt ($sort|len) 0}}
 			this.queryData.order_by = this.order
 			{{- end}}
-      let res = this.$http.xget("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.queryData))
+      let res = this.$http.xget("/{{.Name|rmhd|rpath}}/{{or .QueryURL "query"}}",this.$utility.delEmptyProperty(this.queryData))
 			this.dataList.items = res.items || []
 			this.dataList.count = res.count
     },
@@ -532,24 +531,22 @@ export default {
       this.$emit("addTab","详情"+val.{{range $i,$c:=$pks}}{{$c}}{{end}},"/{{.Name|rmhd|rpath}}/detail",data);
 		},
 		{{- end}}
-		{{- if gt ($rows|create|len) 0}}
+		{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
     showAdd(){
       this.$refs.Add.show();
 		},
 		{{- end}}
-		{{- if gt ($rows|update|len) 0}}
+		{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
     showEdit(val) {
-      this.$refs.Edit.editData = val
+      this.$refs.Edit.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
       this.$refs.Edit.show();
 		},
 		{{- end}}
 		{{- range $i,$c:=$tb.ListComponents}}
-		{{- if not $c.Cover}}
 		show{{$c.Name|upperName}}(val) {
 			this.$refs.{{$c.Name|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
       this.$refs.{{$c.Name|upperName}}.show();
 		},
-		{{- end}}
 		{{- end}}
 		{{- range $i,$c:=$tb.QueryComponents}}
 		show{{$c.Name|upperName}}() {
@@ -557,9 +554,9 @@ export default {
 		},
 		{{- end}}
 
-		{{- range $i,$c:= $btn }}
-		{{- if not $c.Cover}}
-		{{$c.Name}}(val){
+		{{- range $i,$c:=$tb.QueryBtnInfo}}
+		{{- if not $c.IsQuery}}
+		{{$c.Name}}(){
 			var data = {
 				{{- range $i,$c:=$c.Rows}}
 				{{$c.Name}} :val.{{$c.Name}},
@@ -579,6 +576,28 @@ export default {
 			{{- end}}
 		},
 		{{- end}}
+		{{- end}}
+
+		{{- range $i,$c:= $btn }}
+		{{$c.Name}}(val){
+			var data = {
+				{{- range $i,$c:=$c.Rows}}
+				{{$c.Name}} :val.{{$c.Name}},
+				{{- end}}
+			}
+			{{- if $c.Confirm}}
+      this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
+						.then(res => {
+							this.dialogFormVisible = false;
+							this.query()
+						})
+			{{- if $c.Confirm}}
+				});
+			{{- end}}
+		},
 		{{- end}}
 
 		{{- if gt ($rows|export|len) 0}}

@@ -35,6 +35,7 @@ type Table struct {
 	TabTables       []*Table //详情切换的tab页对应表
 	TabInfo         *TabInfo
 	BtnInfo         []*BtnInfo
+	QueryBtnInfo    []*BtnInfo
 	TempIndex       int
 	DownloadInfo    *DownloadInfo
 	SelectInfo      *SelectInfo
@@ -42,6 +43,9 @@ type Table struct {
 	QueryComponents []*QueryComponents
 	Operation       enums.Operation
 	BtnShowEdit     bool
+	BtnShowQuery    bool
+	QueryURL        string
+	BtnShowAdd      bool
 	BtnShowDetail   bool
 	BtnDel          bool
 }
