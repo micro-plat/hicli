@@ -7,6 +7,7 @@ import (
 
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/lib4go/types"
+	"github.com/mozillazg/go-pinyin"
 )
 
 type BtnInfo struct {
@@ -23,13 +24,6 @@ type BtnInfo struct {
 
 func newBtnInfo() *BtnInfo {
 	return &BtnInfo{}
-}
-
-type Dialog struct {
-	Name      string
-	Method    string
-	Path      string
-	Condition string
 }
 
 type BatchInfo struct {
@@ -91,7 +85,7 @@ func (t *Table) elListBtn(key string) {
 	}
 
 	//method
-	info.Method = getSubConContent(key, "method")(t.ExtInfo)
+	info.Method = types.GetString(getSubConContent(key, "method")(t.ExtInfo), getClickFunc(info.Name, key))
 
 	//覆盖删除按钮
 	cover := false
@@ -125,42 +119,6 @@ func (t *Table) elListBtn(key string) {
 	}
 
 	t.ListBtnInfo = append(t.ListBtnInfo, info)
-}
-
-func (t *Table) elListDialog(key string) {
-
-	info := &Dialog{}
-
-	//Name
-	info.Name = getSubConContent(key, "name")(t.ExtInfo)
-	if info.Name == "" {
-		logs.Log.Warn("列表按钮dialog的name选项未配置:", t.ExtInfo)
-		return
-	}
-
-	//method
-	info.Method = getSubConContent(key, "method")(t.ExtInfo)
-	if info.Method == "Edit" {
-		t.BtnShowEdit = true
-	}
-	if info.Method == "Detail" {
-		t.BtnShowDetail = true
-	}
-
-	info.Path = getSubConContent(key, "path")(t.ExtInfo)
-	if info.Path == "" {
-		logs.Log.Warn("列表按钮dialog的path选项未配置:", key, t.ExtInfo)
-		return
-	}
-
-	//confirm
-	//info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
-
-	//condition
-	info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
-
-	t.ListDialogs = append(t.ListDialogs, info)
-
 }
 
 //DispostELBtnDetail
@@ -199,15 +157,15 @@ func (t *Table) elDetailBtn(key string) {
 		return
 	}
 
-	//method
-	info.Method = getSubConContent(key, "method")(t.ExtInfo)
-
 	//desc
 	info.Name = getSubConContent(key, "name")(t.ExtInfo)
 	if info.Name == "" {
 		logs.Log.Warn("详情按钮的name选项未配置:", t.ExtInfo)
 		return
 	}
+
+	//method
+	info.Method = types.GetString(getSubConContent(key, "method")(t.ExtInfo), getClickFunc(info.Name, key))
 
 	//confirm
 	info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
@@ -246,43 +204,6 @@ func (t *Table) elDetailBtn(key string) {
 
 }
 
-func (t *Table) elDetailDialog(key string) {
-
-	info := &Dialog{}
-
-	//Name
-	info.Name = getSubConContent(key, "name")(t.ExtInfo)
-	if info.Name == "" {
-		logs.Log.Warn("详情页面按钮dialog的name选项未配置:", t.ExtInfo)
-		return
-	}
-
-	//method
-	info.Method = getSubConContent(key, "method")(t.ExtInfo)
-	// if info.Method == "Edit" {
-	// 	t.BtnShowEdit = true
-	// }
-	// if info.Method == "Detail" {
-	// 	t.BtnShowDetail = true
-	// }
-
-	info.Path = getSubConContent(key, "path")(t.ExtInfo)
-	if info.Path == "" {
-		logs.Log.Warn("详情页面dialog的path选项未配置:", key, t.ExtInfo)
-		return
-	}
-
-	//confirm
-	//info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
-
-	//condition
-	info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
-
-	//@todo
-	//t.ListDialogs = append(t.ListDialogs, info)
-
-}
-
 //DispostELBtnQuery
 func (t *Table) DispostELBtnQuery() {
 
@@ -318,9 +239,6 @@ func (t *Table) elQueryBtn(key string) {
 
 	info := newBtnInfo()
 
-	//method
-	info.Method = getSubConContent(key, "method")(t.ExtInfo)
-
 	//handler
 	info.Handler = getSubConContent(key, "handler")(t.ExtInfo)
 	if info.Name == "" {
@@ -334,6 +252,9 @@ func (t *Table) elQueryBtn(key string) {
 		logs.Log.Warn("查询按钮的name选项未配置:", t.ExtInfo)
 		return
 	}
+
+	//method
+	info.Method = types.GetString(getSubConContent(key, "method")(t.ExtInfo), getClickFunc(info.Name, key))
 
 	//confirm
 	info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
@@ -363,43 +284,10 @@ func (t *Table) elQueryBatchBtn(key string) {
 		return
 	}
 
-	t.BatchInfo.Method = getSubConContent(key, "method")(t.ExtInfo)
+	t.BatchInfo.Method = types.GetString(getSubConContent(key, "method")(t.ExtInfo), getClickFunc(t.BatchInfo.Name, key))
 	t.BatchInfo.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
 	//confirm
 	t.BatchInfo.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
-}
-
-func (t *Table) elQueryDialog(key string) {
-
-	info := &Dialog{}
-
-	//Name
-	info.Name = getSubConContent(key, "name")(t.ExtInfo)
-	if info.Name == "" {
-		logs.Log.Warn("查询dialog的name选项未配置:", t.ExtInfo)
-		return
-	}
-
-	//method
-	info.Method = getSubConContent(key, "method")(t.ExtInfo)
-	if info.Method == "Add" {
-		t.BtnShowAdd = true
-	}
-
-	info.Path = getSubConContent(key, "path")(t.ExtInfo)
-	if info.Path == "" {
-		logs.Log.Warn("查询按钮dialog的path选项未配置:", key, t.ExtInfo)
-		return
-	}
-
-	//confirm
-	//info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
-
-	//condition
-	info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
-
-	t.QueryDialogs = append(t.QueryDialogs, info)
-
 }
 
 type DownloadInfo struct {
@@ -425,4 +313,10 @@ func translateCondition(c string) string {
 	c = strings.Replace(c, " and ", " && ", -1)
 	c = strings.Replace(c, " or ", " || ", -1)
 	return c
+}
+
+func getClickFunc(name, key string) string {
+	py := pinyin.LazyConvert(name, nil)
+	py = append(py, types.GetString(types.GetInt(key[len(key)-1:])))
+	return strings.Join(py, "")
 }
