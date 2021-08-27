@@ -14,7 +14,6 @@ const MarkdownCurdSql = `
 {{- $pks := .|pks -}}
 {{- $order:=.Rows|order|orderSort -}}
 {{- $sort:=.Rows|sort -}}
-{{- $btns:=.BtnInfo -}}
 package {{.PKG}}
 
 {{- if (gt ($createrows|len) 0)}}

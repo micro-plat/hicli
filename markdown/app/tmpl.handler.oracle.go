@@ -8,7 +8,6 @@ const TmplServiceHandler = `
 {{- $rows := .Rows -}}
 {{- $pks := .|pks -}}
 {{- $sort:=.Rows|sort -}}
-{{- $btns:=.BtnInfo -}}
 {{- $up:= 0 -}}
 {{- range $i,$c:=$rows|update}}{{if $c.Con|UP}}{{$up = 1}}{{end}}{{end}}
 package {{.PKG}}

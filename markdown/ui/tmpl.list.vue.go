@@ -10,7 +10,7 @@ const TmplList = `
 {{- $sort:=.Rows|sort -}}
 {{- $choose:= false -}}
 {{- $drange:= mkSlice -}}
-{{- $btn:=.BtnInfo -}}
+{{- $btn:=.ListBtnInfo -}}
 <template>
 	<div class="panel panel-default">
     <!-- query start -->
@@ -114,15 +114,15 @@ const TmplList = `
 					<el-button type="text" @click="download" size="small" style="font-size:14px">下载模版</el-button>
 				</el-form-item>
 				{{- end}}
-				{{- if not $tb.SelectInfo.IsEmpty }}
+				{{- if not $tb.BatchInfo.IsEmpty }}
 				<el-form-item>
-					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="{{$tb.SelectInfo.Name}}()">{{$tb.SelectInfo.Desc}}</el-button>
-					<el-button type="primary" v-else size="small" disabled>{{$tb.SelectInfo.Desc}}</el-button>
+					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="{{$tb.BatchInfo.Method}}()">{{$tb.BatchInfo.Name}}</el-button>
+					<el-button type="primary" v-else size="small" disabled>{{$tb.BatchInfo.Name}}</el-button>
 				</el-form-item>
 				{{- end}}
-				{{- range $i,$c:=$tb.QueryComponents}}
+				{{- range $i,$c:=$tb.QueryDialogs}}
 				<el-form-item>
-					<el-button size="small" @click="show{{$c.Name|upperName}}">{{$c.BtnName}}</el-button>
+					<el-button type="primary" size="small" @click="show{{$c.Method|upperName}}">{{$c.Name}}</el-button>
 				</el-form-item>
 				{{- end}}
 				{{- range $i,$c:=$tb.QueryBtnInfo}}
@@ -137,8 +137,8 @@ const TmplList = `
     <!-- list start-->
 		<el-scrollbar style="height:100%">
 			<el-table :data="dataList.items" stripe style="width: 100%" size="small" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
-			{{- if not $tb.SelectInfo.IsEmpty }} @selection-change="handleSelectionChange" {{end}}>
-			  {{- if not $tb.SelectInfo.IsEmpty }}
+			{{- if not $tb.BatchInfo.IsEmpty }} @selection-change="handleSelectionChange" {{end}}>
+			  {{- if not $tb.BatchInfo.IsEmpty }}
 				<el-table-column type="selection" :selectable="selectableCheckbox" width="24"></el-table-column>
 				{{- end}}
 				{{- if gt $tb.ELTableIndex 0}}
@@ -184,8 +184,8 @@ const TmplList = `
 						<el-button type="text" size="mini" @click="del(scope.row)">删除</el-button>
 						{{- end}}
 
-						{{- range $i,$c:=$tb.ListComponents}}
-						<el-button type="text" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
+						{{- range $i,$c:=$tb.ListDialogs}}
+						<el-button type="text" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Method|upperName}}(scope.row)">{{$c.Name}}</el-button>
 						{{- end}}
 
 						{{- if and (not .BtnShowDetail) (gt ($rows|detail|len) 0)}}
@@ -193,7 +193,7 @@ const TmplList = `
 						{{- end}}
 
 						{{- range $i,$c:= $btn }}
-						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Method}}(scope.row)">{{$c.Name}}</el-button>
 						{{- end}}
 					</template>
 				</el-table-column>
@@ -215,18 +215,18 @@ const TmplList = `
 		<!-- edit Form end-->
 		{{- end}}
 
-		{{- range $i,$c:=$tb.ListComponents}}
+		{{- range $i,$c:=$tb.ListDialogs}}
 
-		<!-- {{$c.Name|upperName}} Form -->
-		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
-		<!--{{$c.Name|upperName}} Form -->
+		<!-- {{$c.Method|upperName}} Form -->
+		<{{$c.Method|upperName}} ref="{{$c.Method|upperName}}" :refresh="query"></{{$c.Method|upperName}}>
+		<!--{{$c.Method|upperName}} Form -->
 		{{- end}}
 
-		{{- range $i,$c:=$tb.QueryComponents}}
+		{{- range $i,$c:=$tb.QueryDialogs}}
 
-		<!-- {{$c.Name|upperName}} Form -->
-		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
-		<!--{{$c.Name|upperName}} Form -->
+		<!-- {{$c.Method|upperName}} Form -->
+		<{{$c.Method|upperName}} ref="{{$c.Method|upperName}}" :refresh="query"></{{$c.Method|upperName}}>
+		<!--{{$c.Method|upperName}} Form -->
 		{{- end}}
 
 		<!-- pagination start -->
@@ -254,11 +254,11 @@ import Add from "./{{.Name|rmhd|l2d}}.add"
 {{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
-{{- range $i,$c:=$tb.ListComponents}}
-import {{$c.Name|upperName}} from "{{$c.Path}}"
+{{- range $i,$c:=$tb.ListDialogs}}
+import {{$c.Method|upperName}} from "{{$c.Path}}"
 {{- end}}
-{{- range $i,$c:=$tb.QueryComponents}}
-import {{$c.Name|upperName}} from "{{$c.Path}}"
+{{- range $i,$c:=$tb.QueryDialogs}}
+import {{$c.Method|upperName}} from "{{$c.Path}}"
 {{- end}}
 export default {
 	name: "{{$name|rmhd|varName}}",
@@ -269,11 +269,11 @@ export default {
 		{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 		Edit,
 		{{- end}}
-		{{- range $i,$c:=$tb.ListComponents}}
-		{{$c.Name|upperName}},
+		{{- range $i,$c:=$tb.ListDialogs}}
+		{{$c.Method|upperName}},
 		{{- end}}
-		{{- range $i,$c:=$tb.QueryComponents}}
-		{{$c.Name|upperName}},
+		{{- range $i,$c:=$tb.QueryDialogs}}
+		{{$c.Method|upperName}},
 		{{- end}}
   },
   data () {
@@ -344,7 +344,7 @@ export default {
 			{{- if gt ($sort|len) 0}}
 			order: "{{range $i,$c:=$sort|sortSort}}t.{{$c.Name}} {{or ($c.Con|sortCon) "desc"}}{{if lt $i ($sort|maxIndex)}}, {{end}}{{end}}",
 			{{- end}}
-			{{- if not $tb.SelectInfo.IsEmpty }}
+			{{- if not $tb.BatchInfo.IsEmpty }}
 			multipleSelection: [],
 			{{- end}}
 			{{- if gt ($rows|query|dropmenurow|len) 0}}
@@ -505,7 +505,7 @@ export default {
 			{{- if gt ($sort|len) 0}}
 			this.queryData.order_by = this.order
 			{{- end}}
-      let res = this.$http.xget("/{{.Name|rmhd|rpath}}/{{or .QueryURL "query"}}",this.$utility.delEmptyProperty(this.queryData))
+      let res = this.$http.xget("/{{.Name|rmhd|rpath}}/{{or .QueryHandler "query"}}",this.$utility.delEmptyProperty(this.queryData))
 			this.dataList.items = res.items || []
 			this.dataList.count = res.count
     },
@@ -542,26 +542,22 @@ export default {
       this.$refs.Edit.show();
 		},
 		{{- end}}
-		{{- range $i,$c:=$tb.ListComponents}}
-		show{{$c.Name|upperName}}(val) {
-			this.$refs.{{$c.Name|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
-      this.$refs.{{$c.Name|upperName}}.show();
+		{{- range $i,$c:=$tb.ListDialogs}}
+		show{{$c.Method|upperName}}(val) {
+			this.$refs.{{$c.Method|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
+      this.$refs.{{$c.Method|upperName}}.show();
 		},
 		{{- end}}
-		{{- range $i,$c:=$tb.QueryComponents}}
-		show{{$c.Name|upperName}}() {
-      this.$refs.{{$c.Name|upperName}}.show();
+		{{- range $i,$c:=$tb.QueryDialogs}}
+		show{{$c.Method|upperName}}() {
+      this.$refs.{{$c.Method|upperName}}.show();
 		},
 		{{- end}}
 
 		{{- range $i,$c:=$tb.QueryBtnInfo}}
 		{{- if not $c.IsQuery}}
 		{{$c.Name}}(){
-			var data = {
-				{{- range $i,$c:=$c.Rows}}
-				{{$c.Name}} :val.{{$c.Name}},
-				{{- end}}
-			}
+			var data = this.queryData
 			{{- if $c.Confirm}}
       this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
@@ -579,7 +575,7 @@ export default {
 		{{- end}}
 
 		{{- range $i,$c:= $btn }}
-		{{$c.Name}}(val){
+		{{$c.Method}}(val){
 			var data = {
 				{{- range $i,$c:=$c.Rows}}
 				{{$c.Name}} :val.{{$c.Name}},
@@ -589,7 +585,7 @@ export default {
       this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.Handler ($c.Name|lowerName)}}", data, {}, true, true)
 						.then(res => {
 							this.dialogFormVisible = false;
 							this.query()
@@ -648,10 +644,10 @@ export default {
     },
 		{{- end}}
 
-		{{- if not $tb.SelectInfo.IsEmpty }}
+		{{- if not $tb.BatchInfo.IsEmpty }}
 		selectableCheckbox(row, rowIndex) {
-			{{- if ($tb.SelectInfo.Condition)}}
-      if ({{$tb.SelectInfo.Condition}}) {
+			{{- if ($tb.BatchInfo.Condition)}}
+      if ({{$tb.BatchInfo.Condition}}) {
         return true;
       }
       return false;
@@ -659,20 +655,20 @@ export default {
 			return true;
 			{{- end}}
     },
-		{{$tb.SelectInfo.Name}}() {
+		{{$tb.BatchInfo.Method}}() {
       var data = []
       this.multipleSelection.forEach(row => {
         data.push(row.{{range $i,$c:=$pks}}{{$c}}{{end}})
       });
-			{{- if $tb.SelectInfo.Confirm}}
-      this.$confirm("{{$tb.SelectInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+			{{- if $tb.BatchInfo.Confirm}}
+      this.$confirm("{{$tb.BatchInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{$tb.SelectInfo.URL}}", { {{range $i,$c:=$pks}}{{$c}}s{{end}}: data.join(",") }, {}, true, true)
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{$tb.BatchInfo.Handler}}", { {{range $i,$c:=$pks}}{{$c}}s{{end}}: data.join(",") }, {}, true, true)
 						.then(res => {			
 							this.query()
 						})
-			{{- if $tb.SelectInfo.Confirm}}
+			{{- if $tb.BatchInfo.Confirm}}
 			});
 		{{- end}}
     },

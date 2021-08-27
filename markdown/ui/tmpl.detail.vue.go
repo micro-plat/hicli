@@ -50,7 +50,7 @@ const TmplDetail = `
                       <div>{{"{{ info."}}{{$c.Name}} | fltrEmpty }}</div>
               {{- end}}
               {{- range $i,$c:= $c.DetailBtnInfo }}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(info)">{{$c.DESC}}</el-button>
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Method}}(info)">{{$c.Name}}</el-button>
               {{- end}}
               {{- if gt ($c.DetailBtnInfo|len) 0}}
                       </el-row>
@@ -107,7 +107,7 @@ const TmplDetail = `
                       <div>{{"{{ "}}{{$tab.Name|rmhd|lowerName}}Info.{{$c.Name}} | fltrEmpty }}</div>
               {{- end}}
               {{- range $i,$c:= $c.DetailBtnInfo }}
-                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(info)">{{$c.DESC}}</el-button>
+                        <el-button style="font-size: 14px; margin-left: 10px; padding: 0" type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Method}}(info)">{{$c.Name}}</el-button>
               {{- end}}
               {{- if gt ($c.DetailBtnInfo|len) 0}}
                       </el-row>
@@ -168,11 +168,11 @@ const TmplDetail = `
                 {{- end}}
               </el-table-column>
               {{- end}}
-              {{- if gt ($tab.BtnInfo|len) 0}}
+              {{- if gt ($tab.ListBtnInfo|len) 0}}
               <el-table-column label="操作" align="center">
                 <template slot-scope="scope">
-                  {{- range $i,$c:= $tab.BtnInfo }}
-                  <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
+                  {{- range $i,$c:= $tab.ListBtnInfo }}
+                  <el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Method}}(scope.row)">{{$c.Name}}</el-button>
                   {{- end}}
                 </template>
               </el-table-column>
@@ -290,7 +290,7 @@ export default {
     
     {{- range $index,$r:=$rows -}}  
     {{- range $i,$c:= $r.DetailBtnInfo }}
-    {{$c.Name}}(val) {
+    {{$c.Method}}(val) {
       var data = {
         {{- range $i,$c:=$c.Rows}}
         {{$c.Name}}: val.{{$c.Name}},
@@ -300,7 +300,7 @@ export default {
       this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-          this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName) }}", data, {}, true, true)
+          this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.Handler ($c.Name|lowerName) }}", data, {}, true, true)
             .then(res => {
               this.dialogFormVisible = false;
               this.query()
@@ -314,8 +314,8 @@ export default {
 
     {{- range $index,$tab:=$tabs -}}  
     {{- if (index $tab.TabInfo.TabTableList $name) }}  
-    {{- range $i,$c:= $tab.BtnInfo }}
-    {{$c.Name}}(val) {
+    {{- range $i,$c:= $tab.ListBtnInfo }}
+    {{$c.Method}}(val) {
       var data = {
         {{- range $i,$c:=$c.Rows}}
         {{$c.Name}}: val.{{$c.Name}},
@@ -325,7 +325,7 @@ export default {
       this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-          this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName) }}", data, {}, true, true)
+          this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.Handler ($c.Name|lowerName) }}", data, {}, true, true)
             .then(res => {
               this.dialogFormVisible = false;
               this.query()
