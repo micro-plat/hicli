@@ -68,7 +68,7 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
 			tb.DisposeELTab()
-			tb.DispostELBtn()
+			tb.DispostELBtnList()
 		}
 
 		//过滤数据表

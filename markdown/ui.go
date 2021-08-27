@@ -89,13 +89,10 @@ func create(tp string) func(c *cli.Context) (err error) {
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
 			tb.DisposeELTab()
-			tb.DispostELBtn()
+			tb.DispostELBtnList()
 			tb.DispostELBtnDetail()
 			tb.DispostELBtnQuery()
 			tb.DispostELDownload()
-			tb.DispostELSelect()
-			tb.DispostELListComponents()
-			tb.DispostELQueryComponents()
 			tb.SetELTableIndex()
 			//根据关键字过滤
 			tb.FilterRowByKW(c.String("kw"))
