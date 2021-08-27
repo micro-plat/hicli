@@ -626,7 +626,7 @@ export default {
           ];
           this.BuildExcel("{{$desc}}.xlsx", [header], res.items || [], {
 						{{- range $i,$c:=$rows|export}}
-						{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+						{{- if and (or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)) (not ($c.Con|eptCon|isTrue)) }}
 						{{$c.Name}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}"),
 						{{- end}}
 						{{- end}}

@@ -131,6 +131,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"linkCon":       getBracketContent([]string{"link"}),                    //表单点击跳转约束
 		"drangeCon":     getBracketContent([]string{"drange"}),                  //表单点击跳转约束
 		"cscrCon":       getBracketContent([]string{"cscr"}),                    //表单点击跳转约束
+		"eptCon":        getBracketContent([]string{"ept"}),                     //导出字段
 		"lfCon":         getSubConContent("l", "f"),                             //列表展示字段的过滤器子约束l(f:xx)
 		"leCon":         getSubConContent("l", "e"),                             //列表展示字段的枚举子约束l(e:xx)
 		"qeCon":         getSubConContent("q", "e"),                             //查询字段的枚举子约束q(e:xx)
