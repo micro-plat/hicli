@@ -12,10 +12,10 @@ import (
 type TabInfo struct {
 	TabField         map[string]string //详情字段名---详情字段名
 	TabListField     map[string]string //详情列表字段名---详情列表字段名
-	TabTable         map[string]bool   //主页
-	TabTableList     map[string]bool   //详情tab关联字段
-	TabTablePreField map[string]string //详情tab关联字段
-	TabTableProField map[string]string //详情tab关联字段
+	TabTable         map[string]bool   //详情
+	TabTableList     map[string]bool   //详情列表
+	TabTablePreField map[string]string //前表关联字段 表名-字段名
+	TabTableProField map[string]string //后表关联字段 表名-字段名
 }
 
 func newTableInfo() *TabInfo {
@@ -66,7 +66,7 @@ func (t *Table) DisposeELTab() {
 		exist := false
 		for _, tb := range t.AllTables {
 			if tb.Name == tabName {
-				if tabList == "list" {
+				if tabList == "list" { //列表
 					tb.TabInfo.TabTableList[t.Name] = true
 					tb.TabInfo.TabListField[tabField[1]] = tabField[1]
 				} else {
@@ -74,44 +74,35 @@ func (t *Table) DisposeELTab() {
 					tb.TabInfo.TabField[tabField[1]] = tabField[1]
 				}
 				tb.TabInfo.TabTablePreField[t.Name] = tabField[0]
-				tb.TabInfo.TabTableProField[t.Name] = tabField[1]
+				tb.TabInfo.TabTableProField[t.Name] = tabField[1] //后表关联字段
 				t.TabTables = append(t.TabTables, tb)
 				exist = true
 				break
 			}
 		}
 		if !exist {
-			logs.Log.Warn("tab表名不正确：", tabName)
+			logs.Log.Warnf("[%s]详情tab表名不正确：[%s]", t.Name, tabName)
 		}
 	}
 }
 
 type BtnInfo struct {
-	Name               string
-	DESC               string
-	VIF                []*VIF
-	KeyWord            string
-	Confirm            string
-	URL                string
-	Table              []*Table
-	Rows               []Row
-	RelativeShelfFiled map[string]string
-	RelativeFiled      map[string]string
-	Show               bool
-}
-type VIF struct {
-	IfName string
-	IfDESC string
+	Name      string
+	DESC      string
+	KeyWord   string
+	Confirm   string
+	Condition string
+	URL       string
+	Rows      []Row
+	FieldName string //详情页面按钮，对应的字段名
+	IsQuery   bool
 }
 
 func newBtnInfo() *BtnInfo {
-	return &BtnInfo{
-		RelativeShelfFiled: make(map[string]string),
-		RelativeFiled:      make(map[string]string),
-	}
+	return &BtnInfo{}
 }
 
-//DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,table:adas/iqe,key:sa)}
+//DispostBtnTables {el_btn(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,condition:condition,key:sa)}
 func (t *Table) DispostELBtn() {
 	if t.ExtInfo == "" {
 		return
@@ -120,7 +111,7 @@ func (t *Table) DispostELBtn() {
 
 	for _, v := range a {
 		key := fmt.Sprintf("el_btn%s", v)
-		if !strings.Contains(t.ExtInfo, key) {
+		if !strings.Contains(t.ExtInfo, key+"(") {
 			break
 		}
 
@@ -133,88 +124,162 @@ func (t *Table) DispostELBtn() {
 			continue
 		}
 
-		//desc and if
-		desc := getSubConContent(key, "desc")(t.ExtInfo)
-		if desc == "" {
-			logs.Log.Warn("列表页面btn的desc选项未配置:", t.ExtInfo)
-			continue
+		//覆盖删除按钮
+		cover := false
+		if info.Name == "del" {
+			t.BtnDel = true
+			cover = true
 		}
 
-		if strings.Contains(desc, "|") {
-			for _, v := range strings.Split(desc, "|") {
-				pos := strings.Index(v, "-")
-				if pos < 0 {
-					logs.Log.Warn("列表页面btn的if选项不正确:", desc)
-					continue
-				}
-				info.VIF = append(info.VIF, &VIF{
-					IfName: v[:pos],
-					IfDESC: v[pos+1:],
-				})
-			}
-
-			if len(info.VIF) < 2 {
-				logs.Log.Warn("列表页面btn的if选项最少为2个：", desc)
-			}
-		} else {
-			info.DESC = desc
+		//desc and if
+		info.DESC = getSubConContent(key, "desc")(t.ExtInfo)
+		if info.DESC == "" {
+			logs.Log.Warn("列表页面btn的desc选项未配置:", t.ExtInfo)
+			continue
 		}
 
 		//confirm
 		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
 
+		//url
 		info.URL = getSubConContent(key, "url")(t.ExtInfo)
+
+		//condition
+		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+
+		//cover
+		if cover {
+			t.BtnInfo = append(t.BtnInfo, info)
+			continue
+		}
 
 		//key
 		info.KeyWord = types.GetString(getSubConContent(key, "key")(t.ExtInfo), key)
 
-		//table
-		tabs := getSubConContent(key, "table")(t.ExtInfo)
-
-		for _, v := range strings.Split(tabs, "|") {
-
-			tabName := v
-			tabField := make([]string, 2)
-			if pos := strings.Index(v, ":"); pos > 0 {
-				tabName = v[0:pos]
-				t := strings.Split(v[pos+1:], "/")
-				if len(t) == 1 {
-					tabField = []string{t[0], t[0]}
-				}
-				if len(t) == 2 {
-					tabField = []string{t[0], t[1]}
-				}
-			}
-
-			for _, tb := range t.AllTables {
-				if tb.Name == tabName {
-					info.RelativeShelfFiled[tb.Name] = tabField[0]
-					info.RelativeFiled[tb.Name] = tabField[1]
-					info.Table = append(info.Table, tb)
-					info.Show = true
-				}
-			}
-		}
-
 		//Rows
 		for _, v := range getRows(info.KeyWord)(t.Rows) {
-			v.BelongTable = t
 			info.Rows = append(info.Rows, *v)
 		}
 
-		for k, v := range info.Table {
-			for _, v1 := range getRows(info.KeyWord)(v.Rows) {
-				v1.BelongTable = v
-				v1.Disable = true
-				v1.SQLAliasName = fmt.Sprintf("t%d", k)
-				info.Rows = append(info.Rows, *v1)
-			}
-		}
 		if len(info.Rows) < 1 {
-			logs.Log.Warn("列表页面btn的更新的字段未配置")
+			logs.Log.Warn("列表页面btn的绑定的字段未配置")
 		}
 
 		t.BtnInfo = append(t.BtnInfo, info)
+	}
+
+}
+
+//DispostELBtnDetail {el_btn_detail(name:funcName,desc:1-启用|2-禁用,confirm:你确定进行修改吗,field_name:name,condition:condition,key:sa)}
+func (t *Table) DispostELBtnDetail() {
+	if t.ExtInfo == "" {
+		return
+	}
+	a := []string{"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+Next:
+	for _, v := range a {
+		key := fmt.Sprintf("el_btn_detail%s", v)
+		if !strings.Contains(t.ExtInfo, key+"(") {
+			break
+		}
+
+		info := newBtnInfo()
+
+		//name
+		info.Name = getSubConContent(key, "name")(t.ExtInfo)
+		if info.Name == "" {
+			logs.Log.Warn("详情页面btn的name选项未配置:", key, t.ExtInfo)
+			continue
+		}
+
+		//desc
+		info.DESC = getSubConContent(key, "desc")(t.ExtInfo)
+		if info.DESC == "" {
+			logs.Log.Warn("详情页面btn的desc选项未配置:", t.ExtInfo)
+			continue
+		}
+
+		//confirm
+		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
+
+		//url
+		info.URL = getSubConContent(key, "url")(t.ExtInfo)
+
+		//condition
+		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+
+		//key
+		info.KeyWord = types.GetString(getSubConContent(key, "key")(t.ExtInfo), key)
+
+		//field_name
+		info.FieldName = getSubConContent(key, "field_name")(t.ExtInfo)
+
+		//Rows
+		for _, v := range getRows(info.KeyWord)(t.Rows) {
+			info.Rows = append(info.Rows, *v)
+		}
+
+		if info.FieldName == "" && len(info.Rows) == 1 {
+			info.FieldName = info.Rows[0].Name
+		}
+
+		for _, v := range t.Rows {
+			if v.Name == info.FieldName {
+				v.DetailBtnInfo = append(v.DetailBtnInfo, info)
+				break Next
+			}
+		}
+
+		logs.Log.Warn("详情页面btn未配置按钮字段")
+	}
+
+}
+
+//DispostELBtnQuery {el_btn_query(name:funcName,desc:desc,confirm:你确定进行修改吗,url:xxxx,condition:condition)}
+func (t *Table) DispostELBtnQuery() {
+	if t.ExtInfo == "" {
+		return
+	}
+	a := []string{"", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+
+	for _, v := range a {
+		key := fmt.Sprintf("el_btn_query%s", v)
+		if !strings.Contains(t.ExtInfo, key+"(") {
+			break
+		}
+
+		info := newBtnInfo()
+
+		//name
+		info.Name = getSubConContent(key, "name")(t.ExtInfo)
+		if info.Name == "" {
+			logs.Log.Warn("查询的btn的name选项未配置:", key, t.ExtInfo)
+			continue
+		}
+
+		//desc
+		info.DESC = getSubConContent(key, "desc")(t.ExtInfo)
+		if info.DESC == "" {
+			logs.Log.Warn("查询的btn的desc选项未配置:", t.ExtInfo)
+			continue
+		}
+
+		//confirm
+		info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
+
+		//url
+		info.URL = getSubConContent(key, "url")(t.ExtInfo)
+
+		//condition
+		info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+
+		if info.Name == "queryDatas" {
+			t.BtnShowQuery = true
+			t.QueryURL = info.URL
+			info.IsQuery = true
+		}
+
+		t.QueryBtnInfo = append(t.QueryBtnInfo, info)
 	}
 
 }
@@ -239,7 +304,11 @@ func (t *Table) DispostELDownload() {
 }
 
 type SelectInfo struct {
-	URL string
+	URL       string
+	Name      string
+	Desc      string
+	Condition string
+	Confirm   string
 }
 
 func (t *Table) DispostELSelect() {
@@ -249,6 +318,11 @@ func (t *Table) DispostELSelect() {
 	}
 	t.SelectInfo = &SelectInfo{}
 	t.SelectInfo.URL = getSubConContent(key, "url")(t.ExtInfo)
+	t.SelectInfo.Name = getSubConContent(key, "name")(t.ExtInfo)
+	t.SelectInfo.Desc = getSubConContent(key, "desc")(t.ExtInfo)
+	t.SelectInfo.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+	//confirm
+	t.SelectInfo.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
 }
 
 func (a *SelectInfo) IsEmpty() bool {
@@ -284,19 +358,26 @@ func (t *Table) DispostELListComponents() {
 		//name
 		info.Name = tab[0]
 		if info.Name == "" {
-			logs.Log.Warn("列表页面btn的name选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("列表页面components的name选项未配置:", key, t.ExtInfo)
 			continue
 		}
+		if info.Name == "Edit" {
+			t.BtnShowEdit = true
+		}
+		if info.Name == "Detail" {
+			t.BtnShowDetail = true
+		}
+
 		info.Path = tab[1]
 		if info.Path == "" {
-			logs.Log.Warn("列表页面btn的path选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("列表页面components的path选项未配置:", key, t.ExtInfo)
 			continue
 		}
 		if len(tab) > 2 {
 			info.BtnName = tab[2]
 		}
 		if len(tab) > 3 {
-			info.Condition = tab[3]
+			info.Condition = translateCondition(tab[3])
 		}
 		t.ListComponents = append(t.ListComponents, info)
 	}
@@ -330,12 +411,12 @@ func (t *Table) DispostELQueryComponents() {
 		//name
 		info.Name = tab[0]
 		if info.Name == "" {
-			logs.Log.Warn("页面查询btn的name选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("页面查询components的name选项未配置:", key, t.ExtInfo)
 			continue
 		}
 		info.Path = tab[1]
 		if info.Path == "" {
-			logs.Log.Warn("页面查询btn的path选项未配置:", key, t.ExtInfo)
+			logs.Log.Warn("页面查询components的path选项未配置:", key, t.ExtInfo)
 			continue
 		}
 		if len(tab) > 2 {
@@ -343,4 +424,10 @@ func (t *Table) DispostELQueryComponents() {
 		}
 		t.QueryComponents = append(t.QueryComponents, info)
 	}
+}
+
+func translateCondition(c string) string {
+	c = strings.Replace(c, " and ", " && ", -1)
+	c = strings.Replace(c, " or ", " || ", -1)
+	return c
 }

@@ -52,7 +52,7 @@ const TmplCreateVue = `
       <el-form-item label="{{$c.Desc|shortName}}:" prop="{{$c.Name}}">
 				<el-input size="small" {{if gt $c.Len 0}}maxlength="{{$c.Len}}"{{end}} 
 				{{- if gt $c.DecimalLen 0}} oninput="if(isNaN(value)) { value = null } if(value.indexOf('.')>0){value=value.slice(0,value.indexOf('.')+{{$c.DecimalLen|add1}})}"{{end}}
-				 clearable v-model="addData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
+				 clearable v-model{{if and (or ($c.Type|codeType|isInt) ($c.Type|codeType|isInt64)) ($c.Con|crCon)}}.number{{end}}="addData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
 				</el-input>
       </el-form-item>
       {{- end}}
@@ -86,7 +86,14 @@ export default {
 			rules: {                    //数据验证规则
 				{{- range $i,$c:=$rows|create -}}
 				{{if ne ($c|isNull) $empty}}
-				{{$c.Name}}: [{ required: true, message: "请输入{{$c.Desc|shortName}}", trigger: "blur" }],
+				{{- if and (or ($c.Type|codeType|isInt) ($c.Type|codeType|isInt64)) ($c.Con|crCon)}}
+				{{$c.Name}}: [{{$temp:=$c.Con|crCon|ruleValue}}
+          { required: true, message: "请输入支付超时", trigger: "blur" },
+          { type: 'number', min: {{index $temp 0}}, max:{{index $temp 1}}, message: "请输入{{index $temp 0}}至{{index $temp 1}}的数字", trigger: "blur" }
+        ],
+				{{- else}}
+				{{$c.Name}}: [{ required: true, message: "请输入{{$c.Desc|shortName}}", trigger: "blur" }],{{$c.Con|crCon}}
+				{{- end}}
 				{{- end}}
 				{{- end}}
 			},
@@ -167,12 +174,7 @@ export default {
 							this.dialogAddVisible = false
 							this.refresh()
 						})
-						.catch(err => {
-							this.$message({
-								type: "error",
-								message: err.response.data
-							});
-						})
+
 				} else {
 						console.log("error submit!!");
 						return false;

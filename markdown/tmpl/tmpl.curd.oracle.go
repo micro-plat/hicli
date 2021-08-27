@@ -9,6 +9,7 @@ const MarkdownCurdSql = `
 {{- $detailrows := .Rows|detail -}}
 {{- $deleterows := .Rows|delete -}}
 {{- $listrows := .Rows|list -}}
+{{- $exportrows := .Rows|export -}}
 {{- $queryrows := .Rows|query -}}
 {{- $pks := .|pks -}}
 {{- $order:=.Rows|order|orderSort -}}
@@ -211,6 +212,58 @@ where rownum <= @pi * @ps) L
 where L.rn > (@pi - 1) * @ps) TAB1{###}
 {{- end}}
 
+
+{{- if (gt ($exportrows|len) 0)}}
+//Get{{.Name|rmhd|upperName}}ExportList 查询{{.Desc}}导出列表数据
+const Get{{.Name|rmhd|upperName}}ExportList = {###}
+select 
+	TAB1.*
+from (select L.*  
+	from (select rownum as rn,R.* 
+		from (
+			select 
+			{{- range $i,$c:=$exportrows}}
+			{{- if $c.Type|codeType|isTime }}
+				to_char(t.{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')	{{$c.Name}}
+			{{- else if and ($c.Type|codeType|isString) ($c|replace) }}
+				{{$c|replace}} {{$c.Name}}
+			{{- else}}
+				t.{{$c.Name}}
+			{{- end}}
+			{{- if lt $i ($exportrows|maxIndex)}},{{end}}
+			{{- end}} 
+			from {{.Name}}{{.DBLink}} t
+			where
+			{{- if eq ($queryrows|len) 0}}
+				1=1
+			{{- else -}}
+			{{- range $i,$c:=$queryrows -}} 
+			{{if $c.Type|codeType|isTime }}
+				{{- if ($c.Con|DRANGE)}}
+				and t.{{$c.Name}} >= to_date(@start_time,'yyyy-mm-dd hh24:mi:ss')
+				and t.{{$c.Name}} < to_date(@end_time,'yyyy-mm-dd hh24:mi:ss')+1
+				{{- else}}
+				and t.{{$c.Name}} >= to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')
+				and t.{{$c.Name}} < to_date(@{{$c.Name}},'yyyy-mm-dd hh24:mi:ss')+1
+				{{- end}}
+			{{- else if and ($c.Type|codeType|isString) (gt $c.Len $length)}}
+				?t.{{$c.Name}}
+			{{- else}}
+				&t.{{$c.Name}}{{end}}
+			{{- end}}{{end}}
+			{{- if gt ($sort|len) 0}}
+			order by #order_by
+			{{- else if gt ($order|len) 0}}
+			order by {{range $i,$c:=$order}}t.{{$c.Name}} {{or ($c.Con|orderCon) "desc"}}{{if lt $i ($order|maxIndex)}}, {{end}}{{end}}
+			{{- else}}
+			order by {{range $i,$c:=$pks}}t.{{$c}} desc{{end}}
+			{{- end}}
+			) R 
+	where rownum <= @pi * @ps) L 
+where L.rn > (@pi - 1) * @ps) TAB1{###}
+{{- end}}
+
+
 {{- if (gt ($updaterows|len) 0)}}
 //GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} 查询{{.Desc}}单条数据
 const GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}} = {###}
@@ -258,29 +311,5 @@ where
 {{- range $i,$c:=$pks}}
 	&{{$c}}
 {{- end}}{###}
-{{end}}
-
-{{- range $i,$btn:=$btns }}
-{{- if $btn.Show }}
-//Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} 查询单条数据{{$.Desc}}
-const Get{{$.Name|rmhd|upperName}}{{$btn.Name|upperName}}By{{$pks|firstStr|upperName}} = {###}
-select 
-{{- range $i,$c:=$btn.Rows}}
-	{{or $c.SQLAliasName "t"}}.{{$c.Name}}{{if lt $i ($btn.Rows|maxIndex)}},{{end}}
-{{- end}} 
-from {{$.Name}}{{$.DBLink}} t
-{{- range $i,$c:=$btn.Table}}
-left join {{$c.Name}}{{$.DBLink}} t{{$i}} on t.{{index $btn.RelativeShelfFiled $c.Name}} = t{{$i}}.{{index $btn.RelativeFiled $c.Name}} 
-{{- end}}
-where
-{{- if eq ($pks|len) 0}}
-1=1
-{{- else -}}
-{{- range $i,$c:=$pks}}
-	&t.{{$c}}
-{{- end}}
-{{- end}}{###}
-{{- end}}
-
 {{- end}}
 `

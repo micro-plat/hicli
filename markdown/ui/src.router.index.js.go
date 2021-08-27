@@ -33,6 +33,8 @@ export default new Router({
 `
 
 const SnippetSrcRouterIndexJS = `
+{{- $router:=.router -}}
+{{- $ext:=.ext -}}
 import Vue from 'vue';
 import Router from 'vue-router';
 
@@ -51,7 +53,7 @@ export default new Router({
       name: 'menus',
       component: () => import('../pages/system/menus.vue'),
       children:[
-        {{- range $i,$v:=.}}
+        {{- range $i,$v:=$router}}
 				{
 					path: '{{$v.Name|rmhd|rpath}}',
 					name: '{{$v.Name|rmhd|varName}}',
@@ -64,8 +66,33 @@ export default new Router({
 					component: () => import('../pages/{{$v.Name|rmhd|rpath|parentPath}}/{{$v.Name|rmhd|l2d}}.detail.vue')
 				},{{- end}}
         {{- end}}
+        {{- range $i,$v:=$ext}}
+        {{- if not $v.Independent}}
+				{
+					path: '{{$v.Path}}',
+					name: '{{$v.Name}}',
+					component: () => import('../pages/{{$v.Component}}.vue')
+				},
+				{{- if $v.HasDetail }}
+				{
+					path: '{{$v.Path}}/detail',
+					name: '{{$v.Name}}Detail',
+					component: () => import('../pages/{{$v.Component|trimlist}}.detail.vue')
+				},
+        {{- end}}
+        {{- end}}
+        {{- end}}
       ]
     }
+    {{- range $i,$v:=$ext}}
+    {{- if $v.Independent}},
+    {
+      path: '{{$v.Path}}',
+      name: '{{$v.Name}}',
+      component: () => import('../pages/{{$v.Component}}.vue')
+    }
+    {{- end}}
+    {{- end}}
   ]
 })
 

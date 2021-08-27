@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
 )
 
 //GetSchemePath 获取Scheme路径
@@ -92,4 +94,9 @@ func Read(path string) (s []byte, err error) {
 	}
 	defer f.Close()
 	return io.ReadAll(f)
+}
+
+func GetExcel(path, sheet string) (f *excelize.File, err error) {
+	f, err = excelize.OpenFile(path)
+	return
 }

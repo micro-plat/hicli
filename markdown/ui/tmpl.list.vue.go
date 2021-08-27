@@ -9,7 +9,7 @@ const TmplList = `
 {{- $tb :=. -}}
 {{- $sort:=.Rows|sort -}}
 {{- $choose:= false -}}
-{{- $drange:= false -}}
+{{- $drange:= mkSlice -}}
 {{- $btn:=.BtnInfo -}}
 <template>
 	<div class="panel panel-default">
@@ -17,34 +17,46 @@ const TmplList = `
 		<div class="panel-body" id="panel-body">
 			<el-form ref="form" size="small" :inline="true" class="form-inline pull-left">
 			{{- range $i,$c:=$rows|query}}
-				{{- if $c.Con|TA}}
+				{{- if $c.Con|CSCR}}
+				<el-form-item>
+					<el-cascader
+						placeholder="请选择{{$c.Desc|shortName}}"
+						v-model="{{$c.Con|cscrCon|lowerName}}Value"
+						@change="{{$c.Con|cscrCon|lowerName}}Change"
+						:show-all-levels="false"
+						collapse-tags
+						:options="{{$c.Con|cscrCon|lowerName|lowerName}}"
+						:props="{ multiple: true, label: 'name' }"
+						clearable
+					></el-cascader>
+				</el-form-item>
+				{{- else if $c.Con|TA}}
 				<el-form-item>
 					<el-input size="small" maxlength="{{$c.Len}}" type="textarea" :rows="2" placeholder="请输入{{$c.Desc|shortName}}" v-model="queryData.{{$c.Name}}">
 					</el-input>
 				</el-form-item>
 				{{- else if or ($c.Con|SL) ($c.Con|SLM) }}
 				<el-form-item>
-					<el-select size="small" v-model="queryData.{{$c.Name}}"  clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
+					<el-select size="small" v-model="queryData.{{$c.Name}}" clearable filterable class="input-cos" placeholder="请选择{{$c.Desc|shortName}}"
 					{{- if (qDicCName $c.Name $tb) }} @change="set{{(qDicCName $c.Name $tb)|upperName}}(queryData.{{$c.Name}})"
 					{{- else if (qGroupCName $c.Name $tb) }} @change="set{{$c.Name|upperName}}Group" 
-					{{- else if or (qGroupPName $c.Con $tb) (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}}	
-					{{- if (qGroupPName $c.Con $tb)}} disabled{{- end}} >
+					{{- else if or (qGroupPName $c.Con $tb) (qDicPName $c.Con $tb) }} @change="handleChooseTool()"{{$choose = true}}{{- end}} >
 						<el-option value="" label="全部"></el-option>
 						<el-option v-for="(item, index) in {{$c.Name|lowerName}}" :key="index" :value="item.value" :label="item.name"></el-option>
 					</el-select>
 				</el-form-item>
-				{{- else if ($c.Con|DRANGE) }}{{$drange = true}}
-				<el-form-item label="创建时间:">
+				{{- else if ($c.Con|DRANGE) }}{{$drange = $c.Con|drangeCon|drangeValue }}
+				<el-form-item>
 					<el-date-picker
-					v-model="times"
-					type="{{dateType $c.Con ($c.Con|qfCon)}}range"
-					:clearable="false"
-					:picker-options="pickerOptions"
-					range-separator="至"
-					start-placeholder="开始日期"
-					end-placeholder="结束日期"
-					align="right"
-					size="small"
+						v-model="times"
+						type="{{dateType $c.Con ($c.Con|qfCon)}}range"
+						:clearable="false"
+						:picker-options="pickerOptions"
+						range-separator="至"
+						start-placeholder="开始日期"
+						end-placeholder="结束日期"
+						align="right"
+						size="small"
 					>
 					</el-date-picker>
         </el-form-item>
@@ -58,30 +70,43 @@ const TmplList = `
 						<el-checkbox v-for="(item, index) in channelNo" :key="index" :value="item.value" :label="item.value">{{"{{item.name}}"}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+				{{- else if $c.Con|DMI }}
 				{{- else}}{{$c|setIsInput}}
 				{{- end}}
-			{{end}}
+			{{- end}}
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+				<el-form-item>
+					<el-input clearable size="small" v-model="queryContent" placeholder="请输入查询内容">
+						<el-dropdown size="small" slot="prepend">
+							<el-button size="small" style="width: 100px; font-size: 0.677083vw">{{"{{ currentDropItem.name }}"}}<i class="el-icon-arrow-down el-icon--right"></i> </el-button>
+							<el-dropdown-menu slot="dropdown">
+								<el-dropdown-item v-for="(item, index) in dropMenu" @click.native="dropmenu(item)" :key="index" :value="item.value" :label="item.name">{{"{{item.name}}"}}</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
+					</el-input>
+				</el-form-item>
+			{{- end}}
 			{{- range $i,$c:=$rows|query}}
 				{{- if $c.IsInput}}
 				<el-form-item>
 					<el-input clearable size="small" prefix-icon="el-icon-search" v-model="queryData.{{$c.Name}}" placeholder="请输入{{$c.Desc|shortName}}">
 					</el-input>
 				</el-form-item>
-				{{end}}
+				{{- end}}
 			{{- end}}
-				{{- if gt ($rows|query|len) 0}}
+				{{- if and (not .BtnShowQuery) (gt ($rows|query|len) 0)}}
 				<el-form-item>
-					<el-button  type="primary" @click="queryDatas" size="small">查询</el-button>
+					<el-button type="primary" @click="queryDatas" size="small">查询</el-button>
 				</el-form-item>
-				{{end}}
-				{{- if gt ($rows|create|len) 0}}
+				{{- end}}
+				{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 				<el-form-item>
 					<el-button type="success" size="small" @click="showAdd">添加</el-button>
 				</el-form-item>
-				{{end}}
+				{{- end}}
 				{{- if gt ($rows|export|len) 0}}
 				<el-form-item>
-					<el-button type="success" @click="exportExcl" size="small">导出excel</el-button>
+					<el-button type="success" @click="exportExcl" size="small">导出</el-button>
 				</el-form-item>
 				{{- end}}
 				{{- if gt ($tb.DownloadInfo.Title|len) 0}}
@@ -91,12 +116,18 @@ const TmplList = `
 				{{- end}}
 				{{- if not $tb.SelectInfo.IsEmpty }}
 				<el-form-item>
-					<el-button size="small" @click="toggleSelection()">批量操作</el-button>
+					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="{{$tb.SelectInfo.Name}}()">{{$tb.SelectInfo.Desc}}</el-button>
+					<el-button type="primary" v-else size="small" disabled>{{$tb.SelectInfo.Desc}}</el-button>
 				</el-form-item>
 				{{- end}}
 				{{- range $i,$c:=$tb.QueryComponents}}
 				<el-form-item>
-					<el-button type="text" size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
+					<el-button size="small" @click="show{{$c.Name|upperName}}">{{$c.BtnName}}</el-button>
+				</el-form-item>
+				{{- end}}
+				{{- range $i,$c:=$tb.QueryBtnInfo}}
+				<el-form-item>
+					<el-button type="primary" size="small" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}">{{$c.DESC}}</el-button>
 				</el-form-item>
 				{{- end}}
 			</el-form>
@@ -106,78 +137,63 @@ const TmplList = `
     <!-- list start-->
 		<el-scrollbar style="height:100%">
 			<el-table :data="dataList.items" stripe style="width: 100%" size="small" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
-			{{- if not $tb.SelectInfo.IsEmpty }}  @selection-change="handleSelectionChange" {{end}}>
-			  {{if not $tb.SelectInfo.IsEmpty }}<el-table-column type="selection" width="55"> </el-table-column>{{end}}
-				{{if gt $tb.ELTableIndex 0}}<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>{{end}}
+			{{- if not $tb.SelectInfo.IsEmpty }} @selection-change="handleSelectionChange" {{end}}>
+			  {{- if not $tb.SelectInfo.IsEmpty }}
+				<el-table-column type="selection" :selectable="selectableCheckbox" width="24"></el-table-column>
+				{{- end}}
+				{{- if gt $tb.ELTableIndex 0}}
+				<el-table-column type="index" fixed	:index="indexMethod" label="序号"></el-table-column>
+				{{- end}}
 				{{- range $i,$c:=$rows|list}}
-				<el-table-column {{if $c.Con|FIXED}}fixed{{end}} {{if $c.Con|SORT}}sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
-				{{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+				<el-table-column {{- if $c.Con|FIXED}} fixed{{end}} {{- if $c.Con|SORT}} sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
 					<template slot-scope="scope">
+						{{- if $c.Con|LINK}}
+						<el-button type="text" size="small" @click="{{if ($c.Con|linkCon)}}link{{$c.Name|upperName}}{{else}}showDetail{{end}}(scope.row)">
+						{{- end}}
+				{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon) ($c.Con|CSCR)}}
 						<span {{if ($c.Con|CC)}}:class="scope.row.{{$c.Name}}|fltrTextColor"{{end}}>{{"{{scope.row."}}{{$c.Name}} | fltrEnum("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}")}}</span>
-					</template>
 				{{- else if and ($c.Type|isString) (or (gt $c.Len $len) (eq $c.Len 0) )}}
-					<template slot-scope="scope">
 						<el-tooltip class="item" v-if="scope.row.{{$c.Name}} && scope.row.{{$c.Name}}.length > {{or ($c.Con|lfCon) "20"}}" effect="dark" placement="top">
 							<div slot="content" style="width: 110px">{{"{{scope.row."}}{{$c.Name}}}}</div>
 							<span>{{"{{scope.row."}}{{$c.Name}} | fltrSubstr({{or ($c.Con|lfCon) "20"}}) }}</span>
 						</el-tooltip>
 						<span v-else>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-					</template>
 				{{- else if ($c.Con|fIsNofltr)}}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-				</template>
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
 				{{- else if and (or ($c.Type|isInt64) ($c.Type|isInt) ) (ne $c.Name ($pks|firstStr))}}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
-				</template>
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "0"}})}}</span>
 				{{- else if $c.Type|isDecimal }}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "2"}})}}</span>
-				</template>
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrNumberFormat({{or ($c.Con|lfCon) "2"}})}}</span>
 				{{- else if $c.Type|isTime }}
-				<template slot-scope="scope">
-					<div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
-				</template>
+						<div>{{"{{scope.row."}}{{$c.Name}} | fltrDate("{{ or (dateFormat $c.Con ($c.Con|lfCon)) "yyyy-MM-dd HH:mm:ss"}}") }}</div>
 				{{- else}}
-				<template slot-scope="scope">
-					<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
-				</template>
-				{{end}}
+						<span>{{"{{scope.row."}}{{$c.Name}} | fltrEmpty }}</span>
+				{{- end}}
+					{{- if $c.Con|LINK}}
+						</el-button>
+					{{- end}}
+					</template>
 				</el-table-column>
 				{{- end}}
-				<el-table-column  label="操作" align="center">
+				<el-table-column label="操作" align="center">
 					<template slot-scope="scope">
-						{{- if gt ($rows|update|len) 0}}
+						{{- if and  (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 						<el-button type="text" size="mini" @click="showEdit(scope.row)">编辑</el-button>
 						{{- end}}
-						{{- if gt ($rows|detail|len) 0}}
-						<el-button type="text" size="mini" @click="showDetail(scope.row)">详情</el-button>
-						{{- end}}
-						{{- if gt ($rows|delete|len) 0}}
+						{{- if and (not .BtnDel) (gt ($rows|delete|len) 0)}}
 						<el-button type="text" size="mini" @click="del(scope.row)">删除</el-button>
 						{{- end}}
 
 						{{- range $i,$c:=$tb.ListComponents}}
-						<el-button type="text" {{if $c.Condition }}v-if="scope.row.{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
+						<el-button type="text" {{if $c.Condition }}v-if="{{$c.Condition}}"{{end}} size="mini" @click="show{{$c.Name|upperName}}(scope.row)">{{$c.BtnName}}</el-button>
+						{{- end}}
+
+						{{- if and (not .BtnShowDetail) (gt ($rows|detail|len) 0)}}
+						<el-button type="text" size="mini" @click="showDetail(scope.row)">详情</el-button>
 						{{- end}}
 
 						{{- range $i,$c:= $btn }}
-							{{- if gt ($c.VIF|len) 0}}
-								{{- range $k,$v:= $c.VIF}}
-									{{- if eq $k 0}}
-						<el-button v-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-									{{- else if lt $k ($c.VIF|maxIndex) }}		
-						<el-button v-else-if="scope.row.{{(index $c.Rows 0).Name}} == {{$v.IfName}}" type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-									{{- else}}
-						<el-button v-else type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$v.IfDESC}}</el-button>
-									{{- end}}
-								{{- end}}
-							{{- else if $c.Show}}	
-						<el-button type="text" size="mini" @click="show{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-						{{- else}}	
-						<el-button type="text" size="mini" @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
-							{{- end }}
+						<el-button type="text" size="mini" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}(scope.row)">{{$c.DESC}}</el-button>
 						{{- end}}
 					</template>
 				</el-table-column>
@@ -185,21 +201,15 @@ const TmplList = `
 		</el-scrollbar>
 		<!-- list end-->
 
-		{{- range $i,$c:= $btn }}
-		{{- if $c.Show}}
-		<!-- {{$c.Name|upperName}} Form -->
-		<{{$c.Name|upperName}} ref="{{$c.Name|upperName}}" :refresh="query"></{{$c.Name|upperName}}>
-		<!--{{$c.Name|upperName}} Form -->
-		{{- end}}
-		{{- end}}
+		{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 
-		{{if gt ($rows|create|len) 0 -}}
 		<!-- Add Form -->
 		<Add ref="Add" :refresh="query"></Add>
 		<!--Add Form -->
 		{{- end}}
 
-		{{if gt ($rows|update|len) 0 -}}
+		{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
+
 		<!-- edit Form start-->
 		<Edit ref="Edit" :refresh="query"></Edit>
 		<!-- edit Form end-->
@@ -238,10 +248,10 @@ const TmplList = `
 
 
 <script>
-{{- if gt ($rows|create|len) 0}}
+{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 import Add from "./{{.Name|rmhd|l2d}}.add"
 {{- end}}
-{{- if gt ($rows|update|len) 0}}
+{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 import Edit from "./{{.Name|rmhd|l2d}}.edit"
 {{- end}}
 {{- range $i,$c:=$tb.ListComponents}}
@@ -250,18 +260,13 @@ import {{$c.Name|upperName}} from "{{$c.Path}}"
 {{- range $i,$c:=$tb.QueryComponents}}
 import {{$c.Name|upperName}} from "{{$c.Path}}"
 {{- end}}
-{{- range $i,$c:= $btn }}
-{{- if $c.Show}}
-import {{$c.Name|upperName}} from "./{{$name|rmhd|l2d}}.{{$c.Name}}"
-{{- end}}
-{{- end}}
 export default {
 	name: "{{$name|rmhd|varName}}",
   components: {
-		{{- if gt ($rows|create|len) 0}}
+		{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
 		Add,
 		{{- end}}
-		{{- if gt ($rows|update|len) 0}}
+		{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
 		Edit,
 		{{- end}}
 		{{- range $i,$c:=$tb.ListComponents}}
@@ -270,27 +275,43 @@ export default {
 		{{- range $i,$c:=$tb.QueryComponents}}
 		{{$c.Name|upperName}},
 		{{- end}}
-		{{- range $i,$c:= $btn }}
-		{{- if $c.Show -}},
-		{{$c.Name|upperName}}
-		{{- end}}
-		{{- end}}
   },
   data () {
 		return {
 			paging: {ps: 10, pi: 1,total:0,sizes:[5, 10, 20, 50]},
-      queryData:{},               //查询数据对象 
+			queryData:{},               //查询数据对象
 			{{- range $i,$c:=$rows|query -}}
-			{{if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"){{end}},
+			{{- if $c.Con|CSCR}}
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
+			{{$c.Con|cscrCon|lowerName}}Value:[],
+			{{$c.Con|cscrCon|lowerName}}:[],
+			{{- else if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
 			{{- else if $c.Con|CB }}
-			{{$c.Name|lowerName}}: {{if (qDicPName $c.Con $tb) }}[]{{else}}this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"){{end}},
+			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
 			{{$c.Name|lowerName}}Array: [],
 			{{- end}}
 			{{- if ($c.Con|DRANGE)}}
       times: '',
       pickerOptions: {
-        shortcuts: [
+        shortcuts: [{
+						text: '今天',
+						onClick(picker) {
+							const end = new Date();
+							const start = new Date();
+							picker.$emit('pick', [start, end]);
+						}
+					},
+					{
+						text: '昨天',
+						onClick(picker) {
+							const end = new Date();
+							const start = new Date();
+							start.setTime(start.getTime() - 3600 * 1000 * 24 * 1);
+							end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+							picker.$emit('pick', [start, end]);
+						}
+					},
           {
             text: '最近三天',
             onClick(picker) {
@@ -326,6 +347,16 @@ export default {
 			{{- if not $tb.SelectInfo.IsEmpty }}
 			multipleSelection: [],
 			{{- end}}
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+			queryContent:"",
+      preDropItem: {},
+      currentDropItem: {},
+      dropMenu: [
+				{{- range $i,$c:=$rows|query|dropmenurow}}
+				{ name: "{{$c.Desc|shortName}}", value: "{{$c.Name}}" },
+				{{- end}}
+      ],
+			{{- end}}
 			dataList: {count: 0,items: []}, //表单数据对象,
 			maxHeight: 0
 		}
@@ -341,19 +372,34 @@ export default {
 	methods:{
     /**初始化操作**/
     init(){
-			{{- if $drange}}
+			{{- range $i,$c:=$rows|query}}
+			{{- if ($c.Con|CSCR) }}
+			this.set{{$c.Con|cscrCon|upperName}}()
+			{{- end}}
+			{{- end}}
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+			this.preDropItem = this.dropMenu[0]
+      this.currentDropItem = this.dropMenu[0]
+			{{- end}}
+			{{- if gt ($drange|len) 0}}
 			var now = new Date()
-			now.setTime(new Date().getTime() - 3600 * 1000 * 24 * 30)
+			now.setTime(new Date().getTime() - 3600 * 1000 * 24 * {{index $drange 0}})
+			{{- if eq ($drange|len) 1}}
 			this.times = [now, new Date()]
+			{{- else }}
+			var end = new Date()
+			end.setTime(new Date().getTime() - 3600 * 1000 * 24 * {{index $drange 1}})
+			this.times = [now, end]
+			{{- end}}
 			{{- end}}
       this.query()
 		},
 		{{- if gt ($sort|len) 0}}
 		sort(column) {
       if (column.order == "ascending") {
-        this.order ="t." +  column.prop + " " + "asc"
+        this.order ="t." + column.prop + " " + "asc"
       } else if (column.order == "descending") {
-        this.order ="t." +  column.prop + " " + "desc"
+        this.order ="t." + column.prop + " " + "desc"
       } else {
         this.order = ""
       }
@@ -369,8 +415,37 @@ export default {
 			return index * {{$tb.ELTableIndex}};
 		},
 		{{- end}}
-		{{- range $i,$c:=$rows|query -}}
-		{{if (qDicPName $c.Con $tb)  }}
+		{{- range $i,$c:=$rows|query}}
+		{{- if ($c.Con|CSCR) }}
+		set{{$c.Con|cscrCon|upperName}}() {
+      var that = this
+      this.{{$c.Con|cscrCon|lowerName}} = this.$enum.get("{{$c.Con|cscrCon}}")
+      var setValue = true
+      this.{{$c.Con|cscrCon|lowerName}}.forEach(function (item) {
+        for (const el of that.{{$c.Name|lowerName}}) {
+          if (el.group_code == item.value) {
+						if (!item.children) {
+              item.children = []
+            }
+            item.children.push(el)
+            if (setValue) {
+              that.{{$c.Con|cscrCon|lowerName}}Value.push([item.value, el.value])
+            }
+          }
+        }
+        setValue = false
+      })
+			this.{{$c.Con|cscrCon|lowerName}}Change(this.{{$c.Con|cscrCon|lowerName}}Value)
+    },
+    {{$c.Con|cscrCon|lowerName}}Change(val) {
+      let vals = [];
+      val.forEach((item) => {
+        vals.push(item[item.length - 1]);
+      })
+      this.queryData.{{$c.Name}} = vals.join(',');
+    },
+		{{- end}}
+		{{- if (qDicPName $c.Con $tb) }}
 		set{{$c.Name|upperName}}(pid){
 			this.queryData.{{$c.Name}} = ""
 			this.{{$c.Name|lowerName}}=this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}",pid)
@@ -389,7 +464,7 @@ export default {
 				{{- end}}
 				{{- range $i,$c1:=(qgroup $c.Name $tb)}}
 				this.queryData.{{$c1.Name}} = obj.{{$c1.Name}}
-				{{- if  (qGroupCName $c1.Name $tb)}}
+				{{- if (qGroupCName $c1.Name $tb)}}
 				this.set{{$c1.Name|upperName}}Group(this.queryData.{{$c1.Name}})
 				{{- end}}
 				{{- end}}
@@ -397,12 +472,24 @@ export default {
 		},
 		{{- end}}
 		{{- end }}
+		{{- if gt ($rows|query|dropmenurow|len) 0}}
+		dropmenu(item) {
+      this.currentDropItem = item
+      if (this.currentDropItem != this.preDropItem) {
+        this.queryData[this.preDropItem.value] = ""
+				this.preDropItem=item
+      }
+    },
+		{{- end}}
     /**查询数据并赋值*/
 		queryDatas() {
       this.paging.pi = 1
       this.query()
     },
     query(){
+			{{- if gt ($rows|query|dropmenurow|len) 0}}
+			this.queryData[this.currentDropItem.value] = this.queryContent
+			{{- end}}
       this.queryData.pi = this.paging.pi
 			this.queryData.ps = this.paging.ps
 			{{- range $i,$c:=$rows|query -}}
@@ -418,7 +505,7 @@ export default {
 			{{- if gt ($sort|len) 0}}
 			this.queryData.order_by = this.order
 			{{- end}}
-      let res = this.$http.xpost("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.queryData))
+      let res = this.$http.xget("/{{.Name|rmhd|rpath}}/{{or .QueryURL "query"}}",this.$utility.delEmptyProperty(this.queryData))
 			this.dataList.items = res.items || []
 			this.dataList.count = res.count
     },
@@ -444,14 +531,14 @@ export default {
       this.$emit("addTab","详情"+val.{{range $i,$c:=$pks}}{{$c}}{{end}},"/{{.Name|rmhd|rpath}}/detail",data);
 		},
 		{{- end}}
-		{{- if gt ($rows|create|len) 0}}
+		{{- if and (not .BtnShowAdd) (gt ($rows|create|len) 0)}}
     showAdd(){
       this.$refs.Add.show();
 		},
 		{{- end}}
-		{{- if gt ($rows|update|len) 0}}
+		{{- if and (not .BtnShowEdit) (gt ($rows|update|len) 0)}}
     showEdit(val) {
-      this.$refs.Edit.editData = val
+      this.$refs.Edit.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
       this.$refs.Edit.show();
 		},
 		{{- end}}
@@ -462,23 +549,14 @@ export default {
 		},
 		{{- end}}
 		{{- range $i,$c:=$tb.QueryComponents}}
-		show{{$c.Name|upperName}}(val) {
-			this.$refs.{{$c.Name|upperName}}.{{range $i,$c:=$pks}}{{$c}} = val.{{$c}};{{end}}
+		show{{$c.Name|upperName}}() {
       this.$refs.{{$c.Name|upperName}}.show();
 		},
-		{{- end}}
-		{{- range $i,$c:= $btn }}
-		{{- if $c.Show }}
-	  show{{$c.Name}}(val) {
-      this.$refs.{{$c.Name|upperName}}.editData = val
-      this.$refs.{{$c.Name|upperName}}.show();
-		},
-		{{- end}}
 		{{- end}}
 
-		{{- range $i,$c:= $btn }}
-		{{$c.Name}}(val){
-			{{- if not $c.Show }}
+		{{- range $i,$c:=$tb.QueryBtnInfo}}
+		{{- if not $c.IsQuery}}
+		{{$c.Name}}(){
 			var data = {
 				{{- range $i,$c:=$c.Rows}}
 				{{$c.Name}} :val.{{$c.Name}},
@@ -489,10 +567,10 @@ export default {
         .then(() => {
 			{{- end}}
 					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
-					.then(res => {
-						this.dialogFormVisible = false;
-						this.query()
-					})
+						.then(res => {
+							this.dialogFormVisible = false;
+							this.query()
+						})
 			{{- if $c.Confirm}}
 				});
 			{{- end}}
@@ -500,10 +578,32 @@ export default {
 		{{- end}}
 		{{- end}}
 
+		{{- range $i,$c:= $btn }}
+		{{$c.Name}}(val){
+			var data = {
+				{{- range $i,$c:=$c.Rows}}
+				{{$c.Name}} :val.{{$c.Name}},
+				{{- end}}
+			}
+			{{- if $c.Confirm}}
+      this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
+						.then(res => {
+							this.dialogFormVisible = false;
+							this.query()
+						})
+			{{- if $c.Confirm}}
+				});
+			{{- end}}
+		},
+		{{- end}}
+
 		{{- if gt ($rows|export|len) 0}}
 		exportExcl() {
 			this.queryData.pi = this.paging.pi
-			this.queryData.ps = this.paging.ps
+			this.queryData.ps = this.dataList.count
 			{{- range $i,$c:=$rows|query -}}
 			{{- if ($c.Con|DRANGE)}}
 			this.queryData.start_time = this.$utility.dateFormat(this.times[0],"{{dateFormat $c.Con ($c.Con|qfCon)}}");
@@ -517,7 +617,7 @@ export default {
 			{{- if gt ($sort|len) 0}}
 			this.queryData.order_by = this.order
 			{{- end}}
-      this.$http.post("/{{.Name|rmhd|rpath}}/query",this.$utility.delEmptyProperty(this.queryData))
+      this.$http.post("/{{.Name|rmhd|rpath}}/export",this.$utility.delEmptyProperty(this.queryData))
         .then(res => {
           var header = [
 					{{- range $i,$c:=$rows|export}}
@@ -525,8 +625,8 @@ export default {
 					{{- end}}
           ];
           this.BuildExcel("{{$desc}}.xlsx", [header], res.items || [], {
-						{{- range $i,$c:=$rows|list}}
-						{{- if or ($c.Con|SL) ($c.Con|SLM)  ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
+						{{- range $i,$c:=$rows|export}}
+						{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon)}}
 						{{$c.Name}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|leCon) $tb) ($c.Name|lower)}}"),
 						{{- end}}
 						{{- end}}
@@ -549,24 +649,52 @@ export default {
 		{{- end}}
 
 		{{- if not $tb.SelectInfo.IsEmpty }}
-		toggleSelection() {
+		selectableCheckbox(row, rowIndex) {
+			{{- if ($tb.SelectInfo.Condition)}}
+      if ({{$tb.SelectInfo.Condition}}) {
+        return true;
+      }
+      return false;
+			{{- else}}
+			return true;
+			{{- end}}
+    },
+		{{$tb.SelectInfo.Name}}() {
       var data = []
       this.multipleSelection.forEach(row => {
         data.push(row.{{range $i,$c:=$pks}}{{$c}}{{end}})
       });
-			this.$http.put("{{$tb.SelectInfo.URL}}", {data:data}, {}, true, true)
-			.then(res => {			
-				this.query()
-			})
+			{{- if $tb.SelectInfo.Confirm}}
+      this.$confirm("{{$tb.SelectInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+        .then(() => {
+			{{- end}}
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{$tb.SelectInfo.URL}}", { {{range $i,$c:=$pks}}{{$c}}s{{end}}: data.join(",") }, {}, true, true)
+						.then(res => {			
+							this.query()
+						})
+			{{- if $tb.SelectInfo.Confirm}}
+			});
+		{{- end}}
     },
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
 		{{- end}}
 
+		{{- range $i,$c:=$rows|list}}
+		{{- if ($c.Con|linkCon)}}
+		link{{$c.Name|upperName}}(val){
+			var data = {
+        {{$c.Name}}: val.{{$c.Name}},
+      }
+      this.$emit("addTab","详情"+val.{{$c.Name}},"/{{$c.Con|linkCon|rmhd|rpath}}",data);
+		},
+		{{- end}}
+		{{- end }}
+
 		{{- if gt ($rows|delete|len) 0}}
     del(val){
-			this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {confirmButtonText: "确定",  cancelButtonText: "取消", type: "warning"})
+			this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {confirmButtonText: "确定", cancelButtonText: "取消", type: "warning"})
 			.then(() => {
 				this.$http.del("/{{.Name|rmhd|rpath}}",val, {}, true, true)
 					.then(res => {

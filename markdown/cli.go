@@ -158,6 +158,25 @@ func init() {
 					},
 				},
 				{
+					Name:   "diff",
+					Usage:  "创建数据库结构差异文件",
+					Action: createDiff,
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "table,t", Usage: `-表名称`},
+						cli.BoolFlag{Name: "gofile,g", Usage: `-生成到gofile中`},
+						cli.BoolFlag{Name: "cover,v", Usage: `-文件已存在时自动覆盖`},
+					},
+				},
+				{
+					Name:   "datadiff",
+					Usage:  "比较数据库数据差异",
+					Action: createDataDiff,
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "titles,t", Usage: `-对比数据的标题`},
+						cli.StringFlag{Name: "sheet,s", Usage: `-数据sheet名`},
+					},
+				},
+				{
 					Name:   "data",
 					Usage:  "导出数据库数据",
 					Action: exportDBData,

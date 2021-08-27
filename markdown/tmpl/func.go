@@ -10,6 +10,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/micro-plat/hicli/markdown/const/enums"
+
 	logs "github.com/lib4dev/cli/logger"
 	"github.com/micro-plat/lib4go/types"
 )
@@ -28,8 +30,10 @@ type callHanlder func(string) string
 func getfuncs(tp string) map[string]interface{} {
 	return map[string]interface{}{
 		//参数计算函数
-		"add1": add(1), //加1
-		"mod":  getMod, //余数
+		"add1":    add(1), //加1
+		"mod":     getMod, //余数
+		"mkSlice": mkSlice,
+		"isTrue":  types.GetBool,
 
 		//字符串处理函数
 		"varName":   getVarName,            //获取pascal变量名称
@@ -82,22 +86,28 @@ func getfuncs(tp string) map[string]interface{} {
 		"isInt":     isType("int"),                                      //是否是int
 		"isString":  isType("string"),                                   //是否是string
 		"replace":   replace(tp),
+		"isPK":      judgeIndexType(enums.IndexPK),  //是否是主键
+		"isUNQ":     judgeIndexType(enums.IndexUnq), //是否是唯一索引
+		"isIndex":   judgeIndexType(enums.IndexNor), //是否是唯一索引
+		"indexStr":  indexString(tp),
 
 		//前后端约束处理函数
-		"query":    getRows("q"),                                      //查询字段
-		"list":     getRows("l"),                                      //列表展示字段
-		"detail":   getRows("r"),                                      //详情展示字段
-		"create":   getRows("c"),                                      //创建字段
-		"delete":   getRows("d"),                                      //删除时判定字段
-		"update":   getRows("u"),                                      //更新字段
-		"export":   getRows("ept"),                                    //导出字段
-		"delCon":   getBracketContent([]string{"d"}),                  //删除字段约束
-		"sortCon":  getBracketContent([]string{"sort"}, `(asc|desc)`), //
-		"sort":     getRows("sort"),                                   //查询字段
-		"sortSort": sortByKw("sort"),                                  //
-		"qgroup":   getChildrenGroup("q"),                             //导出字段
-		"cgroup":   getChildrenGroup("c"),                             //导出字段
-		"ugroup":   getChildrenGroup("u"),                             //导出字段
+		"query":     getRows("q"),                                      //查询字段
+		"list":      getRows("l"),                                      //列表展示字段
+		"detail":    getRows("d"),                                      //详情展示字段
+		"create":    getRows("c"),                                      //创建字段
+		"delete":    getRows("del"),                                    //删除时判定字段
+		"update":    getRows("u"),                                      //更新字段
+		"export":    getRows("ept"),                                    //导出字段
+		"tablist":   decodeRows("tabl", "l"),                           //详情tab页面列表字段
+		"tabdetail": decodeRows("tabd", "d"),                           //详情tab页面字段
+		"delCon":    getBracketContent([]string{"del"}),                //删除字段约束
+		"sortCon":   getBracketContent([]string{"sort"}, `(asc|desc)`), //
+		"sort":      getRows("sort"),                                   //查询字段
+		"sortSort":  sortByKw("sort"),                                  //
+		"qgroup":    getChildrenGroup("q"),                             //
+		"cgroup":    getChildrenGroup("c"),                             //
+		"ugroup":    getChildrenGroup("u"),                             //
 
 		//前端约束处理函数
 		"SL":            getKWS("sl"),                                           //表单下拉框
@@ -109,6 +119,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"DTIME":         getKWS("dtime"),                                        //表单日期时间选择器
 		"DATE":          getKWS("date"),                                         //表单日期选择器
 		"UP":            getKWS("up"),                                           //文件上传
+		"CSCR":          getKWS("cscr"),                                         //级联组件
 		"dateType":      getDateType,                                            //日期字段对应的组件的日期类型
 		"dateFormat":    getDateFormat,                                          //日期字段对应的组件的日期格式
 		"dateFormatDef": getDateFormatDef,                                       //日期字段对应的组件的日期默认值
@@ -116,17 +127,23 @@ func getfuncs(tp string) map[string]interface{} {
 		"FIXED":         getKWS("fixed"),                                        //表单固定列
 		"SORT":          getKWS("sort"),                                         //表单固定列
 		"fIsNofltr":     getKWS("nofltr"),                                       //前端字段不格式化
+		"LINK":          getKWS("link"),                                         //表单点击跳转
+		"linkCon":       getBracketContent([]string{"link"}),                    //表单点击跳转约束
+		"drangeCon":     getBracketContent([]string{"drange"}),                  //表单点击跳转约束
+		"cscrCon":       getBracketContent([]string{"cscr"}),                    //表单点击跳转约束
 		"lfCon":         getSubConContent("l", "f"),                             //列表展示字段的过滤器子约束l(f:xx)
 		"leCon":         getSubConContent("l", "e"),                             //列表展示字段的枚举子约束l(e:xx)
 		"qeCon":         getSubConContent("q", "e"),                             //查询字段的枚举子约束q(e:xx)
 		"qfCon":         getSubConContent("q", "f"),                             //查询字段的枚举子约束q(f:xx)
-		"rfCon":         getSubConContent("r", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
+		"rfCon":         getSubConContent("d", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
 		"ufCon":         getSubConContent("u", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
 		"cfCon":         getSubConContent("c", "f"),                             //详情展示字段的过滤器子约束r(f:xx)
-		"reCon":         getSubConContent("r", "e"),                             //详情展示字段的枚举子约束r(e:xx)
+		"reCon":         getSubConContent("d", "e"),                             //详情展示字段的枚举子约束r(e:xx)
 		"ueCon":         getSubConContent("u", "e"),                             //编辑字段的格式枚举子约束u(e:xx)
 		"ceCon":         getSubConContent("c", "e"),                             //添加字段的格式枚举子约束c(e:xx)
-		"dicName":       getDicName(webEnumComponents...),                       //字段的对应的枚举名称
+		"crCon":         getSubConContent("c", "r"),                             //添加字段的格式枚举子约束c(r:xx)
+		"udCon":         getSubConContent("u", "d"),                             //添加字段的格式枚举子约束c(r:xx)
+		"dicName":       getDicName(webEnumComponents...),                       //编辑字段的格式枚举子约束u(d:true|false)
 		"qDicCName":     getCascadeChildrenName("q", "e", webEnumComponents...), //查询下拉字段级联枚举对应的引用枚举名称
 		"qDicPName":     getCascadeParentName("q", "e", webEnumComponents...),   //查询下拉字段级联枚举对应的被引用枚举名称
 		"cDicCName":     getCascadeChildrenName("c", "e", webEnumComponents...), //创建下拉字段级联枚举对应的引用枚举名称
@@ -140,7 +157,23 @@ func getfuncs(tp string) map[string]interface{} {
 		"uGroupCName":   getCascadeChildrenName("u", "g", webEnumComponents...), //更新下拉字段级联枚举对应的引用枚举名称
 		"uGroupPName":   getCascadeParentName("u", "g", webEnumComponents...),   //更新下拉字段级联枚举对应的被引用枚举名称
 
-		"setIsInput": setIsInput,
+		"setIsInput":  setIsInput,
+		"DMI":         getKWS("dmi"),  //dropdown menu+input 查询
+		"dropmenurow": getRows("dmi"), //dropdown menu+input 查询
+		"trimlist":    trimSuffix(".list"),
+
+		"drangeValue": drangeValue, //表单日期时间选择器
+		"ruleValue":   ruleValue,   //表单日期时间选择器
+	}
+}
+
+func mkSlice(args ...interface{}) []interface{} {
+	return args
+}
+
+func trimSuffix(suffix string) func(s string) string {
+	return func(s string) string {
+		return strings.TrimSuffix(s, suffix)
 	}
 }
 
@@ -476,12 +509,12 @@ func getDBIndex(tp string) func(r *Table) string {
 			list := make([]string, 0, len(indexs))
 			for _, index := range indexs {
 				switch index.Type {
-				case "idx":
-					list = append(list, fmt.Sprintf("index %s(%s)", index.Name, index.fields.Join(",")))
-				case "unq":
-					list = append(list, fmt.Sprintf("unique index %s(%s)", index.Name, index.fields.Join(",")))
-				case "pk":
-					list = append(list, fmt.Sprintf("primary key (%s)", index.fields.Join(",")))
+				case enums.IndexNor:
+					list = append(list, index.String(tp))
+				case enums.IndexUnq:
+					list = append(list, index.String(tp))
+				case enums.IndexPK:
+					list = append(list, index.String(tp))
 				}
 			}
 			if len(list) > 0 {
@@ -495,12 +528,12 @@ func getDBIndex(tp string) func(r *Table) string {
 			list := make([]string, 0, len(indexs))
 			for _, index := range indexs {
 				switch index.Type {
-				case "idx":
-					list = append(list, fmt.Sprintf("create index %s on %s(%s);\n\t", index.Name, r.Name, index.fields.Join(",")))
-				case "unq":
-					list = append(list, fmt.Sprintf("alter table %s add constraint %s unique(%s);\n\t", r.Name, index.Name, index.fields.Join(",")))
-				case "pk":
-					list = append(list, fmt.Sprintf("alter table %s add constraint pk_%s primary key (%s);\n\t", r.Name, index.Name, index.fields.Join(",")))
+				case enums.IndexNor:
+					list = append(list, fmt.Sprintf("create %s;\n\t", index.String(tp)))
+				case enums.IndexUnq:
+					list = append(list, fmt.Sprintf("alter table %s add %s;\n\t", r.Name, index.String(tp)))
+				case enums.IndexPK:
+					list = append(list, fmt.Sprintf("alter table %s add %s;\n\t", r.Name, index.String(tp)))
 				}
 			}
 			if len(list) > 0 {
@@ -537,6 +570,22 @@ func getCapturingGroup(input string, kw string) (bool, string, string, string) {
 		}
 	}
 	return false, "", "", ""
+}
+
+func decodeRows(tp, deftp string) func(row []*Row) []*Row {
+	return func(row []*Row) []*Row {
+		list := make([]*Row, 0, 1)
+		for _, r := range row {
+			if isCons(r.Con, tp) {
+				list = append(list, r)
+			}
+		}
+		if len(list) > 0 {
+			return list
+		}
+
+		return getRows(deftp)(row)
+	}
 }
 
 func getRows(tp ...string) func(row []*Row) []*Row {
@@ -742,6 +791,34 @@ func getDateType(con, subCon string) string {
 	return "date"
 }
 
+func drangeValue(con string) []string {
+	if con == "" {
+		return []string{"30"}
+	}
+	r := strings.Split(con, ",")
+	if len(r) == 1 {
+		return []string{r[0], r[0]}
+	}
+	if len(r) == 2 {
+		return r
+	}
+	return []string{"30"}
+}
+
+func ruleValue(con string) []string {
+	if con == "" {
+		return []string{}
+	}
+	r := strings.Split(con, ",")
+	if len(r) == 1 {
+		return []string{"0", r[0]}
+	}
+	if len(r) == 2 {
+		return r
+	}
+	return []string{}
+}
+
 func getCascadeChildrenName(tp, tkey string, keys ...string) func(name string, t *Table) string {
 	return func(name string, t *Table) string {
 		kw := fmt.Sprintf("#%s", name)
@@ -890,4 +967,16 @@ func hasKW(tp ...string) func(t *Table) bool {
 
 func add(a int) func(b int) int {
 	return func(b int) int { return a + b }
+}
+
+func indexString(tp string) func(index *Index) string {
+	return func(index *Index) string {
+		return index.String(tp)
+	}
+}
+
+func judgeIndexType(t enums.IndexType) func(index *Index) bool {
+	return func(index *Index) bool {
+		return index.JudgeType(t)
+	}
 }

@@ -9,6 +9,8 @@ import (
 	"text/template"
 
 	logs "github.com/lib4dev/cli/logger"
+	"github.com/micro-plat/hicli/markdown/const/enums"
+	"github.com/micro-plat/hicli/markdown/utils"
 	"github.com/micro-plat/lib4go/types"
 )
 
@@ -23,7 +25,9 @@ type Table struct {
 	DBLink          string //
 	Rows            TableColumn
 	RawRows         []*Row
+	DiffRows        TableColumn
 	Indexs          Indexs
+	DiffIndexs      []*Index
 	BasePath        string   //生成项目基本路径
 	AllTables       []*Table //所有表
 	Exclude         bool     //排除生成sql
@@ -31,98 +35,19 @@ type Table struct {
 	TabTables       []*Table //详情切换的tab页对应表
 	TabInfo         *TabInfo
 	BtnInfo         []*BtnInfo
+	QueryBtnInfo    []*BtnInfo
 	TempIndex       int
 	DownloadInfo    *DownloadInfo
 	SelectInfo      *SelectInfo
 	ListComponents  []*ListComponents
 	QueryComponents []*QueryComponents
-}
-
-//Row 行信息
-type Row struct {
-	Name         string //字段名
-	Type         string //类型
-	Def          string //默认值
-	IsNull       string //为空
-	Con          string //约束
-	Desc         string //描述
-	Len          int    //类型长度
-	LenStr       string
-	DecimalLen   int //小数长度
-	LineID       int
-	Sort         int //字段在列表中排序位置
-	BelongTable  *Table
-	Disable      bool
-	SQLAliasName string //SQL别名
-	IsInput      bool
-}
-
-//TableColumn 表的列排序用
-type TableColumn []*Row
-
-func (t TableColumn) Len() int {
-	return len(t)
-}
-
-//从低到高
-func (t TableColumn) Less(i, j int) bool {
-	return t[i].Sort < t[j].Sort
-}
-
-func (t TableColumn) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
-}
-
-//Indexs 索引集
-type Indexs map[string]*Index
-
-//Index 索引
-type Index struct {
-	fields fields
-	Name   string
-	Type   string
-}
-type fields []*Field
-
-//Field 字段信息
-type Field struct {
-	Name  string
-	Index int
-}
-
-//List 获取所有字段名的列表
-func (t fields) List() []string {
-	list := make([]string, 0, len(t))
-	for _, fi := range t {
-		list = append(list, fi.Name)
-	}
-	return list
-}
-
-//Len 字段个数
-func (t fields) Len() int {
-	return len(t)
-}
-
-//Join 指定连接符，将字段名连接为一个长字符串
-func (t fields) Join(s string) string {
-	list := t.List()
-	return strings.Join(list, s)
-}
-
-//从低到高
-func (t fields) Less(i, j int) bool {
-	if t[i].Index < t[j].Index {
-		return true
-	}
-	if t[i].Index == t[j].Index {
-		return true
-	}
-	return false
-}
-
-func (t fields) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
+	Operation       enums.Operation
+	BtnShowEdit     bool
+	BtnShowQuery    bool
+	QueryURL        string
+	BtnShowAdd      bool
+	BtnShowDetail   bool
+	BtnDel          bool
 }
 
 //NewTable 创建表
@@ -148,6 +73,10 @@ func (t *Table) AddRow(r *Row) error {
 
 //SetPkg 添加行信息
 func (t *Table) SetPkg(path string) {
+	if path == "" {
+		path = utils.GetProjectPath(path)
+	}
+
 	t.PKG = getPKSName(path)
 }
 
@@ -186,9 +115,11 @@ func (t *Table) SetAllTables(tbs []*Table) {
 //SortRows 行排序
 func (t *Table) SortRows() {
 	sorts := make(map[string]int, len(t.Rows))
+	cons := make(map[string]string, len(t.Rows))
 	for _, v := range t.Rows {
-		v.Sort = v.LineID
+		v.Sort = v.LineID * 1000 //取1000倍
 		sorts[v.Name] = v.Sort
+		cons[v.Name] = v.Con
 	}
 	for k, v := range t.Rows {
 		after := getBracketContent([]string{"after"})(v.Con)
@@ -199,12 +130,33 @@ func (t *Table) SortRows() {
 			t.Rows[k].Sort = 0
 			continue
 		}
-		if _, ok := sorts[after]; ok {
-			t.Rows[k].Sort = sorts[after]
-			sorts[t.Rows[k].Name] = sorts[after]
+		if s, ok := sorts[after]; ok {
+			t.Rows[k].Sort = t.getSortByAfter(cons, sorts, after, s)
 		}
 	}
 	sort.Sort(t.Rows)
+}
+
+func (t *Table) getSortByAfter(cons map[string]string, sorts map[string]int, rowName string, sort int) int {
+	con, ok := cons[rowName]
+	if !ok {
+		return sort + 1
+	}
+
+	rowName = getBracketContent([]string{"after"})(con)
+	if rowName == "" {
+		return sort + 1
+	}
+	if rowName == "0" {
+		return 0 + 1
+	}
+
+	if s, ok := sorts[rowName]; ok {
+		ts := t.getSortByAfter(cons, sorts, rowName, s)
+		return ts + 1
+	}
+
+	return sort + 1
 }
 
 //FilterRowByKW 过滤行信息
@@ -228,9 +180,9 @@ func (t *Table) GetIndexs() Indexs {
 	}
 	indexs := map[string]*Index{}
 	for ri, r := range t.Rows {
-		t.getIndex(indexs, r, ri, "idx")
-		t.getIndex(indexs, r, ri, "unq")
-		t.getIndex(indexs, r, ri, "pk")
+		t.getIndex(indexs, r, ri, enums.IndexNor)
+		t.getIndex(indexs, r, ri, enums.IndexUnq)
+		t.getIndex(indexs, r, ri, enums.IndexPK)
 	}
 	for _, index := range indexs {
 		sort.Sort(index.fields)
@@ -238,8 +190,8 @@ func (t *Table) GetIndexs() Indexs {
 	t.Indexs = indexs
 	return t.Indexs
 }
-func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) {
-	ok, name, i, _ := getCapturingGroup(row.Con, tp)
+func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp enums.IndexType) {
+	ok, name, i, _ := getCapturingGroup(row.Con, string(tp))
 	if !ok {
 		return
 	}
@@ -249,7 +201,12 @@ func (t *Table) getIndex(indexs map[string]*Index, row *Row, ri int, tp string) 
 		v.fields = append(v.fields, &Field{Name: row.Name, Index: index})
 		return
 	}
-	indexs[name] = &Index{Name: name, Type: tp, fields: []*Field{{Name: row.Name, Index: index}}}
+	indexs[name] = &Index{
+		Name:      name,
+		TableName: t.Name,
+		Type:      tp,
+		fields:    []*Field{{Name: row.Name, Index: index}},
+	}
 }
 
 func (t *Table) String() string {

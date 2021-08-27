@@ -39,12 +39,20 @@ func createConf(tp string) func(c *cli.Context) (err error) {
 		if confPath == "" {
 			return
 		}
+		extConfPath := tmpl.GetWebExtConfPath(root)
 		confs, err := tmpl.GetSnippetConf(confPath)
 		if err != nil {
 			return err
 		}
+		extConfs, err := tmpl.GetWebExtConf(extConfPath)
+		if err != nil {
+			return err
+		}
 		//翻译
-		content, err := tmpl.Translate(confMap[tp], "", confs)
+		content, err := tmpl.Translate(confMap[tp], "", map[string]interface{}{
+			"router": confs,
+			"ext":    extConfs,
+		})
 		if err != nil {
 			return err
 		}

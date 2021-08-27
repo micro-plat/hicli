@@ -3,6 +3,7 @@ package tmpl
 import (
 	"encoding/json"
 	"path"
+	"sort"
 	"sync"
 
 	"github.com/micro-plat/hicli/markdown/utils"
@@ -16,13 +17,15 @@ type SnippetConf struct {
 	Desc      string `json:"desc"`       //描述
 	PKG       string
 	PkGAlias  string
+	SortName  string `json:"sort_name"`
 }
 
 //NewSnippetConf .
 func NewSnippetConf(t *Table) *SnippetConf {
-	rows := getRows("r")(t.Rows)
+	rows := getRows("d")(t.Rows)
 	return &SnippetConf{
 		Name:      t.Name,
+		SortName:  rmhd(t.Name),
 		HasDetail: len(rows) > 0,
 		BasePath:  t.BasePath,
 		Desc:      t.Desc,
@@ -50,7 +53,7 @@ func (t *SnippetConf) SaveConf(confPath string) error {
 }
 
 //GetSnippetConf 获取配置
-func GetSnippetConf(path string) ([]*SnippetConf, error) {
+func GetSnippetConf(path string) (SnippetConfs, error) {
 
 	conf := make(map[string]*SnippetConf)
 	err := readConf(path, &conf)
@@ -58,9 +61,49 @@ func GetSnippetConf(path string) ([]*SnippetConf, error) {
 		return nil, err
 	}
 
-	confs := make([]*SnippetConf, 0)
+	confs := make(SnippetConfs, 0)
 	for _, v := range conf {
 		confs = append(confs, v)
+	}
+
+	sort.Sort(confs)
+
+	return confs, nil
+}
+
+//SnippetConfs 排序用
+type SnippetConfs []*SnippetConf
+
+func (t SnippetConfs) Len() int {
+	return len(t)
+}
+
+//从低到高
+func (t SnippetConfs) Less(i, j int) bool {
+	return t[i].SortName < t[j].SortName
+}
+
+func (t SnippetConfs) Swap(i, j int) {
+	t[i], t[j] = t[j], t[i]
+}
+
+//WebExtConf 自定义路由配置
+type WebExtConf struct {
+	Name        string `json:"name"`       //表名
+	Path        string `json:"path"`       //路径
+	Component   string `json:"component"`  //页面路径
+	HasDetail   bool   `json:"has_detail"` //是否有详情页
+	Desc        string `json:"desc"`
+	Independent bool   `json:"independent"` //单独页面
+}
+
+//GetWebExtConf 获取配置
+func GetWebExtConf(path string) ([]*WebExtConf, error) {
+
+	confs := make([]*WebExtConf, 0)
+	err := readConf(path, &confs)
+	if err != nil {
+		return nil, err
 	}
 
 	return confs, nil
@@ -113,6 +156,9 @@ func (t *FieldConf) SaveConf(confPath string) error {
 
 	//设置配置
 	for _, v := range t.Fields {
+		if _, ok := conf[v.Name]; ok {
+			continue
+		}
 		conf[v.Name] = v
 	}
 
@@ -172,6 +218,15 @@ func GetWebConfPath(root string) string {
 		return ""
 	}
 	return path.Join(webPath, ".hicli/web.json")
+}
+
+func GetWebExtConfPath(root string) string {
+	projectPath := utils.GetProjectPath(root)
+	webPath, _ := utils.GetWebSrcPath(projectPath)
+	if webPath == "" {
+		return ""
+	}
+	return path.Join(webPath, "public/router.ext.json")
 }
 
 func GetGoConfPath(root string) string {
