@@ -19,7 +19,7 @@ const {{.Name}} = {###}{{end -}}
 		{{$c.Name}} {{$c.Type|dbType}} {{$c|defValue}} {{$c|isNull}} {{$c|seqTag}} comment '{{$c.Desc}}' {{if lt $i $count}},{{end}}
 		{{end -}}{{.|indexs}}
 	) ENGINE=InnoDB {{.|seqValue}} DEFAULT CHARSET=utf8mb4 COMMENT='{{.Desc}}'
-  {{- if .PKG}}{###}{{end -}};`
+  {{- if .PKG}}{###}{{end -}}`
 
 const DiffSQLInsertTmpl = `
 {{- if .PKG}}package {{.PKG}}
@@ -35,7 +35,7 @@ const {{.Name}} = {###}{{end -}}
 		{{$c.Name}} {{$c.Type|dbType}} {{$c|defValue}} {{$c|isNull}} {{$c|seqTag}} comment '{{$c.Desc}}' {{if lt $i $count}},{{end}}
 		{{end -}}{{.|indexs}}
 	) ENGINE=InnoDB {{.|seqValue}} DEFAULT CHARSET=utf8mb4 COMMENT='{{.Desc}}'
-	{{- if .PKG}}{###}{{end -}};`
+	{{- if .PKG}}{###}{{end -}}`
 
 const DiffSQLDeleteTmpl = `
 {{- if .PKG}}package {{.PKG}}
@@ -43,7 +43,7 @@ const DiffSQLDeleteTmpl = `
 {{- if .PKG}} 
 //{{.Name}} {{.Desc}}
 const {{.Name}} = {###}{{end -}}
-	DROP TABLE IF EXISTS {{.Name}};{{- if .PKG}}{###}{{end -}};`
+	DROP TABLE IF EXISTS {{.Name}};{{- if .PKG}}{###}{{end -}}`
 
 const DiffSQLModifyTmpl = `
 {{- if .PKG}}package {{.PKG}}
@@ -86,4 +86,4 @@ ALTER TABLE {{$.Name}} DROP INDEX {{$c.Name}};
 ALTER TABLE {{$.Name}} ADD {{$c|indexStr}};
 {{- end}}
 {{- end}}
-{{- if .PKG}}{###}{{end -}};`
+{{- if .PKG}}{###}{{end -}}`

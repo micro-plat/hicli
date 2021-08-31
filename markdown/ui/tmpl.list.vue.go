@@ -148,6 +148,7 @@ const TmplList = `
 				<el-table-column {{- if $c.Con|FIXED}} fixed{{end}} {{- if $c.Con|SORT}} sortable="custom"{{end}} prop="{{$c.Name}}" label="{{$c.Desc|shortName}}" align="center">
 					<template slot-scope="scope">
 						{{- if $c.Con|LINK}}
+						<el-tooltip class="item" effect="dark" :content="scope.row.{{$c.Name}}" placement="top">
 						<el-button type="text" size="small" @click="{{if ($c.Con|linkCon)}}link{{$c.Name|upperName}}{{else}}showDetail{{end}}(scope.row)">
 						{{- end}}
 				{{- if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|CB) ($c.Con|RD) ($c.Con|leCon) ($c.Con|CSCR)}}
@@ -171,6 +172,7 @@ const TmplList = `
 				{{- end}}
 					{{- if $c.Con|LINK}}
 						</el-button>
+						</el-tooltip>
 					{{- end}}
 					</template>
 				</el-table-column>
