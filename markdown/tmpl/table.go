@@ -34,11 +34,11 @@ type Table struct {
 	ELTableIndex  int
 	TabTables     []*Table //详情切换的tab页对应表
 	TabInfo       *TabInfo
-	ListBtnInfo       []*BtnInfo
+	ListBtnInfo   []*BtnInfo
 	QueryBtnInfo  []*BtnInfo
 	TempIndex     int
 	DownloadInfo  *DownloadInfo
-	BatchInfo     *BatchInfo
+	BatchInfo     BatchInfos
 	ListDialogs   []*Dialog
 	QueryDialogs  []*Dialog
 	Operation     enums.Operation

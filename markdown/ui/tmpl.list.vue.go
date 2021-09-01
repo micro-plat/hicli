@@ -114,10 +114,10 @@ const TmplList = `
 					<el-button type="text" @click="download" size="small" style="font-size:14px">下载模版</el-button>
 				</el-form-item>
 				{{- end}}
-				{{- if not $tb.BatchInfo.IsEmpty }}
+				{{- range $i,$c := $tb.BatchInfo }}
 				<el-form-item>
-					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="{{$tb.BatchInfo.Method}}()">{{$tb.BatchInfo.Name}}</el-button>
-					<el-button type="primary" v-else size="small" disabled>{{$tb.BatchInfo.Name}}</el-button>
+					<el-button type="primary" v-if="multipleSelection.length != 0" size="small" @click="{{$c.Method}}()">{{$c.Name}}</el-button>
+					<el-button type="primary" v-else size="small" disabled>{{$c.Name}}</el-button>
 				</el-form-item>
 				{{- end}}
 				{{- range $i,$c:=$tb.QueryDialogs}}
@@ -137,8 +137,8 @@ const TmplList = `
     <!-- list start-->
 		<el-scrollbar style="height:100%">
 			<el-table :data="dataList.items" stripe style="width: 100%" size="small" :height="maxHeight" {{if gt ($sort|len) 0}}@sort-change="sort"{{end}}
-			{{- if not $tb.BatchInfo.IsEmpty }} @selection-change="handleSelectionChange" {{end}}>
-			  {{- if not $tb.BatchInfo.IsEmpty }}
+			{{- if gt ($tb.BatchInfo|len) 0 }} @selection-change="handleSelectionChange" {{end}}>
+			  {{- if gt ($tb.BatchInfo|len) 0 }}
 				<el-table-column type="selection" :selectable="selectableCheckbox" width="24"></el-table-column>
 				{{- end}}
 				{{- if gt $tb.ELTableIndex 0}}
@@ -347,7 +347,7 @@ export default {
 			{{- if gt ($sort|len) 0}}
 			order: "{{range $i,$c:=$sort|sortSort}}t.{{$c.Name}} {{or ($c.Con|sortCon) "desc"}}{{if lt $i ($sort|maxIndex)}}, {{end}}{{end}}",
 			{{- end}}
-			{{- if not $tb.BatchInfo.IsEmpty }}
+			{{- if gt ($tb.BatchInfo|len) 0 }}
 			multipleSelection: [],
 			{{- end}}
 			{{- if gt ($rows|query|dropmenurow|len) 0}}
@@ -646,9 +646,9 @@ export default {
     },
 		{{- end}}
 
-		{{- if not $tb.BatchInfo.IsEmpty }}
+		{{- if gt ($tb.BatchInfo|len) 0 }}
 		selectableCheckbox(row, rowIndex) {
-			{{- if ($tb.BatchInfo.Condition)}}
+			{{- if $tb.BatchInfo.IsCondition}}
       if ({{$tb.BatchInfo.Condition}}) {
         return true;
       }
@@ -657,25 +657,27 @@ export default {
 			return true;
 			{{- end}}
     },
-		{{$tb.BatchInfo.Method}}() {
+		handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+		{{- end}}
+		{{- range $i,$c := $tb.BatchInfo }}
+		{{$c.Method}}() {
       var data = []
       this.multipleSelection.forEach(row => {
         data.push(row.{{range $i,$c:=$pks}}{{$c}}{{end}})
       });
-			{{- if $tb.BatchInfo.Confirm}}
-      this.$confirm("{{$tb.BatchInfo.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
+			{{- if $c.Confirm}}
+      this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{$tb.BatchInfo.Handler}}", { {{range $i,$c:=$pks}}{{$c}}s{{end}}: data.join(",") }, {}, true, true)
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{$c.Handler}}", { {{range $i,$c:=$pks}}{{$c}}s{{end}}: data.join(",") }, {}, true, true)
 						.then(res => {			
 							this.query()
 						})
-			{{- if $tb.BatchInfo.Confirm}}
+			{{- if $c.Confirm}}
 			});
 		{{- end}}
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
     },
 		{{- end}}
 

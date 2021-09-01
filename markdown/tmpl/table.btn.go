@@ -34,6 +34,22 @@ type BatchInfo struct {
 	Confirm   string
 }
 
+type BatchInfos []*BatchInfo
+
+func (a BatchInfos) Condition() string {
+	if len(a) == 1 {
+		return a[0].Condition
+	}
+	return ""
+}
+
+func (a BatchInfos) IsCondition() bool {
+	if len(a) == 1 {
+		return a[0].Condition != ""
+	}
+	return false
+}
+
 func (a *BatchInfo) IsEmpty() bool {
 	return a == nil || reflect.DeepEqual(a, &BatchInfo{})
 }
@@ -213,6 +229,7 @@ func (t *Table) DispostELBtnQuery() {
 
 	t.QueryBtnInfo = make([]*BtnInfo, 0)
 	t.QueryDialogs = make([]*Dialog, 0)
+	t.BatchInfo = make([]*BatchInfo, 0)
 
 	for _, v := range btnIndex {
 		key := fmt.Sprintf("el_q_btn%s", v)
@@ -272,22 +289,25 @@ func (t *Table) elQueryBtn(key string) {
 }
 
 func (t *Table) elQueryBatchBtn(key string) {
-	t.BatchInfo = &BatchInfo{}
-	t.BatchInfo.Handler = getSubConContent(key, "handler")(t.ExtInfo)
-	if t.BatchInfo.Handler == "" {
+	fmt.Println(key, t.BatchInfo)
+	info := &BatchInfo{}
+	info.Handler = getSubConContent(key, "handler")(t.ExtInfo)
+	if info.Handler == "" {
 		logs.Log.Warn("批量操作的handler选项未配置:", key, t.ExtInfo)
 		return
 	}
-	t.BatchInfo.Name = getSubConContent(key, "name")(t.ExtInfo)
-	if t.BatchInfo.Name == "" {
+	info.Name = getSubConContent(key, "name")(t.ExtInfo)
+	if info.Name == "" {
 		logs.Log.Warn("批量操作的name选项未配置:", t.ExtInfo)
 		return
 	}
 
-	t.BatchInfo.Method = types.GetString(getSubConContent(key, "method")(t.ExtInfo), getClickFunc(t.BatchInfo.Name, key))
-	t.BatchInfo.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
+	info.Method = types.GetString(getSubConContent(key, "method")(t.ExtInfo), getClickFunc(info.Name, key))
+	info.Condition = translateCondition(getSubConContent(key, "condition")(t.ExtInfo))
 	//confirm
-	t.BatchInfo.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
+	info.Confirm = getSubConContent(key, "confirm")(t.ExtInfo)
+
+	t.BatchInfo = append(t.BatchInfo, info)
 }
 
 type DownloadInfo struct {
