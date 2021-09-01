@@ -285,8 +285,9 @@ export default {
 			{{- range $i,$c:=$rows|query -}}
 			{{- if $c.Con|CSCR}}
 			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
-			{{$c.Con|cscrCon|lowerName}}Value:[],
-			{{$c.Con|cscrCon|lowerName}}:[],
+			{{$c.Con|cscrCon|lowerName}}Value: [],
+			{{$c.Con|cscrCon|lowerName}}: [],
+			{{$c.Con|cscrCon|lowerName}}Selected: "{{$c.Con|cscrDefault}}",
 			{{- else if or ($c.Con|SL) ($c.Con|SLM) ($c.Con|RD) }}
 			{{$c.Name|lowerName}}: this.$enum.get("{{or (dicName $c.Con ($c.Con|qeCon) $tb) ($c.Name|lower)}}"),
 			{{- else if $c.Con|CB }}
@@ -421,8 +422,8 @@ export default {
 		{{- if ($c.Con|CSCR) }}
 		set{{$c.Con|cscrCon|upperName}}() {
       var that = this
+			var selected = this.{{$c.Con|cscrCon|lowerName}}Selected
       this.{{$c.Con|cscrCon|lowerName}} = this.$enum.get("{{$c.Con|cscrCon}}")
-      var setValue = true
       this.{{$c.Con|cscrCon|lowerName}}.forEach(function (item) {
         for (const el of that.{{$c.Name|lowerName}}) {
           if (el.group_code == item.value) {
@@ -430,12 +431,11 @@ export default {
               item.children = []
             }
             item.children.push(el)
-            if (setValue) {
+            if (selected == "" || selected.split(",").includes(item.value)){
               that.{{$c.Con|cscrCon|lowerName}}Value.push([item.value, el.value])
             }
           }
         }
-        setValue = false
       })
 			this.{{$c.Con|cscrCon|lowerName}}Change(this.{{$c.Con|cscrCon|lowerName}}Value)
     },
