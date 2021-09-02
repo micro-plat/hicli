@@ -130,7 +130,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"LINK":          getKWS("link"),                                                            //表单点击跳转
 		"linkCon":       getBracketContent([]string{"link"}),                                       //表单点击跳转约束
 		"drangeCon":     getBracketContent([]string{"drange"}),                                     //表单点击跳转约束
-		"cscrCon":       getBracketContent([]string{"cscr"}, "cscr\\(([\\w]+)\\,{0,1}[\\w,]+\\)"),  //表单点击跳转约束
+		"cscrCon":       getBracketContent([]string{"cscr"}, "cscr\\(([\\w]+)"),                    //表单点击跳转约束
 		"cscrDefault":   getBracketContent([]string{"cscr"}, "cscr\\([\\w]+\\,{0,1}([\\w,]+)?\\)"), //表单点击跳转约束
 		"eptCon":        getBracketContent([]string{"ept"}),                                        //导出字段
 		"lfCon":         getSubConContent("l", "f"),                                                //列表展示字段的过滤器子约束l(f:xx)
@@ -926,7 +926,11 @@ func getSubConContent(tp, kw string) func(con string) string {
 	}
 }
 
-//pattern 只能带有一个分组
+// func getTest(con string) string {
+// 	return getBracketContent([]string{"cscr"}, "cscr\\(([\\w]+)")(con)
+// }
+
+//pattern 取第一个分组
 func getBracketContent(keys []string, pattern ...string) func(con string) string {
 	return func(con string) string {
 		s := make([]string, 0)

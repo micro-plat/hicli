@@ -289,7 +289,6 @@ func (t *Table) elQueryBtn(key string) {
 }
 
 func (t *Table) elQueryBatchBtn(key string) {
-	fmt.Println(key, t.BatchInfo)
 	info := &BatchInfo{}
 	info.Handler = getSubConContent(key, "handler")(t.ExtInfo)
 	if info.Handler == "" {
