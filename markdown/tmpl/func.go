@@ -698,6 +698,13 @@ func getLastStringByIndex(s []string) string {
 	return types.GetStringByIndex(s, len(s)-1)
 }
 
+func getLastbutoneStringByIndex(s []string) string {
+	if len(s) < 2 {
+		return "x"
+	}
+	return types.GetStringByIndex(s, len(s)-2)
+}
+
 func getDicName(keys ...string) func(con string, subcon string, tb *Table) string {
 	return func(con string, subcon string, tb *Table) string {
 		tp := subcon
@@ -746,7 +753,8 @@ func getImportPath(s []*SnippetConf) map[string]*SnippetConf {
 			continue
 		}
 		if p, ok := t[alias]; ok && p != tpath {
-			alias = fmt.Sprintf("%snew", alias)
+			pre := getLastbutoneStringByIndex(getNames("/")(path))
+			alias = fmt.Sprintf("%s%s", pre, alias)
 			v.PkGAlias = fmt.Sprintf("%s ", alias)
 		}
 		v.PKG = alias
