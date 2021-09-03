@@ -590,6 +590,10 @@ func decodeRows(tp, deftp string) func(row []*Row) []*Row {
 	}
 }
 
+func HasRow(row []*Row, tp ...string) bool {
+	return len(getRows(tp...)(row)) > 0
+}
+
 func getRows(tp ...string) func(row []*Row) []*Row {
 	return func(row []*Row) []*Row {
 		list := make([]*Row, 0, 1)

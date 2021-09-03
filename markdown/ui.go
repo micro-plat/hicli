@@ -71,6 +71,13 @@ func createAdd() func(c *cli.Context) (err error) {
 	return create("add")
 }
 
+var pageMap = map[string]string{
+	"list":   "l",
+	"detail": "d",
+	"edit":   "u",
+	"add":    "c",
+}
+
 func create(tp string) func(c *cli.Context) (err error) {
 	return func(c *cli.Context) (err error) {
 		if len(c.Args()) == 0 {
@@ -100,6 +107,10 @@ func create(tp string) func(c *cli.Context) (err error) {
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {
+
+			if !tmpl.HasRow(tb.Rows, pageMap[tp]) { //未配置，不生成页面
+				continue
+			}
 
 			//保存的动态配置
 			err := tmpl.NewSnippetConf(tb).SaveConf(confPath)
