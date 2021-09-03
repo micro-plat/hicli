@@ -666,6 +666,10 @@ func replace(tp string) func(row *Row) string {
 //getFilePath 获取文件地址
 func getFilePath(tabName string) string {
 	dir, _ := filepath.Split(replaceUnderline("/")(tabName))
+	if strings.HasSuffix(dir, "/main/") {
+		dir = strings.TrimSuffix(dir, "/main/") + "/mainx/"
+	}
+
 	return path.Join(dir, replaceUnderline(".")(tabName))
 }
 
@@ -728,6 +732,9 @@ func getImportPath(s []*SnippetConf) map[string]*SnippetConf {
 
 	for _, v := range s {
 		path, _ := Translate("{{.Name|rmhd|parentPath}}", "", v)
+		if strings.HasSuffix(path, "/main") {
+			path = strings.TrimSuffix(path, "/main") + "/mainx"
+		}
 		tpath := filepath.Join(fmt.Sprintf("%s/services", v.BasePath), path)
 		alias := getLastStringByIndex(getNames("/")(path))
 		if path == "" {
