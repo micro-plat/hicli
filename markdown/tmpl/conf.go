@@ -13,6 +13,7 @@ import (
 type SnippetConf struct {
 	Name      string `json:"name"`       //表名
 	HasDetail bool   `json:"has_detail"` //是否有详情页
+	HasList   bool   `json:"has_list"`   //是否有详情页
 	BasePath  string `json:"base_path"`  //项目路径
 	Desc      string `json:"desc"`       //描述
 	PKG       string
@@ -22,11 +23,13 @@ type SnippetConf struct {
 
 //NewSnippetConf .
 func NewSnippetConf(t *Table) *SnippetConf {
-	rows := getRows("d")(t.Rows)
+	lrows := getRows("l")(t.Rows)
+	drows := getRows("d")(t.Rows)
 	return &SnippetConf{
 		Name:      t.Name,
 		SortName:  rmhd(t.Name),
-		HasDetail: len(rows) > 0,
+		HasList:   len(lrows) > 0,
+		HasDetail: len(drows) > 0,
 		BasePath:  t.BasePath,
 		Desc:      t.Desc,
 	}

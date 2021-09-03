@@ -54,11 +54,12 @@ export default new Router({
       component: () => import('../pages/system/menus.vue'),
       children:[
         {{- range $i,$v:=$router}}
+        {{- if $v.HasList }}
 				{
 					path: '{{$v.Name|rmhd|rpath}}',
 					name: '{{$v.Name|rmhd|varName}}',
 					component: () => import('../pages/{{$v.Name|rmhd|rpath|parentPath}}/{{$v.Name|rmhd|l2d}}.list.vue')
-				},
+				},{{- end}}
 				{{- if $v.HasDetail }}
 				{
 					path: '{{$v.Name|rmhd|rpath}}/detail',
