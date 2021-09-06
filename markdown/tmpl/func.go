@@ -51,6 +51,7 @@ func getfuncs(tp string) map[string]interface{} {
 		//文件路径处理的函数
 		"rpath":        getRouterPath, //获取路由地址
 		"fpath":        getFilePath,   //获取文件地址
+		"webfpath":     getWebFilePath,   //获取文件地址
 		"parentPath":   getParentPath, //获取文件夹地址
 		"importPath":   getImportPath, //go项目引用路径
 		"fileBasePath": filepath.Base, //文件基础路径
@@ -674,6 +675,12 @@ func getFilePath(tabName string) string {
 		dir = strings.TrimSuffix(dir, "/main/") + "/mainx/"
 	}
 
+	return path.Join(dir, replaceUnderline(".")(tabName))
+}
+
+//getFilePath 获取文件地址
+func getWebFilePath(tabName string) string {
+	dir, _ := filepath.Split(replaceUnderline("/")(tabName))
 	return path.Join(dir, replaceUnderline(".")(tabName))
 }
 

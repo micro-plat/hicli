@@ -243,6 +243,13 @@ func GetFilePath(root string, name string, ext ...string) string {
 	return filepath.Join(types.GetString(root, "."), path)
 }
 
+//GetFilePath 获取文件路径
+func GetWebFilePath(root string, name string, ext ...string) string {
+	ex := types.GetStringByIndex(ext, 0, "vue")
+	path, _ := Translate(fmt.Sprintf("{{.|rmhd|webfpath}}.%s", ex), "", name)
+	return filepath.Join(types.GetString(root, "."), path)
+}
+
 //GetFileName 获取文件名称
 func GetFileName(root string, name string, prefix string, ext ...string) string {
 	ex := types.GetStringByIndex(ext, 0, "go")
