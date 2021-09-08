@@ -258,7 +258,7 @@ func (t *Table) elQueryBtn(key string) {
 
 	//handler
 	info.Handler = getSubConContent(key, "handler")(t.ExtInfo)
-	if info.Name == "" {
+	if info.Handler == "" {
 		logs.Log.Warn("查询的handler选项未配置:", key, t.ExtInfo)
 		return
 	}

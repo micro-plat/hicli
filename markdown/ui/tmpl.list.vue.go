@@ -127,7 +127,7 @@ const TmplList = `
 				{{- end}}
 				{{- range $i,$c:=$tb.QueryBtnInfo}}
 				<el-form-item>
-					<el-button type="primary" size="small" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Name}}">{{$c.DESC}}</el-button>
+					<el-button type="primary" size="small" {{- if $c.Condition }} v-if="{{$c.Condition}}"{{end}} @click="{{$c.Method}}">{{$c.Name}}</el-button>
 				</el-form-item>
 				{{- end}}
 			</el-form>
@@ -558,13 +558,13 @@ export default {
 
 		{{- range $i,$c:=$tb.QueryBtnInfo}}
 		{{- if not $c.IsQuery}}
-		{{$c.Name}}(){
+		{{$c.Method}}(){
 			var data = this.queryData
 			{{- if $c.Confirm}}
       this.$confirm("{{$c.Confirm}}?", "提示", { confirmButtonText: "确定", cancelButtonText: "取消", type: "warning" })
         .then(() => {
 			{{- end}}
-					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.URL ($c.Name|lowerName)}}", data, {}, true, true)
+					this.$http.post("/{{$tb.Name|rmhd|rpath}}/{{or $c.Handler ($c.Name|lowerName)}}", data, {}, true, true)
 						.then(res => {
 							this.dialogFormVisible = false;
 							this.query()
