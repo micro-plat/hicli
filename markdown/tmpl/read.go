@@ -130,6 +130,8 @@ func tableLine2Table(lines TableLine) (tables *Tables, err error) {
 					return nil, err
 				}
 				tb = NewTable(name, getTableDesc(line), getTableExtInfo(line))
+
+				tb.DBObjectName = getDbObjectName(line)
 				continue
 			}
 			if i < 3 {
@@ -213,6 +215,15 @@ func getTableName(line *Line) (string, error) {
 	}
 	s := strings.Split(strings.TrimRight(strings.TrimLeft(names[0], "["), "]"), ",")
 	return s[0], nil
+}
+
+func getDbObjectName(line *Line) string {
+	reg := regexp.MustCompile(`\@[\w]+`) //数据库对象名字
+	names := reg.FindAllString(line.Text, -1)
+	if len(names) == 0 {
+		return ""
+	}
+	return fmt.Sprintf(`"%s"`, strings.TrimPrefix(names[0], "@"))
 }
 
 func getPKSName(path string) string {

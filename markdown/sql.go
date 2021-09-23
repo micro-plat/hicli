@@ -79,6 +79,11 @@ func showSQL(sqlType string) func(c *cli.Context) (err error) {
 		tb.FilterByKW(c.String("table"))
 
 		for _, tb := range tb.Tbs {
+
+			if !tmpl.HasRow(tb.Rows, "l", "d", "u", "c", "del") { //未配置，不生成页面
+				continue
+			}
+
 			path := tmpl.GetFileName(fmt.Sprintf("%s/modules/const/sql", projectPath), tb.Name, fmt.Sprintf("%s.", dbtp))
 			//根据关键字过滤
 			tb.FilterRowByKW(c.String("kw"))

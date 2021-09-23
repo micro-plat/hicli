@@ -78,6 +78,10 @@ func createBlockCode(tp string) func(c *cli.Context) (err error) {
 			//设置项目目录
 			tb.SetBasePath(basePath)
 
+			if !tmpl.HasRow(tb.Rows, "l", "d", "u", "c", "del") { //未配置，不生成页面
+				continue
+			}
+
 			//保存的动态配置
 			err := tmpl.NewSnippetConf(tb).SaveConf(confPath)
 			if err != nil {
