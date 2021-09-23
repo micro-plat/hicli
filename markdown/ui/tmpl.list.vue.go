@@ -345,7 +345,7 @@ export default {
 			{{$c.Name|lowerName}}: this.$utility.dateFormat(new Date(),"{{dateFormatDef $c.Con ($c.Con|qfCon)}}"),{{end}}
       {{- end}}
 			{{- if gt ($sort|len) 0}}
-			order: "{{range $i,$c:=$sort|sortSort}}t.{{$c.Name}} {{or ($c.Con|sortCon) "desc"}}{{if lt $i ($sort|maxIndex)}}, {{end}}{{end}}",
+			order: "",
 			{{- end}}
 			{{- if gt ($tb.BatchInfo|len) 0 }}
 			multipleSelection: [],
