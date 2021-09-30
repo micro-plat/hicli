@@ -11,14 +11,15 @@ import (
 
 //SnippetConf 用于vue的路由,hydra服务的注册,import的路径等代码片段生成
 type SnippetConf struct {
-	Name      string `json:"name"`       //表名
-	HasDetail bool   `json:"has_detail"` //是否有详情页
-	HasList   bool   `json:"has_list"`   //是否有详情页
-	BasePath  string `json:"base_path"`  //项目路径
-	Desc      string `json:"desc"`       //描述
-	PKG       string
-	PkGAlias  string
-	SortName  string `json:"sort_name"`
+	Name       string `json:"name"`        //表名
+	HasDetail  bool   `json:"has_detail"`  //是否有详情页
+	HasList    bool   `json:"has_list"`    //是否有详情页
+	TrimPrefix bool   `json:"trim_prefix"` //是否有前缀
+	BasePath   string `json:"base_path"`   //项目路径
+	Desc       string `json:"desc"`        //描述
+	PKG        string
+	PkGAlias   string
+	SortName   string `json:"sort_name"`
 }
 
 //NewSnippetConf .
@@ -26,12 +27,13 @@ func NewSnippetConf(t *Table) *SnippetConf {
 	lrows := getRows("l")(t.Rows)
 	drows := getRows("d")(t.Rows)
 	return &SnippetConf{
-		Name:      t.Name,
-		SortName:  rmhd(t.Name),
-		HasList:   len(lrows) > 0,
-		HasDetail: len(drows) > 0,
-		BasePath:  t.BasePath,
-		Desc:      t.Desc,
+		Name:       t.Name,
+		SortName:   rmhd(t.Name),
+		HasList:    len(lrows) > 0,
+		HasDetail:  len(drows) > 0,
+		TrimPrefix: trimPrefix,
+		BasePath:   t.BasePath,
+		Desc:       t.Desc,
 	}
 }
 
@@ -50,7 +52,6 @@ func (t *SnippetConf) SaveConf(confPath string) error {
 
 	//设置配置
 	conf[t.Name] = t
-
 	//写入配置
 	return writeConf(confPath, conf)
 }

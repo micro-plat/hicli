@@ -117,7 +117,7 @@ var any2code = map[string]string{
 	"^(clob|text|medium(blob|text)|text|tinyblob|tinytext|varbinary)$":                    "string",
 }
 
-var keywordSubMatch = `\b%s\(([\w\s-:#,.|=/\p{Han}]+)\)`
+var keywordSubMatch = `\b%s\(([\w\s-:#,.@|=/\p{Han}]+)\)`
 
 var keywordMatch = []string{"^\\w*%s\\w*$", ",\\w*%s\\w*,", "^\\w*%s\\w*,", ",\\w*%s\\w*$"}
 

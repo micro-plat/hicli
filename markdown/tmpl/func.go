@@ -39,6 +39,7 @@ func getfuncs(tp string) map[string]interface{} {
 		"varName":   getVarName,            //获取pascal变量名称
 		"snames":    getNames("/"),         //去掉首位斜线，并根据斜线分隔字符串
 		"rmhd":      rmhd,                  //去除首段名称
+		"rmhd2":     rmhd2,                 //去除首段名称
 		"isNull":    isNull(),              //返回空语句
 		"isMDNull":  isMDNull(),            //数据字典对应的为空判断
 		"firstStr":  getStringByIndex(0),   //第一个字符
@@ -49,12 +50,13 @@ func getfuncs(tp string) map[string]interface{} {
 		"upperName": fGetUpperCase,         //大驼峰式命名
 
 		//文件路径处理的函数
-		"rpath":        getRouterPath, //获取路由地址
-		"fpath":        getFilePath,   //获取文件地址
-		"webfpath":     getWebFilePath,   //获取文件地址
-		"parentPath":   getParentPath, //获取文件夹地址
-		"importPath":   getImportPath, //go项目引用路径
-		"fileBasePath": filepath.Base, //文件基础路径
+		"rpath":        getRouterPath,  //获取路由地址
+		"fpath":        getFilePath,    //获取文件地址
+		"webfpath":     getWebFilePath, //获取文件地址
+		"parentPath":   getParentPath,  //获取文件夹地址
+		"importPath":   getImportPath,  //go项目引用路径
+		"pathPrefix":   pathPrefix,     //对项目前缀的预处理
+		"fileBasePath": filepath.Base,  //文件基础路径
 
 		//枚举处理函数
 		"fIsEnumTB": hasKW("di", "dn"), //数据表的字段是否包含字典数据配置
@@ -195,6 +197,12 @@ func rmhd(input string) string {
 		return strings.TrimPrefix(input, "_")
 	}
 
+	index := strings.Index(input, "_")
+	return input[index+1:]
+}
+
+//去掉首段名称2
+func rmhd2(input string) string {
 	index := strings.Index(input, "_")
 	return input[index+1:]
 }
@@ -744,12 +752,24 @@ func getDicName(keys ...string) func(con string, subcon string, tb *Table) strin
 	}
 }
 
+func pathPrefix(v *SnippetConf) string {
+	if trimPrefix {
+		return v.Name
+	}
+
+	if !v.TrimPrefix {
+		return v.Name
+	}
+	index := strings.Index(v.Name, "_")
+	return v.Name[index+1:]
+}
+
 func getImportPath(s []*SnippetConf) map[string]*SnippetConf {
 	r := make(map[string]*SnippetConf)
 	t := make(map[string]string)
 
 	for _, v := range s {
-		path, _ := Translate("{{.Name|rmhd|parentPath}}", "", v)
+		path, _ := Translate("{{.|pathPrefix|rmhd|parentPath}}", "", v)
 		if strings.HasSuffix(path, "/main") {
 			path = strings.TrimSuffix(path, "/main") + "/mainx"
 		}
