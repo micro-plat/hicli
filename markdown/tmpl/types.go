@@ -117,7 +117,7 @@ var any2code = map[string]string{
 	"^(clob|text|medium(blob|text)|text|tinyblob|tinytext|varbinary)$":                    "string",
 }
 
-var keywordSubMatch = `\b%s\(([\w\s-:#,.|=/\p{Han}]+)\)`
+var keywordSubMatch = `\b%s\(([\w\s-:#,.@|=/\p{Han}]+)\)`
 
 var keywordMatch = []string{"^\\w*%s\\w*$", ",\\w*%s\\w*,", "^\\w*%s\\w*,", ",\\w*%s\\w*$"}
 
@@ -129,8 +129,8 @@ var cons = map[string][]string{
 	"cb":      {"\\bcb(\\([\\w,]+\\)|\\b)"},
 	"ta":      {"\\bta(\\([\\w,]+\\)|\\b)"},
 	"cc":      {"\\bcc(\\(\\w+\\)|\\b)"},
-	"idx":     {"\\bidx(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
-	"unq":     {"\\bunq(\\(([\\w]+)[,]?([\\d]?)\\)|\\b)"},
+	"idx":     {"\\bidx(\\(([\\w]+)[,]?([\\d]*)\\)|\\b)"},
+	"unq":     {"\\bunq(\\(([\\w]+)[,]?([\\d]*)\\)|\\b)"},
 	"del":     {"\\bdel(\\([0-9]*\\)|\\b)"},
 	"c":       {"\\bc(\\([\\w,:#]+\\)|\\b)"},
 	"u":       {"\\bu(\\([\\w,:#]+\\)|\\b)"},

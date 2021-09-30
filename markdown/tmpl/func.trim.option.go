@@ -1,4 +1,4 @@
-// +build !keepPrefix
+// +build !prefix
 
 package tmpl
 

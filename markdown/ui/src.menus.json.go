@@ -7,7 +7,7 @@ const SrcMenusJson = `
 {{- range $i,$v:=$rows}}
   {
     "name": "{{$v.Desc}}",
-    "path": "/{{$v.Name|rmhd|rpath}}"
+    "path": "/{{$v|pathPrefix|rmhd|rpath}}"
   }{{if or (lt $i ($rows|maxIndex)) (gt ($ext|len) 0)}},{{end}}
 {{- end}}
 {{- range $i,$v:=$ext}}

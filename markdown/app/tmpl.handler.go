@@ -8,7 +8,6 @@ const TmplServiceHandler = `
 {{- $rows := .Rows -}}
 {{- $pks := .|pks -}}
 {{- $sort:=.Rows|sort -}}
-{{- $btns:=.BtnInfo -}}
 {{- $up:= 0 -}}
 {{- range $i,$c:=$rows|update}}{{if $c.Con|UP}}{{$up = 1}}{{end}}{{end -}}
 {{- $db:= false -}}
@@ -63,7 +62,7 @@ func (u *{{.Name|rmhd|varName}}Handler) PostHandle(ctx hydra.IContext) (r interf
 
 	ctx.Log().Info("2.执行操作")
 	{{- if (.|mysqlseq) }}
-	xdb := hydra.C.DB().GetRegularDB()
+	xdb := hydra.C.DB().GetRegularDB({{.DBObjectName}})
 	{{$pks|firstStr|lowerName}}, err := db.GetNewID(xdb, sql.SQLGetSEQ, map[string]interface{}{"name": "{{.Desc}}"})
 	if err != nil {
 		return err
@@ -72,7 +71,7 @@ func (u *{{.Name|rmhd|varName}}Handler) PostHandle(ctx hydra.IContext) (r interf
 	input["{{$pks|firstStr}}"] = {{$pks|firstStr|lowerName}}
 	count, err := xdb.Execute(sql.Insert{{.Name|rmhd|upperName}}, input)
   {{- else}}
-	count, err := hydra.C.DB().GetRegularDB().Execute(sql.Insert{{.Name|rmhd|upperName}}, ctx.Request().GetMap())
+	count, err := hydra.C.DB().GetRegularDB({{.DBObjectName}}).Execute(sql.Insert{{.Name|rmhd|upperName}}, ctx.Request().GetMap())
 	{{- end}}
 	if err != nil || count < 1 {
 		return errs.NewErrorf(http.StatusNotExtended, "添加数据出错:%+v", err)
@@ -96,7 +95,7 @@ func (u *{{.Name|rmhd|varName}}Handler) GetHandle(ctx hydra.IContext) (r interfa
 	}
 
 	ctx.Log().Info("2.执行操作")
-	items, err := hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}}, ctx.Request().GetMap())
+	items, err := hydra.C.DB().GetRegularDB({{.DBObjectName}}).Query(sql.Get{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}}, ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended, "查询数据出错:%+v", err)
 	}
@@ -119,7 +118,7 @@ func (u *{{.Name|rmhd|varName}}Handler) DetailHandle(ctx hydra.IContext) (r inte
 	}
 
 	ctx.Log().Info("2.执行操作")
-	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}Detail,ctx.Request().GetMap())
+	items, err :=  hydra.C.DB().GetRegularDB({{.DBObjectName}}).Query(sql.Get{{.Name|rmhd|upperName}}Detail,ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
 	}
@@ -158,14 +157,14 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryHandle(ctx hydra.IContext) (r inter
 	m["{{$c.Name}}"] = db.GetQuerySetSQL(m.GetString("{{$c.Name}}"), "and t.{{$c.Name}} in (%s)")
 	{{- end}}
 	{{- end}}
-	count, err := hydra.C.DB().GetRegularDB().Scalar(sql.Get{{.Name|rmhd|upperName}}ListCount, m)
+	count, err := hydra.C.DB().GetRegularDB({{.DBObjectName}}).Scalar(sql.Get{{.Name|rmhd|upperName}}ListCount, m)
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended, "查询数据数量出错:%+v", err)
 	}
 	
 	var items types.XMaps
 	if types.GetInt(count) > 0 {
-		items, err = hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}List, m)
+		items, err = hydra.C.DB().GetRegularDB({{.DBObjectName}}).Query(sql.Get{{.Name|rmhd|upperName}}List, m)
 		if err != nil {
 			return errs.NewErrorf(http.StatusNotExtended, "查询数据出错:%+v", err)
 		}
@@ -192,14 +191,14 @@ func (u *{{.Name|rmhd|varName}}Handler) QueryDetailHandle(ctx hydra.IContext) (r
 	m := ctx.Request().GetMap()
 	m["offset"] = (ctx.Request().GetInt("pi") - 1) * ctx.Request().GetInt("ps")
 
-	count, err := hydra.C.DB().GetRegularDB().Scalar(sql.Get{{.Name|rmhd|upperName}}DetailListCount, m)
+	count, err := hydra.C.DB().GetRegularDB({{.DBObjectName}}).Scalar(sql.Get{{.Name|rmhd|upperName}}DetailListCount, m)
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended, "查询数据数量出错:%+v", err)
 	}
 	
 	var items types.XMaps
 	if types.GetInt(count) > 0 {
-		items, err = hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}DetailList, m)
+		items, err = hydra.C.DB().GetRegularDB({{.DBObjectName}}).Query(sql.Get{{.Name|rmhd|upperName}}DetailList, m)
 		if err != nil {
 			return errs.NewErrorf(http.StatusNotExtended, "查询数据出错:%+v", err)
 		}
@@ -235,7 +234,7 @@ func (u *{{.Name|rmhd|varName}}Handler) ExportHandle(ctx hydra.IContext) (r inte
 	m := ctx.Request().GetMap()
 	m["offset"] = (ctx.Request().GetInt("pi") - 1) * ctx.Request().GetInt("ps")
 
-	items, err := hydra.C.DB().GetRegularDB().Query(sql.Get{{.Name|rmhd|upperName}}ExportList, m)
+	items, err := hydra.C.DB().GetRegularDB({{.DBObjectName}}).Query(sql.Get{{.Name|rmhd|upperName}}ExportList, m)
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended, "查询数据出错:%+v", err)
 	}
@@ -302,7 +301,7 @@ func (u *{{.Name|rmhd|varName}}Handler) GetUpdateHandle(ctx hydra.IContext) (r i
 	}
 
 	ctx.Log().Info("2.执行操作")
-	items, err :=  hydra.C.DB().GetRegularDB().Query(sql.GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
+	items, err :=  hydra.C.DB().GetRegularDB({{.DBObjectName}}).Query(sql.GetUpdate{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended,"查询数据出错:%+v", err)
 	}
@@ -325,7 +324,7 @@ func (u *{{.Name|rmhd|varName}}Handler) PutHandle(ctx hydra.IContext) (r interfa
 	}
 
 	ctx.Log().Info("2.执行操作")
-	_, err := hydra.C.DB().GetRegularDB().Execute(sql.Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
+	_, err := hydra.C.DB().GetRegularDB({{.DBObjectName}}).Execute(sql.Update{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}},ctx.Request().GetMap())
 	if err != nil {
 		return errs.NewErrorf(http.StatusNotExtended,"更新数据出错:%+v", err)
 	}
@@ -347,7 +346,7 @@ func (u *{{.Name|rmhd|varName}}Handler) DeleteHandle(ctx hydra.IContext) (r inte
 	}
 
 	ctx.Log().Info("2.执行操作")
-	count,err := hydra.C.DB().GetRegularDB().Execute(sql.Delete{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}}, ctx.Request().GetMap())
+	count,err := hydra.C.DB().GetRegularDB({{.DBObjectName}}).Execute(sql.Delete{{.Name|rmhd|upperName}}By{{$pks|firstStr|upperName}}, ctx.Request().GetMap())
 	if err != nil||count<1 {
 		return errs.NewErrorf(http.StatusNotExtended,"删除数据出错:%+v", err)
 	}

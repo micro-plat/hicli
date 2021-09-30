@@ -71,6 +71,13 @@ func createAdd() func(c *cli.Context) (err error) {
 	return create("add")
 }
 
+var pageMap = map[string]string{
+	"list":   "l",
+	"detail": "d",
+	"edit":   "u",
+	"add":    "c",
+}
+
 func create(tp string) func(c *cli.Context) (err error) {
 	return func(c *cli.Context) (err error) {
 		if len(c.Args()) == 0 {
@@ -89,13 +96,10 @@ func create(tp string) func(c *cli.Context) (err error) {
 		for _, tb := range tbs.Tbs {
 			tb.SetAllTables(allTables)
 			tb.DisposeELTab()
-			tb.DispostELBtn()
+			tb.DispostELBtnList()
 			tb.DispostELBtnDetail()
 			tb.DispostELBtnQuery()
 			tb.DispostELDownload()
-			tb.DispostELSelect()
-			tb.DispostELListComponents()
-			tb.DispostELQueryComponents()
 			tb.SetELTableIndex()
 			//根据关键字过滤
 			tb.FilterRowByKW(c.String("kw"))
@@ -103,6 +107,10 @@ func create(tp string) func(c *cli.Context) (err error) {
 		}
 		tbs.FilterByKW(c.String("table"))
 		for _, tb := range tbs.Tbs {
+
+			if !tmpl.HasRow(tb.Rows, pageMap[tp]) { //未配置，不生成页面
+				continue
+			}
 
 			//保存的动态配置
 			err := tmpl.NewSnippetConf(tb).SaveConf(confPath)
@@ -121,7 +129,7 @@ func create(tp string) func(c *cli.Context) (err error) {
 			}
 
 			//生成文件
-			path := tmpl.GetFilePath(root, fmt.Sprintf("%s.%s", tb.Name, tp))
+			path := tmpl.GetWebFilePath(root, fmt.Sprintf("%s.%s", tb.Name, tp))
 			fs, err := tmpl.Create(path, c.Bool("cover"))
 			if err != nil {
 				return err
@@ -141,60 +149,3 @@ var uiMap = map[string]string{
 	"edit":   ui.TmplEditVue,
 	"add":    ui.TmplCreateVue,
 }
-
-// func createExt() func(c *cli.Context) (err error) {
-// 	return func(c *cli.Context) (err error) {
-// 		if len(c.Args()) == 0 {
-// 			return fmt.Errorf("未指定markdown文件")
-// 		}
-
-// 		root := c.Args().Get(1)
-// 		//读取文件
-// 		tbs, err := tmpl.Markdowns2DB(c.Args().First())
-// 		if err != nil {
-// 			return fmt.Errorf("处理markdown文件表格出错:%+v", err)
-// 		}
-// 		//过滤数据表
-// 		allTables := tbs.Tbs
-// 		for _, tb := range tbs.Tbs {
-// 			tb.SetAllTables(allTables)
-// 			tb.DisposeELTab()
-// 			tb.DispostELBtn()
-// 		}
-// 		tbs.FilterByKW(c.String("table"))
-// 		for _, tb := range tbs.Tbs {
-
-// 			//根据关键字过滤
-// 			tb.FilterRowByKW(c.String("kw"))
-// 			tb.SortRows()
-
-// 			for k, v := range tb.BtnInfo {
-// 				if !v.Show {
-// 					continue
-// 				}
-
-// 				//翻译文件
-// 				tb.TempIndex = k
-// 				content, err := tmpl.Translate(ui.TmplEditExtVue, dbtp, tb)
-// 				if err != nil {
-// 					return fmt.Errorf("翻译edit模板出错:%+v", err)
-// 				}
-// 				if !c.Bool("w2f") {
-// 					logs.Log.Info(content)
-// 					return nil
-// 				}
-
-// 				//生成文件
-// 				path := tmpl.GetFilePath(root, fmt.Sprintf("%s.%s", tb.Name, v.Name))
-// 				fs, err := tmpl.Create(path, c.Bool("cover"))
-// 				if err != nil {
-// 					return err
-// 				}
-// 				logs.Log.Info("生成文件:", path)
-// 				fs.WriteString(content)
-// 				fs.Close()
-// 			}
-// 		}
-// 		return nil
-// 	}
-// }

@@ -54,16 +54,17 @@ export default new Router({
       component: () => import('../pages/system/menus.vue'),
       children:[
         {{- range $i,$v:=$router}}
+        {{- if $v.HasList }}
 				{
-					path: '{{$v.Name|rmhd|rpath}}',
-					name: '{{$v.Name|rmhd|varName}}',
-					component: () => import('../pages/{{$v.Name|rmhd|rpath|parentPath}}/{{$v.Name|rmhd|l2d}}.list.vue')
-				},
+					path: '{{$v|pathPrefix|rmhd|rpath}}',
+					name: '{{$v|pathPrefix|rmhd|varName}}',
+					component: () => import('../pages/{{$v|pathPrefix|rmhd|rpath|parentPath}}/{{$v|pathPrefix|rmhd|l2d}}.list.vue')
+				},{{- end}}
 				{{- if $v.HasDetail }}
 				{
-					path: '{{$v.Name|rmhd|rpath}}/detail',
-					name: '{{$v.Name|rmhd|varName}}Detail',
-					component: () => import('../pages/{{$v.Name|rmhd|rpath|parentPath}}/{{$v.Name|rmhd|l2d}}.detail.vue')
+					path: '{{$v|pathPrefix|rmhd|rpath}}/detail',
+					name: '{{$v|pathPrefix|rmhd|varName}}Detail',
+					component: () => import('../pages/{{$v|pathPrefix|rmhd|rpath|parentPath}}/{{$v|pathPrefix|rmhd|l2d}}.detail.vue')
 				},{{- end}}
         {{- end}}
         {{- range $i,$v:=$ext}}

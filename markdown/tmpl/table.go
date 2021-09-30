@@ -16,38 +16,38 @@ import (
 
 //Table 表名称
 type Table struct {
-	Name            string //表名
-	Desc            string //表描述
-	ExtInfo         string //扩展信息
-	PKG             string //包名称
-	Drop            bool   //创建表前是否先删除
-	DBType          string //数据库类型
-	DBLink          string //
-	Rows            TableColumn
-	RawRows         []*Row
-	DiffRows        TableColumn
-	Indexs          Indexs
-	DiffIndexs      []*Index
-	BasePath        string   //生成项目基本路径
-	AllTables       []*Table //所有表
-	Exclude         bool     //排除生成sql
-	ELTableIndex    int
-	TabTables       []*Table //详情切换的tab页对应表
-	TabInfo         *TabInfo
-	BtnInfo         []*BtnInfo
-	QueryBtnInfo    []*BtnInfo
-	TempIndex       int
-	DownloadInfo    *DownloadInfo
-	SelectInfo      *SelectInfo
-	ListComponents  []*ListComponents
-	QueryComponents []*QueryComponents
-	Operation       enums.Operation
-	BtnShowEdit     bool
-	BtnShowQuery    bool
-	QueryURL        string
-	BtnShowAdd      bool
-	BtnShowDetail   bool
-	BtnDel          bool
+	Name          string          //表名
+	Desc          string          //表描述
+	ExtInfo       string          //扩展信息
+	PKG           string          //包名称
+	Drop          bool            //创建表前是否先删除
+	DBType        string          //数据库类型
+	DBLink        string          //dblink
+	Rows          TableColumn     //行
+	RawRows       []*Row          //原始行
+	Indexs        Indexs          //序列
+	BasePath      string          //生成项目基本路径
+	AllTables     []*Table        //所有表
+	DiffRows      TableColumn     //差异对比行
+	DiffIndexs    []*Index        //差异对比序列
+	Operation     enums.Operation //差异对比
+	Exclude       bool            //排除生成sql
+	DBObjectName  string          //数据库对象名
+	ELTableIndex  int             //前端数据序列
+	TabTables     []*Table        //前端详情切换的tab页对应表
+	TabInfo       *TabInfo        //前端
+	ListBtnInfo   []*BtnInfo      //前端
+	QueryBtnInfo  []*BtnInfo      //前端
+	DownloadInfo  *DownloadInfo   //前端
+	BatchInfo     BatchInfos      //前端
+	ListDialogs   []*Dialog       //前端
+	QueryDialogs  []*Dialog       //前端
+	BtnShowEdit   bool            //前端
+	BtnShowQuery  bool            //前端
+	QueryHandler  string          //前端
+	BtnShowAdd    bool            //前端
+	BtnShowDetail bool            //前端
+	BtnDel        bool            //前端\
 }
 
 //NewTable 创建表
@@ -60,7 +60,6 @@ func NewTable(name, desc, extinfo string) *Table {
 		Exclude: strings.Contains(name, "^"),
 		ExtInfo: extinfo,
 		TabInfo: newTableInfo(),
-		BtnInfo: make([]*BtnInfo, 0),
 	}
 }
 
@@ -237,10 +236,17 @@ func Translate(c string, tp string, input interface{}) (string, error) {
 	return strings.Replace(strings.Replace(buff.String(), "{###}", "`", -1), "&#39;", "'", -1), nil
 }
 
-//GetFilePath 获取文件路径
+//GetFilePath 获取后端文件路径
 func GetFilePath(root string, name string, ext ...string) string {
-	ex := types.GetStringByIndex(ext, 0, "vue")
+	ex := types.GetStringByIndex(ext, 0, "go")
 	path, _ := Translate(fmt.Sprintf("{{.|rmhd|fpath}}.%s", ex), "", name)
+	return filepath.Join(types.GetString(root, "."), path)
+}
+
+//GetWebFilePath 获取前端文件路径
+func GetWebFilePath(root string, name string, ext ...string) string {
+	ex := types.GetStringByIndex(ext, 0, "vue")
+	path, _ := Translate(fmt.Sprintf("{{.|rmhd|webfpath}}.%s", ex), "", name)
 	return filepath.Join(types.GetString(root, "."), path)
 }
 

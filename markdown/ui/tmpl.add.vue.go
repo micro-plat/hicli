@@ -70,7 +70,11 @@ const TmplCreateVue = `
 export default {
 	data() {
 		return {
-			addData: {},
+			addData: {
+				{{- range $i,$c:=$rows|create }}
+				{{$c.Name}}: "",
+      	{{- end}}
+			},
 			dialogAddVisible: false,
 			{{- range $i,$c:=$rows|create -}}
 			{{if or ($c.Con|SL) ($c.Con|RD) }}
