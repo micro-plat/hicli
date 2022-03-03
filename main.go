@@ -8,7 +8,6 @@ import (
 	"github.com/micro-plat/lib4go/logger"
 
 	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/mattn/go-oci8"
 	_ "github.com/micro-plat/hicli/pulls"
 	_ "github.com/micro-plat/hicli/resets"
 	_ "github.com/micro-plat/hicli/server"
